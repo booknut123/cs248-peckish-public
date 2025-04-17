@@ -12,7 +12,7 @@ def create_database():
     """
     Creates peckish database, creating tables that don't yet exist.
     """
-    conn = sqlite3.connect("/tmp/peckish.db")
+    conn = sqlite3.connect("tmp/peckish.db")
     cur = conn.cursor()
 
     #cur.execute("""DROP TABLE IF EXISTS users""")
@@ -98,7 +98,7 @@ def connect_db():
     """
     Connects to peckish database.
     """
-    return sqlite3.connect("/tmp/peckish.db")
+    return sqlite3.connect("tmp/peckish.db")
 
 def get_location_meal_ids(hall, meal):
     """

@@ -35,7 +35,7 @@ with main:
         mealLog = methods.get_meal_log(user_id)
         
         def get_calories(dish_id):
-            conn = sqlite3.connect("/tmp/peckish.db")
+            conn = sqlite3.connect("tmp/peckish.db")
             try:
                 result = conn.execute(
                     "SELECT calories FROM dishes WHERE dish_id = ?",
