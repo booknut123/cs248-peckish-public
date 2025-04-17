@@ -4,7 +4,7 @@ import base64
 import streamlit as st
 
 # Set the DB location in temp space for Streamlit Cloud
-DB_PATH = "tmp/peckish.db"
+DB_PATH = "/tmp/peckish.db"
 
 def get_db_path():
     return DB_PATH
