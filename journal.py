@@ -6,6 +6,7 @@ from datetime import datetime
 import sqlite3
 import time
 import visualization_methods as vm
+import db_sync
 
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
@@ -35,7 +36,7 @@ with main:
         mealLog = methods.get_meal_log(user_id)
         
         def get_calories(dish_id):
-            conn = sqlite3.connect("/tmp/peckish.db")
+            conn = sqlite3.connect(db_sync.get_db_path())
             try:
                 result = conn.execute(
                     "SELECT calories FROM dishes WHERE dish_id = ?",
