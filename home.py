@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 import db_sync
 import methods
+import helper_methods
 
 # This is needed to get the database
 # download_db_from_github()
@@ -63,6 +64,9 @@ col2.write("From CS248 '25 - Kailyn, Maya, Nina")
 # wait for the user to login before showing anything
 if "access_token" not in st.session_state:
     st.stop()
+    
+if datetime.now().weekday() == 6:
+    helper_methods.weekly_update_db(datetime.now())
 
 now = datetime.now().time()
 is_weekend = datetime.now().weekday() >= 5  # 5=Saturday, 6=Sunday
@@ -97,7 +101,7 @@ def print_menu(df):
         st.write(row["name"])
 with col1:
     st.subheader("Bates")
-    print_menu(methods.get_filtered_menu([], [], "Bates", other_meal, date.today()))
+    print_menu(methods.get_menu("Bates", other_meal, date.today()))
 with col2:
     st.subheader("Lulu")
     print_menu(methods.get_menu("Lulu", lulu_meal, date.today()))
@@ -111,3 +115,5 @@ with col4:
 
 st.write("* Menus may not be accurate.")
 st.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
+
+helper_methods.weekly_update_db("4-20-2025")

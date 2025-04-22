@@ -1,11 +1,13 @@
 import sqlite3
 import pandas as pd
 from pandas import DataFrame
-import datetime
-from datetime import date
+from datetime import date, datetime, timedelta
 import requests
 import numpy as np
 import db_sync
+import methods
+import streamlit as st
+import methods
 
 def create_database():
     db_sync.download_db_from_github()
@@ -29,6 +31,7 @@ def create_database():
                 last_login TIMESTAMP
                 );
                 """)
+    
     #cur.execute("""DROP TABLE IF EXISTS favorites""")
     cur.execute("""CREATE TABLE IF NOT EXISTS favorites (
                 favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -54,6 +57,16 @@ def create_database():
                 carbohydrates INTEGER,
                 sugars INTEGER,
                 protein INTEGER
+            );
+        """)
+    
+    #cur.execute("""DROP TABLE IF EXISTS current_dishes""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                dish_id INTEGER references dishes(dish_id),
+                meal TEXT, 
+                location TEXT, 
+                date TEXT
             );
         """)
 
@@ -89,6 +102,7 @@ def clear_db():
     cur.execute("DROP TABLE IF EXISTS users")
     cur.execute("DROP TABLE IF EXISTS favorites")
     cur.execute("DROP TABLE IF EXISTS dishes")
+    cur.execute("DROP TABLE IF EXISTS current_dishes")
     cur.execute("DROP TABLE IF EXISTS meal_log")
     cur.execute("DROP TABLE IF EXISTS dishes_log_bridge")
 
@@ -107,7 +121,7 @@ def get_location_meal_ids(hall, meal):
     mealDict = {"Bates":{"Breakfast":145,"Lunch":146,"Dinner":311,"LocationID":95},"Lulu":{"Breakfast":148,"Lunch":149,"Dinner":312,"LocationID":96},"Tower":{"Breakfast":153,"Lunch":154,"Dinner":310,"LocationID":97},"StoneD":{"Breakfast":261,"Lunch":262,"Dinner":263,"LocationID":131}}
     return (mealDict[hall]["LocationID"],mealDict[hall][meal])
 
-def clean_dicts(dct,name):
+def clean_dicts(dct, name):
     """
     Helper function for clean_menu().
     Converts names from a dictionary into a comma seperated strings.
@@ -172,6 +186,76 @@ def update_dish_db(df):
             num = cur.fetchall()[0][0]
             if num == 0:
                 insert_dish(row)
+    
+@st.cache_data            
+def weekly_update_db(sunday_date):
+    mealDict = {
+        "Bates": {
+            "Breakfast": 145,
+            "Lunch": 146,
+            "Dinner": 311,
+            "LocationID": 95},
+        "Lulu": {
+            "Breakfast": 148,
+            "Lunch": 149,
+            "Dinner": 312,
+            "LocationID": 96},
+        "Tower": {
+            "Breakfast": 153,
+            "Lunch": 154,
+            "Dinner": 310,
+            "LocationID": 97},
+        "StoneD": {
+            "Breakfast": 261,
+            "Lunch": 262,
+            "Dinner": 263,
+            "LocationID": 131}}
+    
+    date_obj = datetime.strptime((sunday_date), "%m-%d-%Y")  # Parse the string
+    
+    conn = connect_db()
+    cur = conn.cursor()
+   
+    cur.execute("""DROP TABLE IF EXISTS current_dishes""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    dish_id INTEGER references dishes(dish_id),
+                    meal TEXT, 
+                    location TEXT, 
+                    date TEXT
+                    );
+                """)
+    
+    for day in range(7):
+        new_date = date_obj.date() + timedelta(days=day)
+        for location, meals in mealDict.items():
+            for meal, meal_id in meals.items():
+                if meal != "LocationID":
+                    df = methods.get_menu(location, meal, new_date)
+                    st.write(f"{location} {meal} {new_date}")
+                    st.write(df)
+                    methods.update_dish_db(df)
+                    
+                    ## add to current_dishes
+                    for _,row in df.iterrows():
+                        st.write(f"{row['id']} {meal} {location} {new_date}")
+                        cur.execute(f"""INSERT INTO current_dishes (dish_id, meal, location, date) VALUES (?,?,?,?)""", (row['id'], meal, location, new_date))
+                        conn.commit()
+                    # if cur.fetchall() == 0:
+                    #     for _,row in df.iterrows():
+                    #         cur.execute(f"INSERT INTO current_dishes (dish_id, meal, location, date) VALUES (?,?,?,?)",(row['id'], meal, location, new_date))
+                    #         # insert_dish(row)
+                    # else:
+                    #     for _,row in df.iterrows():
+                    #         cur.execute(f"SELECT COUNT(*) FROM current_dishes WHERE dish_id = {row['id']}")
+                    #         num = cur.fetchall()[0][0]
+                    #         if num == 0:
+                    #             insert_dish(row)
+                                
+    cur.close()
+    conn.close()                
+    
+    
 
 def connect_bridge(userID, logID):
     """
