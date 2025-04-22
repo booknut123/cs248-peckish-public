@@ -1,18 +1,27 @@
 import streamlit as st
 import requests
 
-## === TO CONNECT TO PECKISH.DB === ##
+# ## === TO CONNECT TO PECKISH.DB === ##
 import sqlite3
-import os
-from pathlib import Path
+# import os
+# from pathlib import Path
+# import sys
 
-# Get the parent folder path
-PARENT_DIR = Path(__file__).parent.parent
+# parent_dir = str(Path(__file__).parent.parent)  # Goes up 2 levels if needed
 
+# # Add it to sys.path
+# sys.path.append(parent_dir)
+
+# # Now import from the parent folder
+# from parent_dir import module_name
+
+# # Get the parent folder path
+# PARENT_DIR = Path(__file__).parent.parent
+import db_sync
 def get_db_connection():
-    """Connect to peckish.db in the parent folder"""
-    db_path = os.path.join(PARENT_DIR, "peckish.db")
-    return sqlite3.connect(db_path)
+    # """Connect to peckish.db in the parent folder"""
+    # db_path = os.path.join(PARENT_DIR, "peckish.db")
+    return sqlite3.connect(db_sync.get_db_path())
 
 ## ENI'S CODE ##
 

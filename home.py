@@ -1,6 +1,6 @@
 import streamlit as st
-from auth.auth import google_login
-from auth.user_profile import render_user_profile
+from auth import google_login
+from user_profile import render_user_profile
 from datetime import datetime, date, time
 import pandas as pd
 import requests
