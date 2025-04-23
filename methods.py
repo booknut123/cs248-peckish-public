@@ -73,7 +73,7 @@ def print_menu(allergens, preferences, hall, meal, date):
     
     conn = connect_db()
     dish_details = pd.read_sql_query(
-        f"""SELECT dish_id, dish_name, calories FROM DISHES
+        f"""SELECT dish_id, dish_name, calories, allergens, preferences FROM dishes
             WHERE dish_id IN ({','.join(['?'] * len(current_menu))})""",
         conn,
         params=current_menu['dish_id'].tolist()
@@ -81,7 +81,7 @@ def print_menu(allergens, preferences, hall, meal, date):
     conn.close()
     
     # Merge and select columns
-    full_menu = current_menu.merge(dish_details, on='dish_id')[['dish_id', 'dish_name', 'calories']]
+    full_menu = current_menu.merge(dish_details, on='dish_id')[['dish_id', 'dish_name', 'calories', 'allergens', 'preferences']]
     #st.write(full_menu)
     dfFiltered = filter_menu(full_menu, allergens, preferences)
 
@@ -351,7 +351,6 @@ def get_dish_rating(dishID):
 create_database()
 
 def sort_meals_by_date(df):
-    print("")
     dates = sorted(df["date"].unique(), reverse=True)
 
     my_dict = df.to_dict(orient='index')
@@ -367,5 +366,51 @@ def sort_meals_by_date(df):
     
     return date_sorted
 
+def get_user_allergens_preferences(userID):
+     """
+     * userID: int
+     Returns the user's allergens and preferences as a tuple (allergens, preferences)
+     """
+     conn = connect_db()
+     cur = conn.cursor()
+ 
+     cur.execute(f"SELECT allergens, preferences FROM users where user_id = {userID}")
+     stuff = cur.fetchone()
+ 
+ 
+     conn.close()
+     return stuff
 
-    
+def get_username(user_id):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+    username = cur.fetchone()
+    return username[0]
+ 
+def set_username(userID, username):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", (username, userID))
+    conn.commit()
+    conn.close()
+
+def get_border_log_dates(userID):
+    """
+    Returns all dates that meals were logged by a user,
+    including the first and last dates
+    """
+    conn = connect_db()
+    cur = conn.cursor()
+
+    logs = get_user_logs(userID)
+    placeholders = ','.join('?' for _ in logs)
+    query = f"SELECT DISTINCT date_logged FROM meal_log WHERE log_id IN ({placeholders})"
+    dates = cur.execute(query, (logs)).fetchall()
+    dates = [date[0] for date in dates]
+
+    dates2 = {"min":min(dates),"max":max(dates),"all":dates}
+
+    return dates2

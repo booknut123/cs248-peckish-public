@@ -100,7 +100,25 @@ with main:
                         time.sleep(1)
                         st.rerun() 
                     cals += methods.get_dish_calories(dish['dish_id'])
-                st.write(f"~ Daily calories: {cals} kcal")
+                
+                col1, col2 = st.columns((2,3.5))
+                if col1.button("See Nutritionals", key=f"{key}"):
+                    info = vm.get_stats_by_date(user_id,key)
+                    for n in info:
+                        if n == "calories":
+                            uom = "kcal"
+                        elif n == "cholesterol" or n == "sodium":
+                            uom = "mg"
+                        else:
+                            uom = "g"
+                        col1.write(f"{n}: {info[n]} {uom}") 
+
+                # if col2.button("Add Note"):
+                #     with col2.form("Note"):
+                #         newname = col2.text_input("Note:")
+                #         note = col2.form_submit_button("Submit")
+                #         if note:
+                #             col2.write(note)
 
     except Exception:
         st.warning("Please log a meal in the Menus tab to view your journal.")

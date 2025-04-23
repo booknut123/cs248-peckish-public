@@ -1,4 +1,5 @@
 import streamlit as st
+import methods as m
 
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
@@ -13,9 +14,69 @@ except:
     st.warning("Not logged in.")
     st.write("Please return to home and log in with your Google account.")
     st.stop()
+ 
+with main:
+    st.header("Settings")
     
-st.header("[Currently in progress. Come back soon!]")
-st.write("Features:")
-st.write("Set diet/allergen preferences")
-st.write("Customize name")
-st.write("Get usage data")
+
+    data = m.get_user_allergens_preferences(user_id)
+    if data:
+        userA = data[0]
+        userP = data[1]
+    else:
+        userA = ""
+        userP = ""
+ 
+    try:
+        a = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
+        p = ["Gluten Sensitive", "Vegan", "Vegetarian"]
+         
+        st.subheader("Set Allergens & Preferences")
+ 
+        col1, col2, col3 = st.columns((1,2,1))
+ 
+        with col1:
+            selected_a = []
+            col1.write("**Allergens**")
+            for i, aller in enumerate(a):
+                sel = False
+                if userA:
+                    if aller in userA:
+                        sel = True
+                if st.checkbox(aller, value=sel):
+                    selected_a.append(aller)
+ 
+        with col2:
+            selected_p = []
+            col2.write("**Preferences**",)
+            for i, pref in enumerate(p):
+                sel = False
+                if userP:
+                    if pref in userP:
+                        sel = True
+                if st.checkbox(pref, value=sel):
+                    selected_p.append(pref)
+             
+            st.write("")
+            if st.button("Update"):
+                    m.update_user_allergens_preferences(user_id, selected_a, selected_p)
+
+            st.write("* Selections will filter menus shown in the Menus tab.")
+ 
+        st.write("")
+        st.subheader("Set Account Username")
+
+        col1, col2 = st.columns((1,1.5))
+        
+        with col1:
+            with st.form("Update Username"):
+                newname = st.text_input("New Username:")
+                submitted = st.form_submit_button("Submit")
+                if submitted:
+                    m.set_username(user_id, newname)
+            st.write(f"**Username**: {m.get_username(user_id)}")
+
+        st.subheader("Get Usage Data")
+
+    except:
+        st.write("Something went wrong.")

@@ -383,27 +383,27 @@ def get_logIds_by_date(userId, date):
     conn.close()
     return df
     
-# def get_dishes_from_meal_log(userID, date, meal):
-#     """
-#     Returns a database dishes (and their calories) associated with a given User ID for a given date
-#     """
-#     conn = connect_db()
-#     cur = conn.cursor()
+def get_dishes_from_meal_log(userID, date, meal):
+    """
+    Returns a database dishes (and their calories) associated with a given User ID for a given date
+    """
+    conn = connect_db()
+    cur = conn.cursor()
 
-#     logIDs = get_logIds_by_date(userID, date)
-#     meals = {}
-#     for id in logIDs:
-#         cur.exectue(f"SELECT dish_ids, dining_hall, meal_name WHERE (log_id = {id})")
+    logIDs = get_logIds_by_date(userID, date)
+    meals = {}
+    for id in logIDs:
+        cur.exectue(f"SELECT dish_ids, dining_hall, meal_name WHERE (log_id = {id})")
   
-#     for meal in meals:
-#         dish = meals[meal]
-#         for id in dish:
-#             cur.execute(f"SELECT * FROM dishes WHERE dish_id = {id}")
-#             d = cur.fetchall()[0]
-#             m.append({"meal": meal,"name": d[1], "calories": d[7]})
-#     df = pd.DataFrame(m)
-#     conn.close()
-#     return df
+    for meal in meals:
+        dish = meals[meal]
+        for id in dish:
+            cur.execute(f"SELECT * FROM dishes WHERE dish_id = {id}")
+            d = cur.fetchall()[0]
+            meals.append({"meal": meal,"name": d[1], "calories": d[7]})
+    df = pd.DataFrame(meals)
+    conn.close()
+    return df
 
 def create_meal(userID, dishID, hall, mealName, date):
     """
@@ -464,8 +464,9 @@ def connect_bridge(userID, logID):
     db_sync.push_db_to_github()
   
 def filter_menu(df, allergens, preferences):
-    for allergen in allergens:
-        df = df[df["allergens"].apply(lambda x: allergen not in x)]
-    for preference in preferences:
-        df = df[df["preferences"].apply(lambda x: preference in x)]
+    if not df.empty:
+        for allergen in allergens:
+            df = df[df["allergens"].apply(lambda x: allergen not in x)]
+        for preference in preferences:
+            df = df[df["preferences"].apply(lambda x: preference in x)]
     return df
