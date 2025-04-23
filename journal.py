@@ -7,6 +7,13 @@ import sqlite3
 import time
 import visualization_methods as vm
 import random
+import db_sync
+
+import helper_methods
+# helper_methods.create_database()
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
 
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
@@ -36,7 +43,8 @@ with main:
         mealLog = methods.get_meal_log(user_id)
         
         def get_calories(dish_id):
-            conn = sqlite3.connect("peckish.db")
+            conn = sqlite3.connect(db_sync.get_db_path())
+
             try:
                 result = conn.execute(
                     "SELECT calories FROM dishes WHERE dish_id = ?",
@@ -184,5 +192,5 @@ with main:
                 #             col2.write(note)
 
     except Exception as e:
-        st.write(e)
+        #st.write(e)
         st.warning("Please log a meal in the Menus tab to view your journal.")
