@@ -75,8 +75,6 @@ with main:
                     selected = st.checkbox(stat, value=True)
                 elif none:
                     selected=st.checkbox(stat)
-                elif stat == "fat" or stat == "carbohydrates" or stat == "protein":
-                    selected = st.checkbox(stat, value=True)
                 else:
                     selected = st.checkbox(stat)
                 if selected:
