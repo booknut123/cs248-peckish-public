@@ -75,7 +75,7 @@ with main:
                         uom.append("kcal")
                     elif stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
                         uom.append("mg")
-                    elif "g" not in uom:
+                    elif len(uom) == 0 and "g" not in uom:
                         uom.append("g")
                     selectedstats.append(stat)
 
