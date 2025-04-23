@@ -49,22 +49,38 @@ with sidebar:
 
     d += timedelta(days=selection - today)
     # st.write("Selected Date: ", d)
-    
+
+    data = methods.get_user_allergens_preferences(user_id)
+    if data:
+        userA = data[0]
+        userP = data[1]
+    else:
+        userA = ""
+        userP = ""
+
     st.subheader("Filter")
 
+    st.write("**Allergens (excluded)**")
+    allergens = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
+    selected_allergens = []
+    for i, aller in enumerate(allergens):
+        sel = False
+        if userA:
+            if aller in userA:
+                sel = True
+        if st.checkbox(aller, value=sel):
+                selected_allergens.append(aller)
+        
     st.write("**Preferences**")
     preferences = ["Vegan", "Vegetarian", "Gluten Sensitive"]
     selected_preferences = []
     for i, pref in enumerate(preferences):
-        if st.checkbox(pref):
-                selected_preferences.append(pref)
-        
-    st.write("**Allergens (exclude)**")
-    allergens = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
-    selected_allergens = []
-    for i, aller in enumerate(allergens):
-        if st.checkbox(aller):
-                selected_allergens.append(aller)
+        sel = False
+        if userP:
+            if pref in userP:
+                sel = True
+        if st.checkbox(pref, value=sel):
+             selected_preferences.append(pref)
     
 with main:
     if selected_locations:

@@ -101,6 +101,8 @@ def render_user_profile():
 def add_user(user_info): # == added by Kailyn ==
     """Insert or update user in peckish.db using Google auth info"""
     conn = get_db_connection()
+    cur = conn.cursor()
+
     try:
         # First try to find existing user by google_id
         google_id = user_info["sub"]
@@ -127,6 +129,13 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture"),
                 user_id
             ))
+
+            cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+            name = cur.fetchone()
+            print(name[0])
+            if name[0] == None:
+                cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
+                conn.commit()
         else:
             # New user - insert and get auto-generated user_id
             cursor = conn.execute("""

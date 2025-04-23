@@ -47,4 +47,4 @@ with main:
                 time.sleep(1)
                 st.rerun()
     else:
-        st.write("Please add a favorite to view.")
+        st.warning("Please add a favorite in the Menus tab to view your favorites.")
