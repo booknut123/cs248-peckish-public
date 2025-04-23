@@ -16,7 +16,7 @@ def create_database():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
-    #cur.execute("""DROP TABLE IF EXISTS users""")
+    # cur.execute("""DROP TABLE IF EXISTS users""")
     cur.execute("""CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 google_id TEXT, 
@@ -32,11 +32,12 @@ def create_database():
                 );
                 """)
     
-    #cur.execute("""DROP TABLE IF EXISTS favorites""")
+    # cur.execute("""DROP TABLE IF EXISTS favorites""")
     cur.execute("""CREATE TABLE IF NOT EXISTS favorites (
                 favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER REFERENCES users(user_id),
                 dish_id INTEGER,
+                notification TEXT,
                 date_added TEXT
             );
         """)
