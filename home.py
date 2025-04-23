@@ -12,6 +12,8 @@ import helper_methods
 # This is needed to get the database
 # download_db_from_github()
 
+st.write("Test")
+
 DEBUG = False # keep False when testing Google Login
 #DEBUG = True # set to True, when you don't want to go through authentication
 
