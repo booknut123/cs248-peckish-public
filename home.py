@@ -12,6 +12,12 @@ import helper_methods
 # helper_methods.weekly_update_db("4-20-2025")
 # st.write("Updated weekly database")
 
+#helper_methods.create_database() #WHEN YOU MAKE CHANGES TO THE DB
+
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
+
 # This is needed to get the database
 # download_db_from_github()
 

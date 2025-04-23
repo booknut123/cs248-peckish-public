@@ -22,6 +22,7 @@ def create_database():
                 google_id TEXT, 
                 email TEXT UNIQUE,
                 name TEXT,
+                user_name TEXT,
                 given_name TEXT,
                 allergens TEXT,
                 preferences TEXT,
