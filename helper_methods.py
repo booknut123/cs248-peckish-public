@@ -32,11 +32,12 @@ def create_database():
                 );
                 """)
     
-    #cur.execute("""DROP TABLE IF EXISTS favorites""")
+    # cur.execute("""DROP TABLE IF EXISTS favorites""")
     cur.execute("""CREATE TABLE IF NOT EXISTS favorites (
                 favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER REFERENCES users(user_id),
                 dish_id INTEGER,
+                notification TEXT,
                 date_added TEXT
             );
         """)

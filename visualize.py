@@ -59,8 +59,23 @@ with main:
             selectednone = True
 
             st.write("**Select Nutrients**")
+            col1, col2 = st.columns((1.5,3))
+
+            all = col1.button("All")
+            if all:
+                all=True
+            
+            none = col2.button("None")
+            if none:
+                none=True
+            
+
             for stat in stats:
-                if stat == "calories":
+                if all:
+                    selected = st.checkbox(stat, value=True)
+                elif none:
+                    selected=st.checkbox(stat)
+                elif stat == "fat" or stat == "carbohydrates" or stat == "protein":
                     selected = st.checkbox(stat, value=True)
                 else:
                     selected = st.checkbox(stat)
@@ -103,11 +118,12 @@ with main:
             )
 
         #st.write(f"Viewing: {stat}")
-        st.write("")
-        st.subheader("Lifetime dining hall breakdown")
+        st.write("---")
+        st.header("Lifetime dining hall breakdown")
         st.bar_chart(vm.dining_hall_tracker(user_id), color=color, horizontal=True)
 
-        st.subheader("Average calories by meal")
+        st.write("---")
+        st.header("Average calories by meal")
         st.bar_chart(vm.average_cals_by_meal(user_id), color=color, horizontal=True)
 
     except:

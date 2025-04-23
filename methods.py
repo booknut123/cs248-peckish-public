@@ -172,7 +172,7 @@ def add_favorite(userID, dishID):
     cur = conn.cursor()
 
     if not check_is_favorite(userID, dishID):
-        cur.execute(f"INSERT INTO favorites (user_id, dish_id, date_added) VALUES (?, ?, ?)", (userID, dishID, date.today()))
+        cur.execute(f"INSERT INTO favorites (user_id, dish_id, notification, date_added) VALUES (?, ?, ?, ?)", (userID, dishID, "false", date.today()))
     
     conn.commit()
     conn.close()
@@ -414,3 +414,65 @@ def get_border_log_dates(userID):
     dates2 = {"min":min(dates),"max":max(dates),"all":dates}
 
     return dates2
+
+
+def check_is_notif(userID, dishID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    stuff = cur.execute(f"SELECT notification FROM favorites WHERE user_id = ? AND dish_id = ?", (userID, dishID)).fetchone()[0]
+
+    if stuff == "false":
+        return False
+    return True
+
+def toggle_notif(userID, dishID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    if not check_is_notif(userID, dishID):
+        cur.execute("UPDATE favorites SET notification = ? WHERE user_id = ? AND dish_id = ?", ("true", userID, dishID))
+    else:
+        cur.execute("UPDATE favorites SET notification = ? WHERE user_id = ? AND dish_id = ?", ("false", userID, dishID))
+
+    conn.commit()
+    conn.close()
+
+def get_user_favorites(userID):
+    """
+    Returns dish ids and notif bool for each dish a user has favorited
+    """
+    conn = connect_db()
+    cur = conn.cursor()
+
+    faves = cur.execute("SELECT dish_id, notification FROM favorites WHERE user_id = ?", (userID,)).fetchall()
+    return faves
+
+def get_faves_for_week(userID, date):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    faves = get_user_favorites(userID)
+    faves = [fave[0] for fave in faves if fave[1] == "true"]
+
+    if not faves:
+        return None
+    
+    placeholders = ','.join('?' for _ in faves)
+
+    query = f"SELECT dish_id, meal, location, date FROM current_dishes WHERE dish_id IN ({placeholders}) AND date >= {str(date)}"
+
+    dishes = cur.execute(query, (faves)).fetchall()
+    dishnames = [get_dish_name(dish[0]) for dish in dishes]
+
+    organizeddishes = {}
+    for dish, name in zip(dishes, dishnames):
+        if name not in organizeddishes:
+            organizeddishes[name] = [{"meal": dish[1], "location": dish[2], "date": dish[3]}]
+        else:
+            organizeddishes[name] += [({"meal": dish[1], "location": dish[2], "date": dish[3]})]
+    
+    return organizeddishes
+
+
+
