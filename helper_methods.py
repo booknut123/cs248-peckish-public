@@ -1,11 +1,12 @@
 import sqlite3
 import pandas as pd
 from pandas import DataFrame
-import datetime
-from datetime import date
+from datetime import date, datetime, timedelta
 import requests
 import numpy as np
 import db_sync
+import methods
+import streamlit as st
 
 def create_database():
     db_sync.download_db_from_github()
@@ -29,6 +30,7 @@ def create_database():
                 last_login TIMESTAMP
                 );
                 """)
+    
     #cur.execute("""DROP TABLE IF EXISTS favorites""")
     cur.execute("""CREATE TABLE IF NOT EXISTS favorites (
                 favorite_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,6 +58,16 @@ def create_database():
                 protein INTEGER
             );
         """)
+    
+    #cur.execute("""DROP TABLE IF EXISTS current_dishes""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    dish_id INTEGER references dishes(dish_id),
+                    meal TEXT, 
+                    location TEXT, 
+                    date TEXT
+                    );
+                """)
 
     #cur.execute("""DROP TABLE IF EXISTS meal_log""")
     cur.execute("""CREATE TABLE IF NOT EXISTS meal_log (
@@ -89,6 +101,7 @@ def clear_db():
     cur.execute("DROP TABLE IF EXISTS users")
     cur.execute("DROP TABLE IF EXISTS favorites")
     cur.execute("DROP TABLE IF EXISTS dishes")
+    cur.execute("DROP TABLE IF EXISTS current_dishes")
     cur.execute("DROP TABLE IF EXISTS meal_log")
     cur.execute("DROP TABLE IF EXISTS dishes_log_bridge")
 
@@ -104,20 +117,40 @@ def get_location_meal_ids(hall, meal):
     """
     Returns location and meal IDs associated with a specific request.
     """
-    mealDict = {"Bates":{"Breakfast":145,"Lunch":146,"Dinner":311,"LocationID":95},"Lulu":{"Breakfast":148,"Lunch":149,"Dinner":312,"LocationID":96},"Tower":{"Breakfast":153,"Lunch":154,"Dinner":310,"LocationID":97},"StoneD":{"Breakfast":261,"Lunch":262,"Dinner":263,"LocationID":131}}
-    return (mealDict[hall]["LocationID"],mealDict[hall][meal])
+    mealDict = {
+            "Bates": {
+                "Breakfast": 145,
+                "Lunch": 146,
+                "Dinner": 311,
+                "LocationID": 95},
+            "Lulu": {
+                "Breakfast": 148,
+                "Lunch": 149,
+                "Dinner": 312,
+                "LocationID": 96},
+            "Tower": {
+                "Breakfast": 153,
+                "Lunch": 154,
+                "Dinner": 310,
+                "LocationID": 97},
+            "StoneD": {
+                "Breakfast": 261,
+                "Lunch": 262,
+                "Dinner": 263,
+                "LocationID": 131}}
+    return (mealDict[hall]["LocationID"], mealDict[hall][meal])
 
-def clean_dicts(dct,name):
+def clean_dicts(dct, name):
     """
-    Helper function for clean_menu().
-    Converts names from a dictionary into a comma seperated strings.
+    Helper function for clean_WF_menu().
+    Converts names from a dictionary into a comma separated strings.
     """
     lst = []
     for i in dct:
         lst.append(i["name"])
     return lst
 
-def clean_menu(df):
+def clean_WF_menu(df): # For use with dishes table
     """
     Cleans a WF API dataframe.
     Removes unused categories.
@@ -141,7 +174,7 @@ def clean_menu(df):
 
     return df
 
-def insert_dish(row):
+def insert_dish(row): # For use with dishes table
     """
     Inserts the dish into the dishes database.
     """
@@ -153,7 +186,7 @@ def insert_dish(row):
     
     db_sync.push_db_to_github()
 
-def update_dish_db(df):
+def update_dish_db(df): # For use with dishes table
     """
     Updates the dishes database after viewing a menu.
     For each dish, checks if that dish's ID is already in the database.
@@ -172,26 +205,141 @@ def update_dish_db(df):
             num = cur.fetchall()[0][0]
             if num == 0:
                 insert_dish(row)
-
-def connect_bridge(userID, logID):
-    """
-    Connects userID and logID in the bridge table.
-    """
+    
+# @st.cache_data            
+def weekly_update_db(sunday_date): # For use with current_dishes table
+    mealDict = {
+        "Bates": {
+            "Breakfast": 145,
+            "Lunch": 146,
+            "Dinner": 311,
+            "LocationID": 95},
+        "Lulu": {
+            "Breakfast": 148,
+            "Lunch": 149,
+            "Dinner": 312,
+            "LocationID": 96},
+        "Tower": {
+            "Breakfast": 153,
+            "Lunch": 154,
+            "Dinner": 310,
+            "LocationID": 97},
+        "StoneD": {
+            "Breakfast": 261,
+            "Lunch": 262,
+            "Dinner": 263,
+            "LocationID": 131}}
+    
+    st.write("weekly_update_db()")
+    date_obj = datetime.strptime((sunday_date), "%Y-%m-%d")  # Parse the string
+    
     conn = connect_db()
     cur = conn.cursor()
-
-    cur.execute("SELECT COUNT(*) FROM dishes_log_bridge")
-    if cur.fetchone()[0] == 0:
-        bridgeID = 1
-    else:
-        cur.execute("SELECT bridge_id FROM dishes_log_bridge ORDER BY bridge_id DESC LIMIT 1;")
-        bridgeID = cur.fetchone()[0] + 1
-
-    cur.execute("INSERT INTO dishes_log_bridge (bridge_id, user_id, log_id) VALUES (?, ?, ?)", (bridgeID, userID, logID))
-    conn.commit()
-    conn.close()
+   
+    cur.execute("""DROP TABLE IF EXISTS current_dishes""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+                    dish_id INTEGER references dishes(dish_id),
+                    meal TEXT, 
+                    location TEXT, 
+                    date TEXT
+                    );
+                """)
     
+    for day in range(7):
+        new_date = date_obj.date() + timedelta(days=day)
+        for location, meals in mealDict.items():
+            for meal, __ in meals.items():
+                if meal != "LocationID":
+                    df = methods.scrape_menu(location, meal, new_date)
+                    #st.write(f"{location} {meal} {new_date}")
+                    #st.write(df)
+                    methods.update_dish_db(df)
+                    
+                    ## add to current_dishes
+                    for _,row in df.iterrows():
+                        #st.write(f"{row['id']} {meal} {location} {new_date}")
+                        cur.execute(f"""INSERT INTO current_dishes (dish_id, meal, location, date) VALUES (?,?,?,?)""", (row['id'], meal, location, new_date))
+                        conn.commit()
+                                
+    cur.close()
+    conn.close()
+    db_sync.push_db_to_github()                
+    
+@st.cache_data
+def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to dishes
+    """
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
+    Returns the menu for a specific hall and meal on a specific date.
+    Checks that each dish in the menu is already included in the "dish" database.
+    If a dish is not included, adds the dish to the database with a new ID.
+    """
+    locationID, mealID = get_location_meal_ids(hall, meal)
+    base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
+    params = {"date":date,"locationID":locationID,"mealID":mealID}
+    try:
+        response = requests.get(base_url,params=params)
+    except:
+        return pd.DataFrame()
+    data = response.json()
+    df = pd.DataFrame(data)
+    df = clean_WF_menu(df)
+
+    df['date'] = df['date'].apply(lambda x: x.split("T")[0])
+    df = df[df['date'] == str(date)]
+    update_dish_db(df)
     db_sync.push_db_to_github()
+    
+    return df
+
+def get_menu(hall, meal, date):
+    conn = connect_db()  
+    df = pd.read_sql_query(
+            """SELECT * FROM CURRENT_DISHES WHERE location = ? AND meal = ? AND date = ?""",
+            conn,
+            params=(hall, meal, date))
+    return df
+    
+# def get_filtered_menu(allergens, preferences, hall, meal, date):
+#     """
+#     * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
+#     * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian] 
+#     * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+#     * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+#     * date: datetime object, YYYY-MM-DD   
+#     Returns the menu for a specific hall and meal on a specific date with a specific filter applied.
+#     Checks that each dish in the menu is already included in the "dish" database.
+#     If a dish is not included, adds the dish to the database with a new ID.
+#     """
+#     df = get_menu(hall, meal, date)
+#     st.write(df)
+#     dfFiltered = filter_menu(df, allergens, preferences)
+#     st.write(dfFiltered)
+
+#     #if not dfFiltered.empty:
+#     return dfFiltered
+
+# def connect_bridge(userID, logID): # CREATED BELOW
+#     """
+#     Connects userID and logID in the bridge table.
+#     """
+#     conn = connect_db()
+#     cur = conn.cursor()
+
+#     cur.execute("SELECT COUNT(*) FROM dishes_log_bridge")
+#     if cur.fetchone()[0] == 0:
+#         bridgeID = 1
+#     else:
+#         cur.execute("SELECT bridge_id FROM dishes_log_bridge ORDER BY bridge_id DESC LIMIT 1;")
+#         bridgeID = cur.fetchone()[0] + 1
+
+#     cur.execute("INSERT INTO dishes_log_bridge (bridge_id, user_id, log_id) VALUES (?, ?, ?)", (bridgeID, userID, logID))
+#     conn.commit()
+#     conn.close()
+    
+#     db_sync.push_db_to_github()
 
 def get_user_logs(userID):
     """
@@ -234,7 +382,6 @@ def get_logIds_by_date(userId, date):
     conn.close()
     return df
     
-
 # def get_dishes_from_meal_log(userID, date, meal):
 #     """
 #     Returns a database dishes (and their calories) associated with a given User ID for a given date
@@ -314,12 +461,10 @@ def connect_bridge(userID, logID):
     conn.close()
     
     db_sync.push_db_to_github()
-    
+  
 def filter_menu(df, allergens, preferences):
     for allergen in allergens:
         df = df[df["allergens"].apply(lambda x: allergen not in x)]
     for preference in preferences:
         df = df[df["preferences"].apply(lambda x: preference in x)]
     return df
-
-

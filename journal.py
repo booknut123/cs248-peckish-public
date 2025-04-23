@@ -8,6 +8,12 @@ import time
 import visualization_methods as vm
 import db_sync
 
+import helper_methods
+# helper_methods.create_database()
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
+
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
     user_id = int(st.session_state.get("user_id"))

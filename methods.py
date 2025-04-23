@@ -1,7 +1,4 @@
-import sqlite3
 import pandas as pd
-from pandas import DataFrame
-from pandas import DataFrame
 import datetime
 from datetime import date
 import requests
@@ -12,13 +9,13 @@ import db_sync
 from helper_methods import *
 
 def get_dish_info(dishID):
-        """
-        Returns entire row about a dish
-        """
-        conn = connect_db()
-        cur = conn.cursor()
-        cur.execute(f"SELECT * FROM dishes WHERE (dish_id = {dishID})")
-        return cur.fetchone()
+    """
+    Returns entire row about a dish
+    """
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute(f"SELECT * FROM dishes WHERE (dish_id = {dishID})")
+    return cur.fetchone()
 
 def get_dish_calories(dishID):
     return get_dish_info(dishID)[7]
@@ -34,49 +31,79 @@ def get_dish_name(dishID):
         dish = cur.fetchone()[0]
         return dish
 
-@st.cache_data
-def get_menu(hall, meal, date):
-    """
-    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
-    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
-    * date: datetime object, YYYY-MM-DD
-    Returns the menu for a specific hall and meal on a specific date.
-    Checks that each dish in the menu is already included in the "dish" database.
-    If a dish is not included, adds the dish to the database with a new ID.
-    """
-    locationID, mealID = get_location_meal_ids(hall, meal)
-    base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
-    params = {"date":date,"locationID":locationID,"mealID":mealID}
-    try:
-        response = requests.get(base_url,params=params)
-    except:
-        return pd.DataFrame()
-    data = response.json()
-    df = pd.DataFrame(data)
-    df = clean_menu(df)
+# @st.cache_data
+# def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to dishes
+#     """
+#     * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+#     * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+#     * date: datetime object, YYYY-MM-DD
+#     Returns the menu for a specific hall and meal on a specific date.
+#     Checks that each dish in the menu is already included in the "dish" database.
+#     If a dish is not included, adds the dish to the database with a new ID.
+#     """
+#     locationID, mealID = get_location_meal_ids(hall, meal)
+#     base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
+#     params = {"date":date,"locationID":locationID,"mealID":mealID}
+#     try:
+#         response = requests.get(base_url,params=params)
+#     except:
+#         return pd.DataFrame()
+#     data = response.json()
+#     df = pd.DataFrame(data)
+#     df = clean_WF_menu(df)
 
-    df['date'] = df['date'].apply(lambda x: x.split("T")[0])
-    df = df[df['date'] == str(date)]
-    update_dish_db(df)
+#     df['date'] = df['date'].apply(lambda x: x.split("T")[0])
+#     df = df[df['date'] == str(date)]
+#     update_dish_db(df)
 
-    return df
+#     return df
 
-def get_filtered_menu(allergens, preferences, hall, meal, date):
-    """
-    * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
-    * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian] 
-    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
-    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
-    * date: datetime object, YYYY-MM-DD   
-    Returns the menu for a specific hall and meal on a specific date with a specific filter applied.
-    Checks that each dish in the menu is already included in the "dish" database.
-    If a dish is not included, adds the dish to the database with a new ID.
-    """
-    df = get_menu(hall, meal, date)
-    dfFiltered = filter_menu(df, allergens, preferences)
+# def get_menu(hall, meal, date):
+#     conn = connect_db()  
+#     df = pd.read_sql_query(
+#             """SELECT * FROM CURRENT_DISHES WHERE location = ? AND meal = ? AND date = ?""",
+#             conn,
+#             params=(hall, meal, date))
+#     return df
+
+def print_menu(allergens, preferences, hall, meal, date):
+    # st.write(f"print_menu({hall}, {meal}, {date})")
+    current_menu = get_menu(hall, meal, date)
+    # st.write(current_menu)
+    
+    conn = connect_db()
+    dish_details = pd.read_sql_query(
+        f"""SELECT dish_id, dish_name, calories FROM DISHES
+            WHERE dish_id IN ({','.join(['?'] * len(current_menu))})""",
+        conn,
+        params=current_menu['dish_id'].tolist()
+    )
+    conn.close()
+    
+    # Merge and select columns
+    full_menu = current_menu.merge(dish_details, on='dish_id')[['dish_id', 'dish_name', 'calories']]
+    #st.write(full_menu)
+    dfFiltered = filter_menu(full_menu, allergens, preferences)
 
     #if not dfFiltered.empty:
     return dfFiltered
+        
+# def get_filtered_menu(allergens, preferences, hall, meal, date):
+#     """
+#     * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
+#     * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian] 
+#     * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+#     * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+#     * date: datetime object, YYYY-MM-DD   
+#     Returns the menu for a specific hall and meal on a specific date with a specific filter applied.
+#     Checks that each dish in the menu is already included in the "dish" database.
+#     If a dish is not included, adds the dish to the database with a new ID.
+#     """
+#     df = get_menu(hall, meal, date)
+#     dfFiltered = filter_menu(df, allergens, preferences)
+
+#     #if not dfFiltered.empty:
+#     return dfFiltered
     
 
 def update_user_allergens_preferences(userID, allergens, preferences):
@@ -196,7 +223,9 @@ def check_is_favorite(userID, dishID):
 
 def display_favorites(userID):
     conn = connect_db()
-    df = pd.read_sql_query(f"SELECT * FROM favorites WHERE (user_id = {userID})", conn)
+    df = pd.read_sql_query(f"SELECT * FROM favorites WHERE user_id = ?", conn, params=(userID, ))
+    # st.write(df)
+    conn.close()
     return df
 
 # def favorites_toggle(userID, dishID):
