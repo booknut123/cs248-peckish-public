@@ -3,6 +3,7 @@ import methods
 from datetime import date, datetime, timedelta
 import pandas as pd
 import emoji
+import visualization_methods as vm
 
 import helper_methods
 # helper_methods.create_database()
@@ -92,16 +93,40 @@ with main:
                 df = methods.print_menu(selected_allergens, selected_preferences, loc, meal, d)
                 if not df.empty:
                     # Header row
-                    col1, col2, col3, col4 = st.columns((0.5, 2.5, 1, 1), vertical_alignment="top")
+                    col1, col2, col3, col4 = st.columns((0.5, 2.5, 0.75, 0.75), vertical_alignment="top")
                     col1.write("**Log**")
                     col2.write("**Dish**")
-                    col3.write("**Calories**")
+                    col3.write("**Info**")
                     col4.write("**Favorite**")
-                
+
+                    stats = ["calories", "fat", "cholesterol", "sodium", "carbohydrates", "sugars", "protein"]
+
                     for index, row in df.iterrows():
-                        col1, col2, col3, col4 = st.columns((0.5, 2.5, 1, 1), vertical_alignment="top")                    
-                        col2.write(row["dish_name"])
-                        col3.write(f"{row['calories']}")
+                        col1, col2, col3, col4 = st.columns((0.5, 2.5, 0.75, 0.75), vertical_alignment="top")
+
+                        # Add to journal button
+                        def add_button(user_id, row_id, loc, meal, d):
+                            methods.log_meal(user_id, row_id, loc, meal, d)
+                            st.toast("Meal added!")
+                        col1.button(
+                            "**+**", 
+                            key=f"add_{loc}_{index}",
+                            on_click=add_button, 
+                            args=(user_id, row['dish_id'], loc, meal, d)
+                        )
+                
+                        col2.write(row['dish_name'])
+
+                        with col3.popover(""):
+                            info = methods.get_dish_info(row['dish_id'])[7:]
+                            st.write(methods.get_dish_info(row['dish_id'])[2])
+                            for i, stat in zip(info, stats):
+                                uom = "g"
+                                if stat == "calories":
+                                    uom = "kcal"
+                                elif stat == "cholesterol" or stat == "sodium":
+                                    uom = "mg"
+                                st.write(f"{stat}: {i} {uom}")
                 
                         # Favorite toggle (empty/filled heart)
                         heart_key = f"favorite_{loc}_{index}"
@@ -125,16 +150,6 @@ with main:
                             #methods.favorites_toggle(user_id, row['id'])
                             st.rerun()
                 
-                        # Add to journal button
-                        def add_button(user_id, row_id, loc, meal, d):
-                            methods.log_meal(user_id, row_id, loc, meal, d)
-                            st.toast("Meal added!")
-                        col1.button(
-                            "**+**", 
-                            key=f"add_{loc}_{index}",
-                            on_click=add_button, 
-                            args=(user_id, row['dish_id'], loc, meal, d)
-                        )
                 else:
                     st.write("No dishes found in menu today :(")
         st.write("* Menus may not be accurate.")

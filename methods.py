@@ -503,7 +503,7 @@ def get_faves_for_week(userID, date):
             organizeddishes[name] = [{"meal": dish[1], "location": dish[2], "date": dish[3]}]
         else:
             organizeddishes[name] += [({"meal": dish[1], "location": dish[2], "date": dish[3]})]
-    
+
     return organizeddishes
 
 
