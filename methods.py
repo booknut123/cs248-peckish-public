@@ -174,10 +174,30 @@ def add_favorite(userID, dishID):
     if not check_is_favorite(userID, dishID):
         cur.execute(f"INSERT INTO favorites (user_id, dish_id, date_added) VALUES (?, ?, ?)", (userID, dishID, date.today()))
     
+    cur.execute(F"UPDATE dishes SET rating = rating + 1 WHERE dish_id = {dishID}")
+    
     conn.commit()
     conn.close()
     
     db_sync.push_db_to_github()
+
+def update_ratings():
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    cur.execute("SELECT DISTINCT dish_id FROM favorites")
+    favs = cur.fetchall()
+
+    ratings = []
+    for id in favs:
+        cur.execute(f"SELECT COUNT(*) from favorites WHERE dish_id = {id[0]}")
+        r = cur.fetchone()
+        ratings += [(id[0], r)]
+    for r in ratings:
+        cur.execute(f"UPDATE dishes SET rating = {r[1]} WHERE dish_id = {r[0]}")
+    conn.close()
+    db_sync.push_db_to_github()
+
 
 def remove_favorite(userID, dishID):
     """
@@ -190,7 +210,7 @@ def remove_favorite(userID, dishID):
     cur = conn.cursor()
 
     cur.execute(f"DELETE FROM favorites WHERE user_id = {userID} AND dish_id = {dishID}")
-
+    cur.execute(f"UPDATE dishes SET rating = rating - 1 WHERE dish_id = {dishID}")
     conn.commit()
     conn.close()
     
@@ -202,8 +222,10 @@ def remove_favorite(userID, dishID):
     cur.execute(f"SELECT COUNT(*) FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID))
     if cur.fetchone()[0] > 0:
         cur.execute(f"DELETE FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID))
-        conn.commit()
-        conn.close()
+    
+    cur.execute(f"UPDATE dishes SET rating = rating - 1 WHERE dish_id = {dishID}")
+    conn.commit()
+    conn.close()
         
     db_sync.push_db_to_github()
 
@@ -347,6 +369,16 @@ def get_dish_rating(dishID):
     cur.execute(f"SELECT COUNT(*) FROM favorites WHERE dish_id = {dishID}")
     num = cur.fetchone()[0]
     return num
+
+def top5favs():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    cur.execute("SELECT dish_name, rating FROM dishes ORDER BY rating DESC")
+    top5 = cur.fetchmany(5)
+    conn.close()
+    return top5
+
 
 create_database()
 

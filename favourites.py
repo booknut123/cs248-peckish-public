@@ -46,5 +46,14 @@ with main:
                 st.toast("Favorite Deleted")
                 time.sleep(1)
                 st.rerun()
+
     else:
         st.warning("Please add a favorite in the Menus tab to view your favorites.")
+    
+    st.header("Top User Favorites")
+    st.container(border=True)
+    with
+            
+        st.write(methods.top5favs())
+        methods.update_ratings()
+    
