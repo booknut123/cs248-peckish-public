@@ -8,6 +8,12 @@ import db_sync
 import methods
 import helper_methods
 
+#helper_methods.create_database() #WHEN YOU MAKE CHANGES TO THE DB
+
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
+
 # This is needed to get the database
 # download_db_from_github()
 
@@ -64,10 +70,13 @@ col2.write("From CS248 '25 - Kailyn, Maya, Nina")
 # wait for the user to login before showing anything
 if "access_token" not in st.session_state:
     st.stop()
-    
-if datetime.now().weekday() == 6:
-    helper_methods.weekly_update_db(datetime.now())
 
+if datetime.now().weekday() == 6:
+    helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
+
+# if datetime.now().weekday() == 1: ## current day for debugging purposes
+#     helper_methods.weekly_update_db("2025-4-20")
+    
 now = datetime.now().time()
 is_weekend = datetime.now().weekday() >= 5  # 5=Saturday, 6=Sunday
 
@@ -96,24 +105,22 @@ else:
 st.header(f"Current Menus: {lulu_meal} {date.today()}")
 col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", border=True)
 
-def print_menu(df):
+def streamlit_print(df):
     for index, row in df.iterrows():
-        st.write(row["name"])
+        st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
-    print_menu(methods.get_menu("Bates", other_meal, date.today()))
+    streamlit_print(methods.print_menu([], [], "Bates", other_meal, date.today())) #CHANGE
 with col2:
     st.subheader("Lulu")
-    print_menu(methods.get_menu("Lulu", lulu_meal, date.today()))
+    streamlit_print(methods.print_menu([], [], "Lulu", lulu_meal, date.today())) #CHANGE
 with col3:
     st.subheader("Tower")
-    print_menu(methods.get_menu("Tower", other_meal, date.today()))
+    streamlit_print(methods.print_menu([], [], "Tower", other_meal, date.today())) #CHANGE
 with col4:
     st.subheader("StoneD")
-    print_menu(methods.get_menu("StoneD", other_meal, date.today()))
+    streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today())) #CHANGE
 
 
 st.write("* Menus may not be accurate.")
 st.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
-
-helper_methods.weekly_update_db("4-20-2025")

@@ -7,7 +7,7 @@ import streamlit as st
 # Set the DB location in temp space for Streamlit Cloud
 temp_dir = tempfile.gettempdir()
 DB_PATH = os.path.join(temp_dir, "peckish.db")
-# st.write(DB_PATH)
+st.write(DB_PATH) # MAKE SURE TO COMMENT OUT LATER
 
 def get_db_path():
     return DB_PATH

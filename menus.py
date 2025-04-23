@@ -4,6 +4,12 @@ from datetime import date, datetime, timedelta
 import pandas as pd
 import emoji
 
+import helper_methods
+# helper_methods.create_database()
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
+
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 try:
     user_id = int(st.session_state.get("user_id"))
@@ -67,7 +73,7 @@ with main:
         for loc in selected_locations:
             with st.container(border=True):
                 st.subheader(loc)
-                df = methods.get_filtered_menu(selected_allergens, selected_preferences, loc, meal, d)
+                df = methods.print_menu(selected_allergens, selected_preferences, loc, meal, d)
                 if not df.empty:
                     # Header row
                     col1, col2, col3, col4 = st.columns((0.5, 2.5, 1, 1), vertical_alignment="top")
@@ -78,7 +84,7 @@ with main:
                 
                     for index, row in df.iterrows():
                         col1, col2, col3, col4 = st.columns((0.5, 2.5, 1, 1), vertical_alignment="top")                    
-                        col2.write(row["name"])
+                        col2.write(row["dish_name"])
                         col3.write(f"{row['calories']}")
                 
                         # Favorite toggle (empty/filled heart)
@@ -86,19 +92,19 @@ with main:
                         if heart_key not in st.session_state:
                             st.session_state[heart_key] = False
 
-                        numfaves = str(methods.get_dish_rating(row['id']))
+                        numfaves = str(methods.get_dish_rating(row['dish_id']))
                         heart_clicked = col4.button(
-                            f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['id']) else f"🤍 {numfaves}",
+                            f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
                             key=f"btn_{heart_key}"
                         )
 
                         if heart_clicked:
                             st.session_state[heart_key] = not st.session_state[heart_key]
                             if st.session_state[heart_key]:
-                                methods.add_favorite(user_id, row['id'])
+                                methods.add_favorite(user_id, row['dish_id'])
                                 st.toast("Favorite added")
                             else:
-                                methods.remove_favorite(user_id, row['id'])
+                                methods.remove_favorite(user_id, row['dish_id'])
                                 st.toast("Favorite removed")
                             #methods.favorites_toggle(user_id, row['id'])
                             st.rerun()
@@ -111,7 +117,7 @@ with main:
                             "**+**", 
                             key=f"add_{loc}_{index}",
                             on_click=add_button, 
-                            args=(user_id, row['id'], loc, meal, d)
+                            args=(user_id, row['dish_id'], loc, meal, d)
                         )
                 else:
                     st.write("No dishes found in menu today :(")
