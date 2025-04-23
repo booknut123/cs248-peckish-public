@@ -1,6 +1,8 @@
 import streamlit as st
 import methods
 import time
+import datetime
+from datetime import date
 
 # import helper_methods
 # helper_methods.create_database()
@@ -28,23 +30,76 @@ with main:
     favs = methods.display_favorites(user_id)
 
     if not favs.empty:
+        
+        st.write("---")
 
-        col1, col2, col3, col4 = st.columns((3,0.5,1,1))
+        col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
         col1.write("**Dish**")
         col2.write("**Total**")
         col3.write("**Date Added**")
-        col4.write("**Delete**")
+        col4.write("**Notification**")
+        col5.write("**Delete**")
+        st.write("---")
+
 
         for index, row in favs.iterrows():
-            col1, col2, col3, col4 = st.columns((3,0.5,1,1))
+            col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
             col1.write(methods.get_dish_name(row["dish_id"]))
             col2.write(str(methods.get_dish_rating(row["dish_id"])))
             col3.write(row["date_added"])
-            delete = col4.button("**-**", key=f"F{index}")
+            
+            toggle_key = f"favorite_{index}_{row['dish_id']}"
+            if toggle_key not in st.session_state:
+                st.session_state[toggle_key] = False
+
+            toggle = col4.button(
+                                "🔔" if row['notification'] == 'true' else "🔕", 
+                                key=f"notif {index} {row['dish_id']}"
+                                )
+            if toggle:
+                methods.toggle_notif(user_id, row['dish_id'])
+                st.rerun()
+
+            delete = col5.button("**-**", key=f"F{index}")
             if delete:
                 methods.remove_favorite(user_id, row["dish_id"])
                 st.toast("Favorite Deleted")
                 time.sleep(1)
                 st.rerun()
+
+        st.write("---")
+
+        st.header("Favorites This Week")
+        faves = methods.get_faves_for_week(user_id, date.today())
+
+        if faves:
+            st.write("---")
+
+            col1, col2, col3, col4 = st.columns((1.5,1,1,1))
+            col1.write("**Dish**")
+            col2.write("**Location**")
+            col3.write("**Meal**")
+            col4.write("**Date**")
+            st.write("---")
+
+            for fave in faves:
+                col1, col2, col3, col4 = st.columns((1.5,1,1,1))
+                col1.write(fave)
+                for f in faves[fave]:
+                    col2.write(f["location"])
+                    col3.write(f["meal"])
+                    col4.write(f["date"])
+                st.write("---")
+        else:
+            st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
+
     else:
         st.warning("Please add a favorite in the Menus tab to view your favorites.")
+    
+    st.header("Top User Favorites")
+    st.container(border=True)
+    with
+            
+        st.write(methods.top5favs())
+        methods.update_ratings()
+    
