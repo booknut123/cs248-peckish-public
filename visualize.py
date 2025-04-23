@@ -66,7 +66,7 @@ with main:
                 if all:
                     selected = st.checkbox(stat, value=True)
                 elif none:
-                    selected=st.checkbox(stat)
+                    selected = st.checkbox(stat, value=False)
                 else:
                     selected = st.checkbox(stat)
                 if selected:

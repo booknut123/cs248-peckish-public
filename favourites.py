@@ -35,7 +35,7 @@ with main:
 
         col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
         col1.write("**Dish**")
-        col2.write("**Total**")
+        col2.write("**Likes**")
         col3.write("**Date Added**")
         col4.write("**Notification**")
         col5.write("**Delete**")
@@ -75,20 +75,21 @@ with main:
         if faves:
             st.write("---")
 
-            col1, col2, col3, col4 = st.columns((1.5,1,1,1))
+            col1, col2, col3, col4 = st.columns((2,1,1,1))
             col1.write("**Dish**")
-            col2.write("**Location**")
-            col3.write("**Meal**")
+            col2.write("**Meal**")
+            col3.write("**Location**")
             col4.write("**Date**")
             st.write("---")
 
             for fave in faves:
-                col1, col2, col3, col4 = st.columns((1.5,1,1,1))
+                col1, col2, col3, col4 = st.columns((2,1,1,1))
                 col1.write(fave)
                 for f in faves[fave]:
-                    col2.write(f["location"])
-                    col3.write(f["meal"])
-                    col4.write(f["date"])
+                    
+                    col2.write(f["meal"])
+                    col3.write(f["location"])
+                    col4.write("/".join(f["date"].split("-")[1:]))
                 st.write("---")
         else:
             st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
@@ -96,10 +97,10 @@ with main:
     else:
         st.warning("Please add a favorite in the Menus tab to view your favorites.")
     
-    st.write("---")
     st.header("Top User Favorites")
     st.container(border=True)
     # with
         # st.write(methods.top5favs())
         # methods.update_ratings()
+
     

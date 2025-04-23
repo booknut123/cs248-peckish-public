@@ -85,11 +85,12 @@ with main:
                 weekday = weekdays[date]
 
                 st.subheader(f"{weekday}, {key}")
-
+                st.write("---")
                 dateDict = sortedDF[key]
                 #st.write(dateDict[0])
 
                 col1, col2, col3, col4 = st.columns((1,2.5, 1,1), vertical_alignment='bottom')
+                col1.write("**Meal**")
                 col2.write("**Dish**")
                 col3.write("**Hall**")
                 col4.write("**Delete**")
@@ -100,8 +101,7 @@ with main:
 
                 
                 if meals['Breakfast'] != 0:
-                    col1, col2 = st.columns((1,4.5))                
-                    col1.write("")
+                    col1, col2 = st.columns((0.6,4.5))                
                     col1.write("")
                     col1.write("**Breakfast**")
                     col2.divider()
@@ -120,8 +120,7 @@ with main:
                     
                 
                 if meals['Lunch'] != 0:
-                    col1, col2 = st.columns((1,4.5))                
-                    col1.write("")
+                    col1, col2 = st.columns((0.4,4.5))                
                     col1.write("")
                     col1.write("**Lunch**")
                     col2.divider()
@@ -139,8 +138,7 @@ with main:
                             cals += methods.get_dish_calories(dish['dish_id'])
 
                 if meals['Dinner'] != 0:
-                    col1, col2 = st.columns((1,4.5))                
-                    col1.write("")
+                    col1, col2 = st.columns((0.4,4.5))                
                     col1.write("")
                     col1.write("**Dinner**")
                     col2.divider()
