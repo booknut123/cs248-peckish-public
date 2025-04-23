@@ -142,9 +142,7 @@ def add_user(user_info): # == added by Kailyn ==
             cur.execute("""
                 INSERT INTO users 
                 (google_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                RETURNING user_id
-            """, (
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)""", (
                 google_id,
                 user_info.get("email"),
                 user_info.get("name"),
@@ -153,7 +151,7 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture")
             ))
 
-            user_id = cur.fetchone()[0]
+            user_id = cur.execute("SELECT user_id FROM users WHERE google_id = ?", (google_id,)).fetchone()[0]
         
         conn.commit()
         st.session_state["user_id"] = user_id
