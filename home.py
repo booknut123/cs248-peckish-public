@@ -7,6 +7,10 @@ import requests
 import db_sync
 import methods
 import helper_methods
+# helper_methods.create_database()
+# st.write("Created database")
+# helper_methods.weekly_update_db("4-20-2025")
+# st.write("Updated weekly database")
 
 #helper_methods.create_database() #WHEN YOU MAKE CHANGES TO THE DB
 
