@@ -1,22 +1,12 @@
+
 import streamlit as st
 from auth import google_login
 from user_profile import render_user_profile
 from datetime import datetime, date, time
 import pandas as pd
 import requests
-import db_sync
+from db_sync import download_db_from_github
 import methods
-import helper_methods
-# helper_methods.create_database()
-# st.write("Created database")
-# helper_methods.weekly_update_db("4-20-2025")
-# st.write("Updated weekly database")
-
-#helper_methods.create_database() #WHEN YOU MAKE CHANGES TO THE DB
-
-# st.write("Created database")
-# helper_methods.weekly_update_db("4-20-2025")
-# st.write("Updated weekly database")
 
 # This is needed to get the database
 # download_db_from_github()
@@ -75,12 +65,8 @@ col2.write("From CS248 '25 - Kailyn, Maya, Nina")
 if "access_token" not in st.session_state:
     st.stop()
 
-if datetime.now().weekday() == 6:
-    helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
+user_id = int(st.session_state.get("user_id"))
 
-# if datetime.now().weekday() == 1: ## current day for debugging purposes
-#     helper_methods.weekly_update_db("2025-4-20")
-    
 now = datetime.now().time()
 is_weekend = datetime.now().weekday() >= 5  # 5=Saturday, 6=Sunday
 
@@ -106,25 +92,38 @@ else:
                 "Dinner" if time(17,0) <= now < time(20,0) else \
                 "Breakfast" if now < time(7,0) else "Lunch"
 
+# st.header("Today's Favorites:")
+# favs = st.columns(1, gap = "small", vertical_alignment="top", border=True)
+# with favs:
+#     #for fav in favorites for user check if it is in today's menu
+#     allDishes = pd.DataFrame()
+#     bates = methods.get_menu("bates", other_meal, date.today())
+#     lulu = methods.get_menu("lulu", lulu_meal, date.today())
+
+
+
+
 st.header(f"Current Menus: {lulu_meal} {date.today()}")
 col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", border=True)
 
-def streamlit_print(df):
+def print_menu(df):
     for index, row in df.iterrows():
-        st.write(row["dish_name"])
+        if methods.check_is_favorite(user_id, row['id']):
+            st.write(f":heart: {row['name']}")
+        else:
+            st.write(row["name"])
 with col1:
     st.subheader("Bates")
-    streamlit_print(methods.print_menu([], [], "Bates", other_meal, date.today())) #CHANGE
+    print_menu(methods.get_filtered_menu([], [], "Bates", other_meal, date.today()))
 with col2:
     st.subheader("Lulu")
-    streamlit_print(methods.print_menu([], [], "Lulu", lulu_meal, date.today())) #CHANGE
+    print_menu(methods.get_menu("Lulu", lulu_meal, date.today()))
 with col3:
     st.subheader("Tower")
-    streamlit_print(methods.print_menu([], [], "Tower", other_meal, date.today())) #CHANGE
+    print_menu(methods.get_menu("Tower", other_meal, date.today()))
 with col4:
     st.subheader("StoneD")
-    streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today())) #CHANGE
-
+    print_menu(methods.get_menu("StoneD", other_meal, date.today()))
 
 st.write("* Menus may not be accurate.")
 st.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")

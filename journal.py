@@ -6,13 +6,7 @@ from datetime import datetime
 import sqlite3
 import time
 import visualization_methods as vm
-import db_sync
-
-import helper_methods
-# helper_methods.create_database()
-# st.write("Created database")
-# helper_methods.weekly_update_db("4-20-2025")
-# st.write("Updated weekly database")
+import random
 
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
@@ -42,7 +36,7 @@ with main:
         mealLog = methods.get_meal_log(user_id)
         
         def get_calories(dish_id):
-            conn = sqlite3.connect(db_sync.get_db_path())
+            conn = sqlite3.connect("peckish.db")
             try:
                 result = conn.execute(
                     "SELECT calories FROM dishes WHERE dish_id = ?",
@@ -83,26 +77,95 @@ with main:
                 weekday = weekdays[date]
 
                 st.subheader(f"{weekday}, {key}")
-                col1, col2, col3, col4 = st.columns((1,1,2.5,1))
-                col1.write("**Meal**")
-                col2.write("**Hall**")
-                col3.write("**Dish**")
+
+                dateDict = sortedDF[key]
+                #st.write(dateDict[0])
+
+                col1, col2, col3, col4 = st.columns((1,2.5, 1,1), vertical_alignment='bottom')
+                col2.write("**Dish**")
+                col3.write("**Hall**")
                 col4.write("**Delete**")
-                for dish in sortedDF[key]:
-                    col1, col2, col3, col4 = st.columns((1,1,2.5,1))
-                    col1.write(dish["meal"])
-                    col2.write(dish['location'])
-                    col3.write(methods.get_dish_name(dish['dish_id']))
-                    delete = col4.button("**-**", key=f"delete_ {key}_{dish['dish_id']}") 
-                    if delete:
-                        methods.delete_meal(dish["log_id"], dish["dish_id"])
-                        st.toast("Dish Deleted")
-                        time.sleep(1)
-                        st.rerun() 
-                    cals += methods.get_dish_calories(dish['dish_id'])
+
+                meals = {'Breakfast': 0, 'Lunch': 0, 'Dinner': 0}
+                for dish in dateDict:
+                    meals[dish['meal']] = meals.get(dish['meal']) + 1
+
                 
-                col1, col2 = st.columns((2,3.5))
-                if col1.button("See Nutritionals", key=f"{key}"):
+                if meals['Breakfast'] != 0:
+                    col1, col2 = st.columns((1,4.5))                
+                    col1.write("")
+                    col1.write("")
+                    col1.write("**Breakfast**")
+                    col2.divider()
+                    for dish in dateDict:
+                        if dish['meal'] == "Breakfast":
+                            col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            col2.write(methods.get_dish_name(dish['dish_id']))
+                            col3.write(dish['location'])
+                            delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
+                            if delete:
+                                methods.delete_meal(dish["log_id"], dish["dish_id"])
+                                st.toast("Dish Deleted")
+                                time.sleep(1)
+                                st.rerun() 
+                            cals += methods.get_dish_calories(dish['dish_id'])
+                    
+                
+                if meals['Lunch'] != 0:
+                    col1, col2 = st.columns((1,4.5))                
+                    col1.write("")
+                    col1.write("")
+                    col1.write("**Lunch**")
+                    col2.divider()
+                    for dish in dateDict:
+                        if dish['meal'] == 'Lunch':
+                            col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            col2.write(methods.get_dish_name(dish['dish_id']))
+                            col3.write(dish['location'])
+                            delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
+                            if delete:
+                                methods.delete_meal(dish["log_id"], dish["dish_id"])
+                                st.toast("Dish Deleted")
+                                time.sleep(1)
+                                st.rerun() 
+                            cals += methods.get_dish_calories(dish['dish_id'])
+
+                if meals['Dinner'] != 0:
+                    col1, col2 = st.columns((1,4.5))                
+                    col1.write("")
+                    col1.write("")
+                    col1.write("**Dinner**")
+                    col2.divider()
+                    for dish in dateDict:
+                        if dish['meal'] == 'Dinner':
+                            col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            col2.write(methods.get_dish_name(dish['dish_id']))
+                            col3.write(dish['location'])
+                            delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
+                            if delete:
+                                methods.delete_meal(dish["log_id"], dish["dish_id"])
+                                st.toast("Dish Deleted")
+                                time.sleep(1)
+                                st.rerun() 
+                            cals += methods.get_dish_calories(dish['dish_id'])
+
+
+                # for dish in sortedDF[key]:
+                #     col1, col2, col3, col4 = st.columns((1,1,2.5,1))
+                #     col1.write(dish["meal"])
+                #     col2.write(dish['location'])
+                #     col3.write(methods.get_dish_name(dish['dish_id']))
+                #     delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
+                #     if delete:
+                #         methods.delete_meal(dish["log_id"], dish["dish_id"])
+                #         st.toast("Dish Deleted")
+                #         time.sleep(1)
+                #         st.rerun() 
+                #     cals += methods.get_dish_calories(dish['dish_id'])
+
+                #col1, col2 = st.columns((2,3.5))
+                #with col1:
+                with st.expander("See Nutrionals", ):
                     info = vm.get_stats_by_date(user_id,key)
                     for n in info:
                         if n == "calories":
@@ -111,8 +174,8 @@ with main:
                             uom = "mg"
                         else:
                             uom = "g"
-                        col1.write(f"{n}: {info[n]} {uom}") 
-
+                        st.write(f"{n}: {info[n]} {uom}") 
+                    
                 # if col2.button("Add Note"):
                 #     with col2.form("Note"):
                 #         newname = col2.text_input("Note:")
@@ -120,5 +183,6 @@ with main:
                 #         if note:
                 #             col2.write(note)
 
-    except Exception:
+    except Exception as e:
+        st.write(e)
         st.warning("Please log a meal in the Menus tab to view your journal.")
