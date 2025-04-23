@@ -3,8 +3,6 @@ from datetime import date, datetime, timedelta
 import methods
 import visualization_methods as vm
 import numpy as np
-import plotly.express as px
-import pandas as pd
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 
@@ -113,6 +111,8 @@ with main:
     except:
         st.warning("Please log a meal in the Menus tab to view your visualizations.")
 
+
+    #import plotly express as px to use
     # fig1 = px.line(vm.get_stats_by_date_range(user_id, "2025-04-20", "2025-04-21",["calories","fat"]))
      
     # fig1.update_layout(
