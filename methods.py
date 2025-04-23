@@ -192,9 +192,9 @@ def update_ratings():
     for id in favs:
         cur.execute(f"SELECT COUNT(*) from favorites WHERE dish_id = {id[0]}")
         r = cur.fetchone()
-        ratings += [(id[0], r)]
+        ratings += [(id[0], r[0])]
     for r in ratings:
-        cur.execute(f"UPDATE dishes SET rating = {r[1]} WHERE dish_id = {r[0]}")
+        cur.execute("UPDATE dishes SET rating = ? WHERE dish_id = ?", (r[1], r[0]))
     conn.close()
     db_sync.push_db_to_github()
 
