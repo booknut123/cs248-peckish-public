@@ -137,20 +137,23 @@ def add_user(user_info): # == added by Kailyn ==
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
+            name = "".join((user_info.get("name")).split(" "))
             # New user - insert and get auto-generated user_id
-            cursor = conn.execute("""
+            cur.execute("""
                 INSERT INTO users 
-                (google_id, email, name, given_name, picture_url, first_seen, last_login)
-                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                (google_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 RETURNING user_id
             """, (
                 google_id,
                 user_info.get("email"),
                 user_info.get("name"),
+                name,
                 user_info.get("given_name"),
                 user_info.get("picture")
             ))
-            user_id = cursor.fetchone()[0]
+
+            user_id = cur.fetchone()[0]
         
         conn.commit()
         st.session_state["user_id"] = user_id
