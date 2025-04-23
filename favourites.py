@@ -96,10 +96,10 @@ with main:
     else:
         st.warning("Please add a favorite in the Menus tab to view your favorites.")
     
+    st.write("---")
     st.header("Top User Favorites")
     st.container(border=True)
-    with
-            
-        st.write(methods.top5favs())
-        methods.update_ratings()
+    # with
+        # st.write(methods.top5favs())
+        # methods.update_ratings()
     
