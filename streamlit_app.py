@@ -12,7 +12,7 @@ pages = {
         st.Page("menus.py", title="Menus"),
         st.Page("journal.py", title="Journal"),
         st.Page("visualize.py", title="Visualize"),
-        st.Page("favourites.py", title="Favorites"),
+        st.Page("favorites.py", title="Favorites"),
         st.Page("settings.py", title="Settings")
     ]
 }

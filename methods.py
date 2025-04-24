@@ -606,4 +606,8 @@ def get_tags(userID, date):
     else:
         return tags
 
-
+def check_id(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    match = cur.execute("SELECT user_id FROM users WHERE user_id = ?", (userID, )).fetchone()
+    return (match != None)
