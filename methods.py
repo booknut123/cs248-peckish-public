@@ -598,7 +598,7 @@ def get_tags(userID, date):
     tags = cur.execute("SELECT tags FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()
     
     if tags == None:
-        return ""
+        return None
 
     else:
         
