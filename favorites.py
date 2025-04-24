@@ -101,7 +101,7 @@ else:
         for fav in favorites:
             if fav[1] != 0:
                 col1.write(f"**{i}.**")
-                col2.write(f"❤️ {fav[1]}")
+                col2.write(f"❤️ {fav[1] - {fav[0]}}")
                 i += 1
 
 #methods.update_ratings() to make sure favorite counts are correct
