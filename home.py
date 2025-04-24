@@ -33,7 +33,7 @@ def render_sidebar():
         render_user_profile()
 
         if st.sidebar.button("Logout"):
-            for key in ["access_token", "oauth_state"]:
+            for key in ["access_token", "oauth_state", "user_id"]:
                 st.session_state.pop(key, None)
             st.rerun()
 
