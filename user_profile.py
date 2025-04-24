@@ -108,7 +108,7 @@ def add_user(user_info): # == added by Kailyn ==
         google_id = user_info["sub"]
         
         user_id = str(google_id)
-
+        
         cur.execute(
             "SELECT user_id FROM users WHERE user_id = ?", 
             (user_id,)
