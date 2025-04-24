@@ -18,69 +18,66 @@ if not methods.check_id(user_id):
     st.stop()
 
 try:
-
     st.header("Visualize")
-
-    with sidebar:
         
-        st.image(image='crumb-the-goose.png')
+    st.image(image='crumb-the-goose.png')
+    
+    test = vm.get_total_nutrients(user_id, "calories")
+
+    d = date.today()
+    today = d.weekday()
+    if(today == 6):
+        sun = d
+        sat = d + timedelta(days=sun + 6)
+    else:
+        sun = d + timedelta(days= -today)
+        sat = d + timedelta(days= 5 - today)
+
+    # st.subheader("Customize")
         
-        test = vm.get_total_nutrients(user_id, "calories")
+    borderdates = methods.get_border_log_dates(user_id)
+    
+    stats = ["calories", "fat", "cholesterol", "sodium", "carbohydrates", "sugars", "protein"]
+    selectedstats = []
+    uom = []
+    selectednone = True
 
-        d = date.today()
-        today = d.weekday()
-        if(today == 6):
-            sun = d
-            sat = d + timedelta(days=sun + 6)
-        else:
-            sun = d + timedelta(days= -today)
-            sat = d + timedelta(days= 5 - today)
+    st.write("**Select Nutrients**")
+    col1, col2 = st.columns((1.5,3))
 
-        # st.subheader("Customize")
-            
-        borderdates = methods.get_border_log_dates(user_id)
-        
-        stats = ["calories", "fat", "cholesterol", "sodium", "carbohydrates", "sugars", "protein"]
-        selectedstats = []
-        uom = []
-        selectednone = True
+    all = col1.button("All")
+    if all:
+        all=True
+    
+    #none = col2.button("None")
+    #if none:
+        #none=True
 
-        st.write("**Select Nutrients**")
-        col1, col2 = st.columns((1.5,3))
-
-        all = col1.button("All")
+    for stat in stats:
         if all:
-            all=True
-        
-        #none = col2.button("None")
-        #if none:
-            #none=True
-
-        for stat in stats:
-            if all:
+            selected = st.checkbox(stat, value=True)
+        #elif none:
+        #    selected = st.checkbox(stat, value=False)
+        else:
+            if stat in ["fat", "carbohydrates", "protein"]:
                 selected = st.checkbox(stat, value=True)
-            #elif none:
-            #    selected = st.checkbox(stat, value=False)
             else:
-                if stat in ["fat", "carbohydrates", "protein"]:
-                    selected = st.checkbox(stat, value=True)
-                else:
-                    selected = st.checkbox(stat)
-            
-            if selected:
-                selectednone=False
-                if stat == "calories":
-                    uom.append("kcal")
-                if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
-                    uom.append("mg")
-                if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
-                    uom.append("g")
-                selectedstats.append(stat)
-
-        colors = ["#0B3954", "#FF6663", "#247BA0", "#70C1B3", "#FFCB77", "#9D6A89", "#D4A5A5"]
-        colors = colors[:len(selectedstats)]
+                selected = st.checkbox(stat)
         
-        uom = " / ".join(uom)
+        if selected:
+            selectednone=False
+            if stat == "calories":
+                uom.append("kcal")
+            if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
+                uom.append("mg")
+            if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
+                uom.append("g")
+            selectedstats.append(stat)
+
+    colors = ["#0B3954", "#FF6663", "#247BA0", "#70C1B3", "#FFCB77", "#9D6A89", "#D4A5A5"]
+    colors = colors[:len(selectedstats)]
+    
+    uom = " / ".join(uom)
 
     st.write("---")
 
