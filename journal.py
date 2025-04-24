@@ -106,9 +106,6 @@ with main:
                 if meals['Breakfast'] != 0:                
                     st.write("---")
                     i=1
-                if meals['Breakfast'] != 0:                
-                    st.write("---")
-                    i=1
                     for dish in dateDict:
                         if dish['meal'] == "Breakfast":
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
