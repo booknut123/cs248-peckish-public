@@ -106,10 +106,11 @@ def add_user(user_info): # == added by Kailyn ==
     try:
         # First try to find existing user by google_id
         google_id = user_info["sub"]
-        result = conn.execute(
+        cur.execute(
             "SELECT user_id FROM users WHERE user_id = ?", 
             (google_id,)
-        ).fetchone()
+        )
+        result = cur.fetchone()
 
         user_id = str(google_id)
 
