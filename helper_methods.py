@@ -418,19 +418,26 @@ def create_meal(userID, dishID, hall, mealName, date):
     conn = connect_db()
     cur = conn.cursor()
 
-    logs = get_user_logs(userID)
+    try:
+        logs = get_user_logs(userID)
+    except:
+        logs = []
     found = False
-    for log in logs:
-        cur.execute(f"SELECT log_id FROM meal_log WHERE log_id = ? AND dining_hall = ? AND meal_name = ? AND date_logged = ?", (log, hall, mealName, date))
-        meal = cur.fetchall()
-        if meal:
-            logID = meal[0][0]
-            found = True
-            break
+    if logs:
+        for log in logs:
+            cur.execute(f"SELECT log_id FROM meal_log WHERE log_id = ? AND dining_hall = ? AND meal_name = ? AND date_logged = ?", (log, hall, mealName, date))
+            meal = cur.fetchall()
+            if meal:
+                logID = meal[0][0]
+                found = True
+                break
 
-    dishes = get_log_dishes(logID)
-    if str(dishID) in dishes:
-        return None
+    try:
+        dishes = get_log_dishes(logID)
+        if str(dishID) in dishes:
+            return None
+    except:
+        dishes = []
 
     if found:
         cur.execute(f"SELECT dish_ids FROM meal_log WHERE log_id = {logID}")
