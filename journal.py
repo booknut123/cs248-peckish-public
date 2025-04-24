@@ -37,7 +37,7 @@ except:
 
 with main:
 
-    st.subheader("Journal")
+    st.header("Journal")
     # try:
         
     names = [name[0] for name in methods.get_all_names() if name[0] != methods.get_name(user_id)]
@@ -86,6 +86,7 @@ with main:
             weekday = weekdays[date]
 
             st.subheader(f"{weekday}, {key}")
+            st.write("")
             
             st.write("")
             dateDict = sortedDF[key]
@@ -96,6 +97,7 @@ with main:
             col2.write("**Dish**")
             col3.write("**Hall**")
             col4.write("**Delete**")
+            st.write("")
 
             meals = {'Breakfast': 0, 'Lunch': 0, 'Dinner': 0}
             for dish in dateDict:
@@ -156,13 +158,13 @@ with main:
             
             datenote = methods.get_note(user_id, key)
             if datenote:
-                st.write(f"Note: {datenote}")
+                st.write(f"**Note**: {datenote}")
 
             tags = methods.get_tags(user_id, key)
             if tags:
                 tags = tags[0].split(",")
             if tags:
-                st.write(f"Tags: {', '.join([tag for tag in tags])}")
+                st.write(f"**Tags**: {', '.join([tag for tag in tags])}")
 
             col1, col2 = st.columns((2))
             
@@ -194,6 +196,7 @@ with main:
                         methods.add_tags(user_id, key, tagged)
                         st.toast("Tags added!")
                         st.rerun()
+        st.write("")
 
     # except Exception as e:
     #     #st.write(e)

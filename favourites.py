@@ -74,15 +74,15 @@ with main:
         if faves:
             st.write("---")
 
-            col1, col2, col3, col4 = st.columns((2,1,1,1))
+            col1, col2, col3, col4 = st.columns((1.75,0.75,0.75,0.75))
             col1.write("**Dish**")
             col2.write("**Meal**")
-            col3.write("**Location**")
+            col3.write("**Hall**")
             col4.write("**Date**")
             st.write("---")
 
             for fave in faves:
-                col1, col2, col3, col4 = st.columns((2,1,1,1))
+                col1, col2, col3, col4 = st.columns((1.75,0.75,0.75,0.75))
                 col1.write(fave)
                 for f in faves[fave]:
                     
