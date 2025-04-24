@@ -33,20 +33,20 @@ with main:
         
         st.write("---")
 
-        col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
+        col1, col2, col3, col4, col5 = st.columns((3,1,0.5,0.5,0.5))
         col1.write("**Dish**")
-        col2.write("**Likes**")
-        col3.write("**Date Added**")
-        col4.write("**Notification**")
+        col2.write("**Date Added**")
+        col3.write("**Likes**")
+        col4.write("**Notify**")
         col5.write("**Delete**")
         st.write("---")
 
 
         for index, row in favs.iterrows():
-            col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
+            col1, col2, col3, col4, col5 = st.columns((3,1,0.5,0.5,0.5))
             col1.write(methods.get_dish_name(row["dish_id"]))
-            col2.write(str(methods.get_dish_rating(row["dish_id"])))
-            col3.write(row["date_added"])
+            col2.write(row["date_added"])
+            col3.write(str(methods.get_dish_rating(row["dish_id"])))
             
             toggle_key = f"favorite_{index}_{row['dish_id']}"
             if toggle_key not in st.session_state:
