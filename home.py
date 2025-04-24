@@ -68,8 +68,8 @@ if "access_token" not in st.session_state:
 
 user_id = st.session_state.get("user_id")
 
-#run this if you reset entire database, or else week will be empty
-#helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
+#run this (with new starting date) if you reset entire database, or else week will be empty
+#helper_methods.weekly_update_db("2025-04-20")
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
