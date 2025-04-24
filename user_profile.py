@@ -21,7 +21,9 @@ import db_sync
 def get_db_connection():
     # """Connect to peckish.db in the parent folder"""
     # db_path = os.path.join(PARENT_DIR, "peckish.db")
-    return sqlite3.connect(db_sync.get_db_path())
+    path = db_sync.get_db_path()
+    st.write("📂 Connected to DB:", path)
+    return sqlite3.connect(path)
 
 ## ENI'S CODE ##
 
@@ -103,13 +105,6 @@ def add_user(user_info): # == added by Kailyn ==
     
     conn = get_db_connection()
     cur = conn.cursor()
-
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
-    tables = cur.fetchall()
-    print(tables)
-    print(conn)
-    st.write(tables)
-    st.write(conn)
     
     try:
         # First try to find existing user by google_id
