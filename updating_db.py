@@ -10,20 +10,20 @@ def update_db_stuff():
 
     cur.execute("""
                 ALTER TABLE meal_log
-                ADD COLUMN tags TEXT
+                DROP COLUMN tags
                 """)
 
     cur.execute("""
-                ALTER TABLE meal_log
-                DROP COLUMN note
+                ALTER TABLE notes
+                ADD COLUMN tags TEXT
                 """)
     
-    cur.execute("""CREATE TABLE IF NOT EXISTS notes (
-                user_id TEXT,
-                date TEXT,
-                note TEXT
-                );
-                """)
+    # cur.execute("""CREATE TABLE IF NOT EXISTS notes (
+    #             user_id TEXT,
+    #             date TEXT,
+    #             note TEXT
+    #             );
+    #             """)
             
     conn.commit()
     conn.close()

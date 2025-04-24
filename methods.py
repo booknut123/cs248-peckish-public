@@ -556,4 +556,52 @@ def get_note(userID, date):
     else:
         return note[0]
 
+def get_name(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    name = cur.execute("SELECT name FROM users WHERE user_id = ?", (userID,)).fetchone()
+
+    return name[0]
+  
+
+def get_all_names():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    names = cur.execute("SELECT DISTINCT name FROM users").fetchall()
+
+    return names
+
+def add_tags(userID, date, tagslist):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    tags = ",".join(tagslist)
+
+    num = cur.execute("SELECT COUNT(*) FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()[0]
+    
+    if num == 0:
+        cur.execute("INSERT INTO notes (user_id, date, tags) VALUES (?, ?, ?)", (userID, date, tags))
+        conn.commit()
+
+    else:
+        cur.execute("UPDATE notes SET tags = ? WHERE user_id = ? AND date = ? ", (tags, userID, date))
+        conn.commit()
+
+    conn.close()
+
+def get_tags(userID, date):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    tags = cur.execute("SELECT tags FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()
+    
+    if not tags[0]:
+        return ""
+
+    else:
+        
+        return tags
+
 

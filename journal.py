@@ -39,7 +39,8 @@ with main:
 
     st.subheader("Journal")
     try:
-    
+        
+        names = [name[0] for name in methods.get_all_names() if name[0] != methods.get_name(user_id)]
         mealLog = methods.get_meal_log(user_id)
         
         def get_calories(dish_id):
@@ -173,6 +174,14 @@ with main:
                 datenote = methods.get_note(user_id, key)
                 if datenote:
                     st.write(f"Note: {datenote}")
+                else:
+                    st.write("No note.")
+
+                tags = methods.get_tags(user_id, key)
+                if tags:
+                    st.write(f"Tags: {', '.join([tag for tag in tags])}")
+                else:
+                    st.write(f"No tags.")
 
 
                 col1, col2 = st.columns((2))
@@ -188,20 +197,21 @@ with main:
                             uom = "g"
                         st.write(f"{n}: {info[n]} {uom}") 
 
-                with col2.expander("Add / Update Note"):
+                with col2.expander("Add Note & Tag Friends"):
+
                     with st.form(f"Add Note {key}"):
                         note = st.text_input("Note (submit blank to delete):")
-                        submitted = st.form_submit_button("Submit")
-                        if submitted:
+                        submittedN = st.form_submit_button("Submit Note")
+                        if submittedN:
                             methods.add_note(user_id, key, note)
                             st.rerun()
                     
-                # if col2.button("Add Note"):
-                #     with col2.form("Note"):
-                #         newname = col2.text_input("Note:")
-                #         note = col2.form_submit_button("Submit")
-                #         if note:
-                #             col2.write(note)
+                    with st.form(f"Tag Friend {key}"):
+                        tagged = st.multiselect('Tags (submit blank to delete):',names, placeholder="Search for friends by name!")
+                        submittedT = st.form_submit_button("Submit Tags")
+                        if submittedT:
+                            methods.add_tags(user_id, key, tagged)
+                            st.rerun()
 
     except Exception as e:
         #st.write(e)
