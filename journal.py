@@ -170,7 +170,7 @@ with main:
 
                 col1, col2 = st.columns((2))
                 
-                with col1.expander("See Daily Nutrionals"):
+                with col1.expander("See Daily Nutritionals"):
                     info = vm.get_stats_by_date(user_id,key)
                     for n in info:
                         if n == "calories":
