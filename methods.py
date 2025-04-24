@@ -417,8 +417,9 @@ def get_username(user_id):
     conn = connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+    cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
     username = cur.fetchone()
+    
     return username[0]
  
 def set_username(userID, username):

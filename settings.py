@@ -27,7 +27,7 @@ with main:
         userA = ""
         userP = ""
  
-    try:
+    # try:
         a = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
         p = ["Gluten Sensitive", "Vegan", "Vegetarian"]
          
@@ -78,5 +78,5 @@ with main:
 
         st.subheader("Get Usage Data")
 
-    except:
-        st.write("Something went wrong.")
+    # except:
+    #     st.write("Something went wrong.")
