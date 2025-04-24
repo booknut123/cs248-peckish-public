@@ -38,6 +38,9 @@ with main:
         col2.write("**Date Added**")
         col3.write("**Likes**")
         col4.write("**Notify**")
+        col2.write("**Date Added**")
+        col3.write("**Likes**")
+        col4.write("**Notify**")
         col5.write("**Delete**")
         st.write("---")
 
@@ -45,6 +48,8 @@ with main:
         for index, row in favs.iterrows():
             col1, col2, col3, col4, col5 = st.columns((2.5,1,0.5,0.5,0.5))
             col1.write(methods.get_dish_name(row["dish_id"]))
+            col2.write(row["date_added"])
+            col3.write(str(methods.get_dish_rating(row["dish_id"])))
             col2.write(row["date_added"])
             col3.write(str(methods.get_dish_rating(row["dish_id"])))
             
