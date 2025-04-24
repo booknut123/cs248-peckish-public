@@ -17,7 +17,7 @@ except:
  
 with main:
     st.header("Settings")
-    
+    st.divider()
 
     data = m.get_user_allergens_preferences(user_id)
     if data:
@@ -63,9 +63,12 @@ with main:
 
             st.write("* Selections will filter menus shown in the Menus tab.")
  
+
+        st.divider()
+
         st.write("")
         st.subheader("Set Account Username")
-
+        
         col1, col2 = st.columns((1,1.5))
         
         with col1:
@@ -76,7 +79,21 @@ with main:
                     m.set_username(user_id, newname)
             st.write(f"**Username**: {m.get_username(user_id)}")
 
-        st.subheader("Get Usage Data")
+
+        st.divider()
+
+        st.subheader("Usage Data")
+        st.write(f"Date joined: {m.get_user_join_date(user_id)}")
+        st.write(f"Total dishes logged: {m.get_total_dishes_logged(user_id)}")
+        
+        st.divider()
+
+        st.write("Website credits to:")
+        st.write("- Nina Howley '27")
+        st.write("- Kailyn Lau '28")
+        st.write("- Maya Gurewitz '26")
+        st.write("- The students of CS 248 Spring '25")
+
 
     except:
         st.write("Something went wrong.")

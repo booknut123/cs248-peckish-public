@@ -506,5 +506,23 @@ def get_faves_for_week(userID, date):
 
     return organizeddishes
 
+def get_user_join_date(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    date = cur.execute("SELECT first_seen FROM users WHERE user_id = ?", (userID,)).fetchone()[0]
+    return date.split(" ")[0]
+
+def get_total_dishes_logged(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    logs = get_user_logs(userID)
+    dishes = [get_log_dishes(log) for log in logs]
+    numdishes = 0
+    for dish in dishes:
+        numdishes += len(dish)
+
+    return numdishes
 
 
