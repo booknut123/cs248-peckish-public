@@ -98,13 +98,13 @@ with main:
     
     st.header("Top User Favorites")
     with st.container(border=True):
-        col1, col2 = st.columns((0.5, 4.5))
+        col1, col2 = st.columns((0.25, 4.5))
         i = 1
         favorites = methods.top5favs()
         for fav in favorites:
             if fav[1] != 0:
                 col1.write(f"**{i}.**")
-                col2.write(f"{fav[0]} {fav[1]}")
+                col2.write(f"{fav[1]} - {fav[0]}")
                 i += 1
 
     #methods.update_ratings() to make sure favorite counts are correct

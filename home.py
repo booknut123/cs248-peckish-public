@@ -141,4 +141,8 @@ col1.write("* Menus may not be accurate.")
 col1.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
 
 url = "http://www.wellesleyfresh.com/connect-with-us.html"
-col2.write("[Contact the Manager](%s)" % url)
+col2.link_button("Contact the Manager", url)
+st.divider()
+st.header("Credits:")
+st.write("We want to thank all the dining service workers, AVI, Professor Mustafaraj,"
+         + " and everyone who assisted us in the development of our app from research surverys to user testing!")
