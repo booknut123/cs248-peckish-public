@@ -12,9 +12,9 @@ import helper_methods
 # st.write("Updated weekly database")
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
-try:
-    user_id = st.session_state.get("user_id")
-except:
+user_id = st.session_state.get("user_id")
+
+if not methods.check_id(user_id):
     col1, col2 = st.columns((0.3, 1.5))
     col1.image(image='crumb-the-goose.png')
     col2.header("Peckish")
