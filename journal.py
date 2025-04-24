@@ -106,9 +106,14 @@ with main:
                 if meals['Breakfast'] != 0:                
                     st.write("---")
                     i=1
+                if meals['Breakfast'] != 0:                
+                    st.write("---")
+                    i=1
                     for dish in dateDict:
                         if dish['meal'] == "Breakfast":
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Breakfast**")
                             if i==1:
                                 col1.write("**Breakfast**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
@@ -121,14 +126,19 @@ with main:
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
+                            i+=1
                     
                 
                 if meals['Lunch'] != 0:
                     st.write("---")
                     i=1
+                    st.write("---")
+                    i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Lunch':
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Lunch**")
                             if i==1:
                                 col1.write("**Lunch**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
@@ -141,13 +151,18 @@ with main:
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
+                            i+=1
 
                 if meals['Dinner'] != 0:
+                    st.write("---")
+                    i=1
                     st.write("---")
                     i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Dinner':
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Dinner**")
                             if i==1:
                                 col1.write("**Dinner**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
@@ -159,6 +174,7 @@ with main:
                                 time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
+                            i+=1
                             i+=1
 
 
