@@ -114,7 +114,6 @@ with main:
                             if delete:
                                 methods.delete_meal(dish["log_id"], dish["dish_id"])
                                 st.toast("Dish Deleted")
-                                time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
@@ -132,7 +131,6 @@ with main:
                             if delete:
                                 methods.delete_meal(dish["log_id"], dish["dish_id"])
                                 st.toast("Dish Deleted")
-                                time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
@@ -150,39 +148,19 @@ with main:
                             if delete:
                                 methods.delete_meal(dish["log_id"], dish["dish_id"])
                                 st.toast("Dish Deleted")
-                                time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
-
-
-                # for dish in sortedDF[key]:
-                #     col1, col2, col3, col4 = st.columns((1,1,2.5,1))
-                #     col1.write(dish["meal"])
-                #     col2.write(dish['location'])
-                #     col3.write(methods.get_dish_name(dish['dish_id']))
-                #     delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
-                #     if delete:
-                #         methods.delete_meal(dish["log_id"], dish["dish_id"])
-                #         st.toast("Dish Deleted")
-                #         time.sleep(1)
-                #         st.rerun() 
-                #     cals += methods.get_dish_calories(dish['dish_id'])
 
                 st.divider()
                 
                 datenote = methods.get_note(user_id, key)
                 if datenote:
                     st.write(f"Note: {datenote}")
-                else:
-                    st.write("No note.")
 
                 tags = methods.get_tags(user_id, key)
                 if tags:
                     st.write(f"Tags: {', '.join([tag for tag in tags])}")
-                else:
-                    st.write(f"No tags.")
-
 
                 col1, col2 = st.columns((2))
                 
@@ -204,6 +182,7 @@ with main:
                         submittedN = st.form_submit_button("Submit Note")
                         if submittedN:
                             methods.add_note(user_id, key, note)
+                            st.toast("Note added!")
                             st.rerun()
                     
                     with st.form(f"Tag Friend {key}"):
@@ -211,6 +190,7 @@ with main:
                         submittedT = st.form_submit_button("Submit Tags")
                         if submittedT:
                             methods.add_tags(user_id, key, tagged)
+                            st.toast("Tags added!")
                             st.rerun()
 
     except Exception as e:

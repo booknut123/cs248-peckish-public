@@ -64,7 +64,6 @@ with main:
             if delete:
                 methods.remove_favorite(user_id, row["dish_id"])
                 st.toast("Favorite Deleted")
-                time.sleep(1)
                 st.rerun()
 
         st.write("---")
