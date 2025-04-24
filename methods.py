@@ -380,8 +380,6 @@ def top5favs():
     return top5
 
 
-create_database()
-
 def sort_meals_by_date(df):
     dates = sorted(df["date"].unique(), reverse=True)
 
@@ -524,5 +522,33 @@ def get_total_dishes_logged(userID):
         numdishes += len(dish)
 
     return numdishes
+
+def add_note(userID, date, note):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    num = cur.execute("SELECT COUNT(*) FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()[0]
+    
+    if num == 0:
+        cur.execute("INSERT INTO notes (user_id, date, note) VALUES (?, ?, ?)", (userID, date, note))
+        conn.commit()
+
+    else:
+        cur.execute("UPDATE notes SET note = ? WHERE user_id = ? AND date = ? ", (note, userID, date))
+        conn.commit()
+
+    conn.close()
+
+def get_note(userID, date):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    note = cur.execute("SELECT note FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()
+
+    if not note:
+        return ""
+
+    else:
+        return note[0]
 
 
