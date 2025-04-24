@@ -116,7 +116,12 @@ with main:
                 
                         with col2.expander(row['dish_name']):
                             info = methods.get_dish_info(row['dish_id'])[7:]
-                            st.write(f"*{methods.get_dish_info(row['dish_id'])[2]}*")
+                            descr = methods.get_dish_info(row['dish_id'])[2]
+                            if descr:
+                                st.write(f"*{descr}*")
+                            else:
+                                st.write("*No description available.*")
+                            
                             for i, stat in zip(info, stats):
                                 uom = "g"
                                 if stat == "calories":
