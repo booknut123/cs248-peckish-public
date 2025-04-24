@@ -107,9 +107,11 @@ def add_user(user_info): # == added by Kailyn ==
         # First try to find existing user by google_id
         google_id = user_info["sub"]
         result = conn.execute(
-            "SELECT user_id FROM users WHERE google_id = ?", 
+            "SELECT user_id FROM users WHERE user_id = ?", 
             (google_id,)
         ).fetchone()
+
+        user_id = str(google_id)
 
         if result:
             # Existing user - update and return existing user_id
@@ -130,7 +132,7 @@ def add_user(user_info): # == added by Kailyn ==
                 user_id
             ))
 
-            cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+            cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
             name = cur.fetchone()
             print(name[0])
             if name[0] == None:
@@ -138,20 +140,18 @@ def add_user(user_info): # == added by Kailyn ==
                 conn.commit()
         else:
             name = "".join((user_info.get("name")).split(" "))
-            # New user - insert and get auto-generated user_id
+
             cur.execute("""
                 INSERT INTO users 
-                (google_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)""", (
-                google_id,
+                user_id,
                 user_info.get("email"),
                 user_info.get("name"),
                 name,
                 user_info.get("given_name"),
                 user_info.get("picture")
             ))
-
-            user_id = cur.execute("SELECT user_id FROM users WHERE google_id = ?", (google_id,)).fetchone()[0]
         
         conn.commit()
         st.session_state["user_id"] = user_id

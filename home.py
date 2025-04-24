@@ -66,7 +66,10 @@ col2.write("From CS248 '25 - Kailyn, Maya, Nina")
 if "access_token" not in st.session_state:
     st.stop()
 
-user_id = int(st.session_state.get("user_id"))
+user_id = st.session_state.get("user_id")
+
+#run this if you reset entire database, or else week will be empty
+#helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
