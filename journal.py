@@ -162,9 +162,10 @@ with main:
 
             tags = methods.get_tags(user_id, key)
             if tags:
-                tags = tags[0].split(",")
-            if tags:
-                st.write(f"**Tags**: {', '.join([tag for tag in tags])}")
+                if tags[0]:
+                    tags = tags[0].split(",")
+                if tags[0]:
+                    st.write(f"**Tags**: {', '.join([tag for tag in tags])}")
 
             col1, col2 = st.columns((2))
             
