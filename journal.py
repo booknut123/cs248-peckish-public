@@ -158,7 +158,7 @@ with main:
                 if datenote:
                     st.write(f"Note: {datenote}")
 
-                tags = methods.get_tags(user_id, key)
+                tags = methods.get_tags(user_id, key)[0].split(",")
                 if tags:
                     st.write(f"Tags: {', '.join([tag for tag in tags])}")
 
@@ -196,3 +196,4 @@ with main:
     except Exception as e:
         #st.write(e)
         st.warning("Please log a meal in the Menus tab to view your journal.")
+
