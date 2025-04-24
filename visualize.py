@@ -48,34 +48,34 @@ try:
         st.write("**Select Nutrients**")
         col1, col2 = st.columns((1.5,3))
 
-            all = col1.button("All")
-            if all:
-                all=True
-            
-            #none = col2.button("None")
-            #if none:
-                #none=True
+        all = col1.button("All")
+        if all:
+            all=True
+        
+        #none = col2.button("None")
+        #if none:
+            #none=True
 
-            for stat in stats:
-                if all:
+        for stat in stats:
+            if all:
+                selected = st.checkbox(stat, value=True)
+            #elif none:
+            #    selected = st.checkbox(stat, value=False)
+            else:
+                if stat in ["fat", "carbohydrates", "protein"]:
                     selected = st.checkbox(stat, value=True)
-                #elif none:
-                #    selected = st.checkbox(stat, value=False)
                 else:
-                    if stat in ["fat", "carbohydrates", "protein"]:
-                        selected = st.checkbox(stat, value=True)
-                    else:
-                        selected = st.checkbox(stat)
-                
-                if selected:
-                    selectednone=False
-                    if stat == "calories":
-                        uom.append("kcal")
-                    if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
-                        uom.append("mg")
-                    if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
-                        uom.append("g")
-                    selectedstats.append(stat)
+                    selected = st.checkbox(stat)
+            
+            if selected:
+                selectednone=False
+                if stat == "calories":
+                    uom.append("kcal")
+                if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
+                    uom.append("mg")
+                if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
+                    uom.append("g")
+                selectedstats.append(stat)
 
         colors = ["#0B3954", "#FF6663", "#247BA0", "#70C1B3", "#FFCB77", "#9D6A89", "#D4A5A5"]
         colors = colors[:len(selectedstats)]
