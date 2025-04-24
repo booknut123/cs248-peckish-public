@@ -92,7 +92,7 @@ with main:
             dateDict = sortedDF[key]
             #st.write(dateDict[0])
 
-            col1, col2, col3, col4 = st.columns((1,2.5, 1,1), vertical_alignment='bottom')
+            col1, col2, col3, col4 = st.columns((1,3, 1,1), vertical_alignment='bottom')
             col1.write("**Meal**")
             col2.write("**Dish**")
             col3.write("**Hall**")
@@ -107,7 +107,7 @@ with main:
                 i=1
                 for dish in dateDict:
                     if dish['meal'] == "Breakfast":
-                        col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                        col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Breakfast**")
                         col2.write(methods.get_dish_name(dish['dish_id']))
@@ -124,7 +124,7 @@ with main:
                 i=1
                 for dish in dateDict:
                     if dish['meal'] == 'Lunch':
-                        col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                        col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Lunch**")
                         col2.write(methods.get_dish_name(dish['dish_id']))
@@ -141,7 +141,7 @@ with main:
                 i=1
                 for dish in dateDict:
                     if dish['meal'] == 'Dinner':
-                        col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                        col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Dinner**")
                         col2.write(methods.get_dish_name(dish['dish_id']))
