@@ -134,7 +134,6 @@ def add_user(user_info): # == added by Kailyn ==
 
             cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
             name = cur.fetchone()
-            print(name[0])
             if name[0] == None:
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()

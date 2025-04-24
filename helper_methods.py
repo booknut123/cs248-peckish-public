@@ -430,7 +430,6 @@ def create_meal(userID, dishID, hall, mealName, date):
 
     dishes = get_log_dishes(logID)
     if str(dishID) in dishes:
-        print(True)
         return None
 
     if found:
