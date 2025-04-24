@@ -61,27 +61,27 @@ with sidebar:
 
     st.subheader("Filter")
 
-    st.write("**Allergens (excluded)**")
-    allergens = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
-    selected_allergens = []
-    for i, aller in enumerate(allergens):
-        sel = False
-        if userA:
-            if aller in userA:
-                sel = True
-        if st.checkbox(aller, value=sel):
-                selected_allergens.append(aller)
+    with st.expander("**Allergens**"):
+        allergens = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
+        selected_allergens = []
+        for i, aller in enumerate(allergens):
+            sel = False
+            if userA:
+                if aller in userA:
+                    sel = True
+            if st.checkbox(aller, value=sel):
+                    selected_allergens.append(aller)
         
-    st.write("**Preferences**")
-    preferences = ["Vegan", "Vegetarian", "Gluten Sensitive"]
-    selected_preferences = []
-    for i, pref in enumerate(preferences):
-        sel = False
-        if userP:
-            if pref in userP:
-                sel = True
-        if st.checkbox(pref, value=sel):
-             selected_preferences.append(pref)
+    with st.expander("**Preferences**"):
+        preferences = ["Vegan", "Vegetarian", "Gluten Sensitive"]
+        selected_preferences = []
+        for i, pref in enumerate(preferences):
+            sel = False
+            if userP:
+                if pref in userP:
+                    sel = True
+            if st.checkbox(pref, value=sel):
+                selected_preferences.append(pref)
     
 with main:
     if selected_locations:
