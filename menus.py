@@ -93,16 +93,15 @@ with main:
                 df = methods.print_menu(selected_allergens, selected_preferences, loc, meal, d)
                 if not df.empty:
                     # Header row
-                    col1, col2, col3, col4 = st.columns((0.5, 2.5, 0.75, 0.75), vertical_alignment="top")
+                    col1, col2, col3 = st.columns((0.5, 3.25, 0.75), vertical_alignment="top")
                     col1.write("**Log**")
                     col2.write("**Dish**")
-                    col3.write("**Info**")
-                    col4.write("**Favorite**")
+                    col3.write("**Favorite**")
 
                     stats = ["calories", "fat", "cholesterol", "sodium", "carbohydrates", "sugars", "protein"]
 
                     for index, row in df.iterrows():
-                        col1, col2, col3, col4 = st.columns((0.5, 2.5, 0.75, 0.75), vertical_alignment="top")
+                        col1, col2, col3 = st.columns((0.5, 3.25, 0.75), vertical_alignment="top")
 
                         # Add to journal button
                         def add_button(user_id, row_id, loc, meal, d):
@@ -115,11 +114,9 @@ with main:
                             args=(user_id, row['dish_id'], loc, meal, d)
                         )
                 
-                        col2.write(row['dish_name'])
-
-                        with col3.popover(""):
+                        with col2.expander(row['dish_name']):
                             info = methods.get_dish_info(row['dish_id'])[7:]
-                            st.write(methods.get_dish_info(row['dish_id'])[2])
+                            st.write(f"*{methods.get_dish_info(row['dish_id'])[2]}*")
                             for i, stat in zip(info, stats):
                                 uom = "g"
                                 if stat == "calories":
@@ -134,7 +131,7 @@ with main:
                             st.session_state[heart_key] = False
 
                         numfaves = str(methods.get_dish_rating(row['dish_id']))
-                        heart_clicked = col4.button(
+                        heart_clicked = col3.button(
                             f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
                             key=f"btn_{heart_key}"
                         )
