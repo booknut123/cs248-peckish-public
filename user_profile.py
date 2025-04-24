@@ -103,7 +103,8 @@ def render_user_profile():
 def add_user(user_info): # == added by Kailyn ==
     """Insert or update user in peckish.db using Google auth info"""
     
-    conn = get_db_connection()
+    db_sync.download_db_from_github()
+    conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
     
     try:
