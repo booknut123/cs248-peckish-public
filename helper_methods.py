@@ -18,8 +18,7 @@ def create_database():
 
     # cur.execute("""DROP TABLE IF EXISTS users""")
     cur.execute("""CREATE TABLE IF NOT EXISTS users (
-                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                google_id TEXT, 
+                user_id TEXT,
                 email TEXT UNIQUE,
                 name TEXT,
                 user_name TEXT,
@@ -42,7 +41,7 @@ def create_database():
             );
         """)
     
-    #cur.execute("""DROP TABLE IF EXISTS dishes""")
+    # cur.execute("""DROP TABLE IF EXISTS dishes""")
     cur.execute("""CREATE TABLE IF NOT EXISTS dishes (
                 dish_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 dish_name TEXT,
@@ -61,7 +60,7 @@ def create_database():
             );
         """)
     
-    #cur.execute("""DROP TABLE IF EXISTS current_dishes""")
+    # cur.execute("""DROP TABLE IF EXISTS current_dishes""")
     cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT, 
                     dish_id INTEGER references dishes(dish_id),
@@ -71,7 +70,7 @@ def create_database():
                     );
                 """)
 
-    #cur.execute("""DROP TABLE IF EXISTS meal_log""")
+    # cur.execute("""DROP TABLE IF EXISTS meal_log""")
     cur.execute("""CREATE TABLE IF NOT EXISTS meal_log (
                 log_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 dish_ids TEXT,
@@ -81,7 +80,7 @@ def create_database():
                 note TEXT
             );
         """)
-    #cur.execute("""DROP TABLE IF EXISTS dishes_log_bridge""")
+    # cur.execute("""DROP TABLE IF EXISTS dishes_log_bridge""")
     cur.execute("""CREATE TABLE IF NOT EXISTS dishes_log_bridge (
                 bridge_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER REFERENCES users(user_id),
@@ -164,15 +163,18 @@ def clean_WF_menu(df): # For use with dishes table
         if col in df.columns:
             df = df.drop(col, axis=1)
    
-    cats = ['calories','fat','cholesterol','sodium','carbohydrates','sugars','protein']
-    for cat in cats:
-        df[cat] = df['nutritionals'].apply(lambda dct: int(dct[cat]) if dct[cat] else np.nan)
-    df = df.drop("nutritionals", axis=1)
+    if not df.empty:
+        cats = ['calories','fat','cholesterol','sodium','carbohydrates','sugars','protein']
+        for cat in cats:
+            if 'nutritionals' in df.columns:
+                df[cat] = df['nutritionals'].apply(lambda dct: int(dct[cat]) if dct[cat] else np.nan)
+        
+        df = df.drop("nutritionals", axis=1)
 
-    df["allergens"] = df["allergens"].apply(lambda dct: clean_dicts(dct, "allergens"))
-    df["preferences"] = df["preferences"].apply(lambda dct:clean_dicts(dct, "preferences"))
+        df["allergens"] = df["allergens"].apply(lambda dct: clean_dicts(dct, "allergens"))
+        df["preferences"] = df["preferences"].apply(lambda dct:clean_dicts(dct, "preferences"))
 
-    df = df.drop_duplicates(subset=["id", "date"])
+        df = df.drop_duplicates(subset=["id", "date"])
 
     return df
 
@@ -287,12 +289,14 @@ def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to 
         return pd.DataFrame()
     data = response.json()
     df = pd.DataFrame(data)
-    df = clean_WF_menu(df)
 
-    df['date'] = df['date'].apply(lambda x: x.split("T")[0])
-    df = df[df['date'] == str(date)]
-    update_dish_db(df)
-    db_sync.push_db_to_github()
+    if not df.empty:
+        df = clean_WF_menu(df)
+
+        df['date'] = df['date'].apply(lambda x: x.split("T")[0])
+        df = df[df['date'] == str(date)]
+        update_dish_db(df)
+        db_sync.push_db_to_github()
     
     return df
 

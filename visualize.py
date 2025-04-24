@@ -7,7 +7,7 @@ import numpy as np
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 
 try:
-    user_id = int(st.session_state.get("user_id"))
+    user_id = st.session_state.get("user_id")
 except:
     col1, col2 = st.columns((0.5, 1.5))
     col1.image(image='crumb-the-goose.png')
