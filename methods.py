@@ -541,6 +541,8 @@ def add_note(userID, date, note):
     else:
         cur.execute("UPDATE notes SET note = ? WHERE user_id = ? AND date = ? ", (note, userID, date))
         conn.commit()
+    
+    db_sync.push_db_to_github()
 
     conn.close()
 
@@ -590,6 +592,7 @@ def add_tags(userID, date, tagslist):
         conn.commit()
 
     conn.close()
+    db_sync.push_db_to_github()
 
 def get_tags(userID, date):
     conn = connect_db()
