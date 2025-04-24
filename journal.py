@@ -84,10 +84,8 @@ with main:
                 weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
                 weekday = weekdays[date]
 
-                col1, col2 = st.columns((4,1))
-                col1.subheader(f"{weekday}, {key}")
-                if col2.button("Add Note", key=key):
-                    st.write("Not set up yet... sorry!")
+                st.subheader(f"{weekday}, {key}")
+                
                 st.write("")
                 dateDict = sortedDF[key]
                 #st.write(dateDict[0])
@@ -102,8 +100,7 @@ with main:
                 for dish in dateDict:
                     meals[dish['meal']] = meals.get(dish['meal']) + 1
 
-                if meals['Breakfast'] != 0:                
-                    st.write("---")
+                if meals['Breakfast'] != 0: 
                     i=1
                     for dish in dateDict:
                         if dish['meal'] == "Breakfast":
@@ -121,7 +118,7 @@ with main:
                             cals += methods.get_dish_calories(dish['dish_id'])
                             i+=1
                     
-                    st.write("---")
+                if meals['Lunch'] != 0:
                     i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Lunch':
@@ -140,7 +137,6 @@ with main:
                             i+=1
 
                 if meals['Dinner'] != 0:
-                    st.write("---")
                     i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Dinner':
@@ -172,9 +168,16 @@ with main:
                 #         st.rerun() 
                 #     cals += methods.get_dish_calories(dish['dish_id'])
 
-                #col1, col2 = st.columns((2,3.5))
-                #with col1:
-                with st.expander("See Nutrionals", ):
+                st.divider()
+                
+                datenote = methods.get_note(user_id, key)
+                if datenote:
+                    st.write(f"Note: {datenote}")
+
+
+                col1, col2 = st.columns((2))
+                
+                with col1.expander("See Nutrionals"):
                     info = vm.get_stats_by_date(user_id,key)
                     for n in info:
                         if n == "calories":
@@ -184,6 +187,14 @@ with main:
                         else:
                             uom = "g"
                         st.write(f"{n}: {info[n]} {uom}") 
+
+                with col2.expander("Add / Update Note"):
+                    with st.form(f"Add Note {key}"):
+                        note = st.text_input("Note:")
+                        submitted = st.form_submit_button("Submit")
+                        if submitted:
+                            methods.add_note(user_id, key, note)
+                            st.rerun()
                     
                 # if col2.button("Add Note"):
                 #     with col2.form("Note"):
