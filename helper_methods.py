@@ -353,7 +353,7 @@ def get_user_logs(userID):
     """
     conn = connect_db()
     cur = conn.cursor()
-    cur.execute(f"SELECT log_id FROM dishes_log_bridge WHERE user_id = {userID}")
+    cur.execute(f"SELECT log_id FROM dishes_log_bridge WHERE user_id = ?", (userID,))
     logs = cur.fetchall()
    
     logids = []

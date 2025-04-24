@@ -135,7 +135,7 @@ def update_user_allergens_preferences(userID, allergens, preferences):
 #     conn = connect_db()
 #     cur = conn.cursor()
 
-#     cur.execute(f"SELECT * FROM users WHERE user_id = {userID}")
+#     cur.execute(f"SELECT * FROM users WHERE user_id = ?", (userID,))
 #     stuff = cur.fetchall()
 
 #     print(stuff)
@@ -209,7 +209,7 @@ def remove_favorite(userID, dishID):
     conn = connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"DELETE FROM favorites WHERE user_id = {userID} AND dish_id = {dishID}")
+    cur.execute(f"DELETE FROM favorites WHERE user_id = ? AND dish_id = ?", (userID, dishID))
     cur.execute(f"UPDATE dishes SET rating = rating - 1 WHERE dish_id = {dishID}")
     conn.commit()
     conn.close()
@@ -406,7 +406,7 @@ def get_user_allergens_preferences(userID):
      conn = connect_db()
      cur = conn.cursor()
  
-     cur.execute(f"SELECT allergens, preferences FROM users where user_id = {userID}")
+     cur.execute(f"SELECT allergens, preferences FROM users where user_id = ?", (userID,))
      stuff = cur.fetchone()
  
  
