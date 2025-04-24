@@ -134,5 +134,11 @@ with col4:
     st.subheader("StoneD")
     streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today()))
 
-st.write("* Menus may not be accurate.")
-st.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
+
+col1, col2 = st.columns((3.25,1))
+
+col1.write("* Menus may not be accurate.")
+col1.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
+
+url = "http://www.wellesleyfresh.com/connect-with-us.html"
+col2.write("[Contact the Manager](%s)" % url)
