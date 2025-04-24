@@ -88,11 +88,11 @@ with main:
         
         st.divider()
 
-        st.write("Website credits to:")
+        st.header("Credits:")
         st.write("- Nina Howley '27")
         st.write("- Kailyn Lau '28")
         st.write("- Maya Gurewitz '26")
-        st.write("- The students of CS 248 Spring '25")
+        st.write("- Professor Mustafaraj and the students of CS 248 Spring '25")
 
 
     except:
