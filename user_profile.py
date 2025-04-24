@@ -100,9 +100,17 @@ def render_user_profile():
 
 def add_user(user_info): # == added by Kailyn ==
     """Insert or update user in peckish.db using Google auth info"""
+    
     conn = get_db_connection()
     cur = conn.cursor()
 
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    tables = cur.fetchall()
+    print(tables)
+    print(conn)
+    st.write(tables)
+    st.write(conn)
+    
     try:
         # First try to find existing user by google_id
         google_id = user_info["sub"]
