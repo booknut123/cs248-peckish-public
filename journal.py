@@ -177,7 +177,7 @@ with main:
 
                 col1, col2 = st.columns((2))
                 
-                with col1.expander("See Nutrionals"):
+                with col1.expander("See Daily Nutrionals"):
                     info = vm.get_stats_by_date(user_id,key)
                     for n in info:
                         if n == "calories":
@@ -190,7 +190,7 @@ with main:
 
                 with col2.expander("Add / Update Note"):
                     with st.form(f"Add Note {key}"):
-                        note = st.text_input("Note:")
+                        note = st.text_input("Note (submit blank to delete):")
                         submitted = st.form_submit_button("Submit")
                         if submitted:
                             methods.add_note(user_id, key, note)

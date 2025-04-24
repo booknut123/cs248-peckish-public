@@ -156,9 +156,14 @@ def log_meal(userID, dishID, hall, mealName, date):
     Logs new meal entry.
     Does not check for duplicates.
     """
+    
     logID = create_meal(userID, dishID, hall, mealName, date)
 
+    if not logID:
+        return False
+
     connect_bridge(userID, logID)
+    return True
 
 # Section for favorites
 def add_favorite(userID, dishID):

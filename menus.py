@@ -105,8 +105,10 @@ with main:
 
                         # Add to journal button
                         def add_button(user_id, row_id, loc, meal, d):
-                            methods.log_meal(user_id, row_id, loc, meal, d)
-                            st.toast("Meal added!")
+                            if methods.log_meal(user_id, row_id, loc, meal, d):
+                                st.toast("Meal added!")
+                            else:
+                                st.toast("This dish has already been logged in this meal.")
                         col1.button(
                             "**+**", 
                             key=f"add_{loc}_{index}",

@@ -428,6 +428,11 @@ def create_meal(userID, dishID, hall, mealName, date):
             found = True
             break
 
+    dishes = get_log_dishes(logID)
+    if str(dishID) in dishes:
+        print(True)
+        return None
+
     if found:
         cur.execute(f"SELECT dish_ids FROM meal_log WHERE log_id = {logID}")
         dishes = cur.fetchone()[0]
