@@ -145,4 +145,4 @@ col2.link_button("Contact the Manager", url)
 st.divider()
 st.header("Credits:")
 st.write("We want to thank all the dining service workers, AVI, Professor Mustafaraj,"
-         + " and everyone who assisted us in the development of our app from research surverys to user testing!")
+         + " and everyone who assisted us in the development of our app from research surveys to user testing!")

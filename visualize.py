@@ -57,15 +57,15 @@ with main:
             if all:
                 all=True
             
-            none = col2.button("None")
-            if none:
-                none=True
+            # none = col2.button("Reset")
+            # if none:
+            #     none=True
 
             for stat in stats:
                 if all:
                     selected = st.checkbox(stat, value=True)
-                elif none:
-                    selected = st.checkbox(stat, value=False)
+                # elif none:
+                #     selected = st.checkbox(stat, value=False)
                 else:
                     if stat in ["fat", "carbohydrates", "protein"]:
                         selected = st.checkbox(stat, value=True)
