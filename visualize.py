@@ -7,7 +7,7 @@ import numpy as np
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 
 try:
-    user_id = int(st.session_state.get("user_id"))
+    user_id = st.session_state.get("user_id")
 except:
     col1, col2 = st.columns((0.5, 1.5))
     col1.image(image='crumb-the-goose.png')
@@ -60,7 +60,6 @@ with main:
             none = col2.button("None")
             if none:
                 none=True
-            
 
             for stat in stats:
                 if all:
@@ -68,14 +67,18 @@ with main:
                 elif none:
                     selected = st.checkbox(stat, value=False)
                 else:
-                    selected = st.checkbox(stat)
+                    if stat in ["fat", "carbohydrates", "protein"]:
+                        selected = st.checkbox(stat, value=True)
+                    else:
+                        selected = st.checkbox(stat)
+                
                 if selected:
                     selectednone=False
                     if stat == "calories":
                         uom.append("kcal")
-                    elif stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
+                    if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
                         uom.append("mg")
-                    elif "g" not in uom:
+                    if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
                         uom.append("g")
                     selectedstats.append(stat)
 
@@ -122,7 +125,7 @@ with main:
         st.write("---")
 
         col1, col2 = st.columns((3,1))
-        col1.header("Dining Hall Stats")
+        col1.subheader("Meals per Dining Hall")
         color1 = col2.color_picker("**Chart Color**", "#5E7D57", key="color1")
         st.bar_chart(vm.dining_hall_tracker(user_id),
                      color=color1,
@@ -133,7 +136,7 @@ with main:
         st.write("---")
 
         col1, col2 = st.columns((3,1))
-        col1.header("Average Cals per meal")
+        col1.subheader("Average Cals per Meal")
         color2 = col2.color_picker("**Chart Color**", "#5E7D57", key="color2")
         st.bar_chart(vm.average_cals_by_meal(user_id),
                      color=color2,

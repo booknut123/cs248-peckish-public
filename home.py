@@ -66,7 +66,10 @@ col2.write("From CS248 '25 - Kailyn, Maya, Nina")
 if "access_token" not in st.session_state:
     st.stop()
 
-user_id = int(st.session_state.get("user_id"))
+user_id = st.session_state.get("user_id")
+
+#run this (with new starting date) if you reset entire database, or else week will be empty
+#helper_methods.weekly_update_db("2025-04-20")
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
@@ -131,5 +134,11 @@ with col4:
     st.subheader("StoneD")
     streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today()))
 
-st.write("* Menus may not be accurate.")
-st.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
+
+col1, col2 = st.columns((3.25,1))
+
+col1.write("* Menus may not be accurate.")
+col1.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
+
+url = "http://www.wellesleyfresh.com/connect-with-us.html"
+col2.write("[Contact the Manager](%s)" % url)

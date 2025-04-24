@@ -21,7 +21,9 @@ import db_sync
 def get_db_connection():
     # """Connect to peckish.db in the parent folder"""
     # db_path = os.path.join(PARENT_DIR, "peckish.db")
-    return sqlite3.connect(db_sync.get_db_path())
+    path = db_sync.get_db_path()
+    st.write("📂 Connected to DB:", path)
+    return sqlite3.connect(path)
 
 ## ENI'S CODE ##
 
@@ -100,16 +102,22 @@ def render_user_profile():
 
 def add_user(user_info): # == added by Kailyn ==
     """Insert or update user in peckish.db using Google auth info"""
-    conn = get_db_connection()
+    
+    db_sync.download_db_from_github()
+    conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
-
+    
     try:
         # First try to find existing user by google_id
         google_id = user_info["sub"]
-        result = conn.execute(
-            "SELECT user_id FROM users WHERE google_id = ?", 
-            (google_id,)
-        ).fetchone()
+        
+        user_id = str(google_id)
+        
+        cur.execute(
+            "SELECT user_id FROM users WHERE user_id = ?", 
+            (user_id,)
+        )
+        result = cur.fetchone()
 
         if result:
             # Existing user - update and return existing user_id
@@ -130,28 +138,25 @@ def add_user(user_info): # == added by Kailyn ==
                 user_id
             ))
 
-            cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+            cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
             name = cur.fetchone()
-            print(name[0])
             if name[0] == None:
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
             name = "".join((user_info.get("name")).split(" "))
-            # New user - insert and get auto-generated user_id
+
             cur.execute("""
                 INSERT INTO users 
-                (google_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)""", (
-                google_id,
+                user_id,
                 user_info.get("email"),
                 user_info.get("name"),
                 name,
                 user_info.get("given_name"),
                 user_info.get("picture")
             ))
-
-            user_id = cur.execute("SELECT user_id FROM users WHERE google_id = ?", (google_id,)).fetchone()[0]
         
         conn.commit()
         st.session_state["user_id"] = user_id

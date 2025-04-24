@@ -12,7 +12,7 @@ from datetime import date
 
 sidebar, main = st.columns((0.01, 1.5), gap="small", vertical_alignment="top")
 try:
-    user_id = int(st.session_state.get("user_id"))
+    user_id = st.session_state.get("user_id")
 except:
     col1, col2 = st.columns((0.3, 1.5))
     col1.image(image='crumb-the-goose.png')
@@ -33,20 +33,20 @@ with main:
         
         st.write("---")
 
-        col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
+        col1, col2, col3, col4, col5 = st.columns((2.5,1,0.5,0.5,0.5))
         col1.write("**Dish**")
-        col2.write("**Likes**")
-        col3.write("**Date Added**")
-        col4.write("**Notification**")
+        col2.write("**Date Added**")
+        col3.write("**Likes**")
+        col4.write("**Notify**")
         col5.write("**Delete**")
         st.write("---")
 
 
         for index, row in favs.iterrows():
-            col1, col2, col3, col4, col5 = st.columns((1.5,0.5,1,1,0.5))
+            col1, col2, col3, col4, col5 = st.columns((2.5,1,0.5,0.5,0.5))
             col1.write(methods.get_dish_name(row["dish_id"]))
-            col2.write(str(methods.get_dish_rating(row["dish_id"])))
-            col3.write(row["date_added"])
+            col2.write(row["date_added"])
+            col3.write(str(methods.get_dish_rating(row["dish_id"])))
             
             toggle_key = f"favorite_{index}_{row['dish_id']}"
             if toggle_key not in st.session_state:
@@ -64,7 +64,6 @@ with main:
             if delete:
                 methods.remove_favorite(user_id, row["dish_id"])
                 st.toast("Favorite Deleted")
-                time.sleep(1)
                 st.rerun()
 
         st.write("---")
@@ -75,15 +74,15 @@ with main:
         if faves:
             st.write("---")
 
-            col1, col2, col3, col4 = st.columns((2,1,1,1))
+            col1, col2, col3, col4 = st.columns((1.75,0.75,0.75,0.75))
             col1.write("**Dish**")
             col2.write("**Meal**")
-            col3.write("**Location**")
+            col3.write("**Hall**")
             col4.write("**Date**")
             st.write("---")
 
             for fave in faves:
-                col1, col2, col3, col4 = st.columns((2,1,1,1))
+                col1, col2, col3, col4 = st.columns((1.75,0.75,0.75,0.75))
                 col1.write(fave)
                 for f in faves[fave]:
                     

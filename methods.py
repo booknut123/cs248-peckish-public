@@ -135,7 +135,7 @@ def update_user_allergens_preferences(userID, allergens, preferences):
 #     conn = connect_db()
 #     cur = conn.cursor()
 
-#     cur.execute(f"SELECT * FROM users WHERE user_id = {userID}")
+#     cur.execute(f"SELECT * FROM users WHERE user_id = ?", (userID,))
 #     stuff = cur.fetchall()
 
 #     print(stuff)
@@ -156,9 +156,14 @@ def log_meal(userID, dishID, hall, mealName, date):
     Logs new meal entry.
     Does not check for duplicates.
     """
+    
     logID = create_meal(userID, dishID, hall, mealName, date)
 
+    if not logID:
+        return False
+
     connect_bridge(userID, logID)
+    return True
 
 # Section for favorites
 def add_favorite(userID, dishID):
@@ -209,7 +214,7 @@ def remove_favorite(userID, dishID):
     conn = connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"DELETE FROM favorites WHERE user_id = {userID} AND dish_id = {dishID}")
+    cur.execute(f"DELETE FROM favorites WHERE user_id = ? AND dish_id = ?", (userID, dishID))
     cur.execute(f"UPDATE dishes SET rating = rating - 1 WHERE dish_id = {dishID}")
     conn.commit()
     conn.close()
@@ -380,8 +385,6 @@ def top5favs():
     return top5
 
 
-create_database()
-
 def sort_meals_by_date(df):
     dates = sorted(df["date"].unique(), reverse=True)
 
@@ -406,7 +409,7 @@ def get_user_allergens_preferences(userID):
      conn = connect_db()
      cur = conn.cursor()
  
-     cur.execute(f"SELECT allergens, preferences FROM users where user_id = {userID}")
+     cur.execute(f"SELECT allergens, preferences FROM users where user_id = ?", (userID,))
      stuff = cur.fetchone()
  
  
@@ -417,7 +420,7 @@ def get_username(user_id):
     conn = connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT user_name FROM users WHERE user_id = {user_id}")
+    cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
     username = cur.fetchone()
     return username[0]
  
@@ -503,8 +506,101 @@ def get_faves_for_week(userID, date):
             organizeddishes[name] = [{"meal": dish[1], "location": dish[2], "date": dish[3]}]
         else:
             organizeddishes[name] += [({"meal": dish[1], "location": dish[2], "date": dish[3]})]
-    
+
     return organizeddishes
 
+def get_user_join_date(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    date = cur.execute("SELECT first_seen FROM users WHERE user_id = ?", (userID,)).fetchone()[0]
+    return date.split(" ")[0]
+
+def get_total_dishes_logged(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    logs = get_user_logs(userID)
+    dishes = [get_log_dishes(log) for log in logs]
+    numdishes = 0
+    for dish in dishes:
+        numdishes += len(dish)
+
+    return numdishes
+
+def add_note(userID, date, note):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    num = cur.execute("SELECT COUNT(*) FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()[0]
+    
+    if num == 0:
+        cur.execute("INSERT INTO notes (user_id, date, note) VALUES (?, ?, ?)", (userID, date, note))
+        conn.commit()
+
+    else:
+        cur.execute("UPDATE notes SET note = ? WHERE user_id = ? AND date = ? ", (note, userID, date))
+        conn.commit()
+
+    conn.close()
+
+def get_note(userID, date):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    note = cur.execute("SELECT note FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()
+
+    if not note:
+        return ""
+
+    else:
+        return note[0]
+
+def get_name(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    name = cur.execute("SELECT name FROM users WHERE user_id = ?", (userID,)).fetchone()
+
+    return name[0]
+  
+
+def get_all_names():
+    conn = connect_db()
+    cur = conn.cursor()
+
+    names = cur.execute("SELECT DISTINCT name FROM users").fetchall()
+
+    return names
+
+def add_tags(userID, date, tagslist):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    tags = ",".join(tagslist)
+
+    num = cur.execute("SELECT COUNT(*) FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()[0]
+    
+    if num == 0:
+        cur.execute("INSERT INTO notes (user_id, date, tags) VALUES (?, ?, ?)", (userID, date, tags))
+        conn.commit()
+
+    else:
+        cur.execute("UPDATE notes SET tags = ? WHERE user_id = ? AND date = ? ", (tags, userID, date))
+        conn.commit()
+
+    conn.close()
+
+def get_tags(userID, date):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    tags = cur.execute("SELECT tags FROM notes WHERE user_id = ? AND date = ?", (userID, date)).fetchone()
+    
+    if not tags:
+        return None
+
+    else:
+        return tags
 
 
