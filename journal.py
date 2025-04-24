@@ -84,8 +84,11 @@ with main:
                 weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
                 weekday = weekdays[date]
 
-                st.subheader(f"{weekday}, {key}")
-                st.write("---")
+                col1, col2 = st.columns((4,1))
+                col1.subheader(f"{weekday}, {key}")
+                if col2.button("Add Note"):
+                    st.write("Not set up yet... sorry!")
+                st.write("")
                 dateDict = sortedDF[key]
                 #st.write(dateDict[0])
 
@@ -100,14 +103,14 @@ with main:
                     meals[dish['meal']] = meals.get(dish['meal']) + 1
 
                 
-                if meals['Breakfast'] != 0:
-                    col1, col2 = st.columns((0.6,4.5))                
-                    col1.write("")
-                    col1.write("**Breakfast**")
-                    col2.divider()
+                if meals['Breakfast'] != 0:                
+                    st.write("---")
+                    i=1
                     for dish in dateDict:
                         if dish['meal'] == "Breakfast":
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Breakfast**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
                             col3.write(dish['location'])
                             delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
@@ -117,16 +120,17 @@ with main:
                                 time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
+                            i+=1
                     
                 
                 if meals['Lunch'] != 0:
-                    col1, col2 = st.columns((0.4,4.5))                
-                    col1.write("")
-                    col1.write("**Lunch**")
-                    col2.divider()
+                    st.write("---")
+                    i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Lunch':
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Lunch**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
                             col3.write(dish['location'])
                             delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
@@ -136,15 +140,16 @@ with main:
                                 time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
+                            i+=1
 
                 if meals['Dinner'] != 0:
-                    col1, col2 = st.columns((0.4,4.5))                
-                    col1.write("")
-                    col1.write("**Dinner**")
-                    col2.divider()
+                    st.write("---")
+                    i=1
                     for dish in dateDict:
                         if dish['meal'] == 'Dinner':
                             col1, col2, col3, col4 = st.columns((1,2.5, 1, 1))
+                            if i==1:
+                                col1.write("**Dinner**")
                             col2.write(methods.get_dish_name(dish['dish_id']))
                             col3.write(dish['location'])
                             delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
@@ -154,6 +159,7 @@ with main:
                                 time.sleep(1)
                                 st.rerun() 
                             cals += methods.get_dish_calories(dish['dish_id'])
+                            i+=1
 
 
                 # for dish in sortedDF[key]:
