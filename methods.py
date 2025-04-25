@@ -6,6 +6,7 @@ import numpy as np
 import streamlit as st
 import db_sync
 import random
+import random
 
 from helper_methods import *
 
