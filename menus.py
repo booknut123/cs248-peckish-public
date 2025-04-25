@@ -30,10 +30,10 @@ with sidebar:
         
     st.subheader("Selection")
     locations = ["Bates", "Lulu", "Tower", "StoneD"]
-    selected_locations = st.pills("Pick dining halls!", options=locations, selection_mode="multi", default=locations)
+    selected_locations = st.pills("**Location**", options=locations, selection_mode="multi", default=locations)
     
     meal = st.selectbox(
-        "Pick a meal!",
+        "**Meal**",
         ("Breakfast", "Lunch", "Dinner"),
     )
     
@@ -44,7 +44,7 @@ with sidebar:
     values = [-1, 0, 1, 2, 3, 4, 5] #our week starts on Sunday which is index -1 in lables
     labels = ['Monday','Tuesday','Wednesday','Thursday', 'Friday', 'Saturday', 'Sunday']   
     selection = st.select_slider(
-        'Day', values, value=today,
+        "**Day**", values, value=today,
         format_func=(lambda x:labels[x]),
         )
 
@@ -59,9 +59,9 @@ with sidebar:
         userA = ""
         userP = ""
 
-    st.subheader("Filter")
+    st.subheader("**Filter**")
 
-    with st.expander("**Allergens**"):
+    with st.expander("Allergens"):
         allergens = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
         selected_allergens = []
         for i, aller in enumerate(allergens):
@@ -72,7 +72,7 @@ with sidebar:
             if st.checkbox(aller, value=sel):
                     selected_allergens.append(aller)
         
-    with st.expander("**Preferences**"):
+    with st.expander("Preferences"):
         preferences = ["Vegan", "Vegetarian", "Gluten Sensitive"]
         selected_preferences = []
         for i, pref in enumerate(preferences):
@@ -85,8 +85,10 @@ with sidebar:
     
 with main:
     if selected_locations:
+        
         st.subheader(f"{meal}")
         st.write(f"{labels[selection]}, {d} {'(Today)' if str(d) == str(date.today()) else ''}")
+        
         for loc in selected_locations:
             with st.container(border=True):
                 st.subheader(loc)
