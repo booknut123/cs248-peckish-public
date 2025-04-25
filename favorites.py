@@ -30,34 +30,35 @@ favs = methods.display_favorites(user_id)
 if not favs.empty:
     st.write("---")
 
-    col1, col2, col3, col4, col5 = st.columns((2.5,1,0.5,0.5,0.5))
-    col1.write("**Dish**")
-    col2.write("**Date Added**")
-    col3.write("**Likes**")
-    col4.write("**Notify**")
-    col5.write("**Delete**")
+    col1, col2, col3, col4 = st.columns((0.5,2,0.75,0.5))
+    col1.write("**Notify**")
+    col2.write("**Dish**")
+    col3.write("**Date Added**")
+    col4.write("**Delete**")
     st.write("---")
 
 
     for index, row in favs.iterrows():
-        col1, col2, col3, col4, col5 = st.columns((2.5,1,0.5,0.5,0.5))
-        col1.write(methods.get_dish_name(row["dish_id"]))
-        col2.write(row["date_added"])
-        col3.write(str(methods.get_dish_rating(row["dish_id"])))
-            
+        col1, col2, col3, col4 = st.columns((0.5,2,0.75,0.5))
+        
         toggle_key = f"favorite_{index}_{row['dish_id']}"
         if toggle_key not in st.session_state:
             st.session_state[toggle_key] = False
 
-        toggle = col4.button(
+        toggle = col1.button(
                             "🔔" if row['notification'] == 'true' else "🔕", 
                             key=f"notif {index} {row['dish_id']}"
                             )
         if toggle:
             methods.toggle_notif(user_id, row['dish_id'])
             st.rerun()
+        
+        col2.write(methods.get_dish_name(row["dish_id"]))
+        col3.write(row["date_added"])
+            
+        
 
-        delete = col5.button("**-**", key=f"F{index}")
+        delete = col4.button("**-**", key=f"F{index}")
         if delete:
             methods.remove_favorite(user_id, row["dish_id"])
             st.toast("Favorite Deleted")
@@ -90,9 +91,6 @@ if not favs.empty:
     else:
         st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
 
-else:
-    st.warning("Please add a favorite in the Menus tab to view your favorites.")
-    
     st.header("Top User Favorites")
     with st.container(border=True):
         col1, col2 = st.columns((0.25, 4.5))
@@ -101,8 +99,12 @@ else:
         for fav in favorites:
             if fav[1] != 0:
                 col1.write(f"**{i}.**")
-                col2.write(f"❤️ {fav[1]} - {fav[0]}")
+                col2.write(f"❤️ {fav[1]} {fav[0]}")
                 i += 1
+
+else:
+    st.warning("Please add a favorite in the Menus tab to view your favorites.")
+    
 
 #methods.update_ratings() to make sure favorite counts are correct
     
