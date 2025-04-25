@@ -70,6 +70,7 @@ col3.write(fact[0])
 
 # wait for the user to login before showing anything
 if "access_token" not in st.session_state:
+    st.warning("Not logged in.")    
     st.stop()
 
 user_id = st.session_state.get("user_id")
