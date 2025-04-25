@@ -2,4 +2,5 @@
 primaryColor = "#000000"
 backgroundColor = "#beccb3" #7b9a7c
 secondaryBackgroundColor= "#f1e8ee"
-font="monospace"
+font="Helvetica"
+textColor = "#000000"
