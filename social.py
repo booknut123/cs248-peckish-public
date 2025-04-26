@@ -33,59 +33,66 @@ if not methods.check_id(user_id):
 
 # try:
 
-names = [name[0] for name in methods.get_all_names() if name[0] != methods.get_name(user_id)]
+users = [name for name in methods.get_all_users() if name[0] != user_id and methods.get_optin(name[0])]
 
-with sidebar:
-    st.image(image='crumb-the-goose.png')
-    
-    st.write("**Friends**")
-    friends = methods.list_friends(user_id)
-    if not friends:
-        st.write("No friends")
-    else:
-        for friend in friends:
-            st.write(friend)
+if methods.get_optin(user_id):
 
-    st.write("**Incoming Requests**")
-    col1, col2, col3 = st.columns((1,0.25,0.25))
-    
-    requests = methods.list_friend_requests(user_id)
-    if not requests:
-        st.write("No requests")
-    else:
-        for request in requests:
-            col1.write(request)
-            add = col2.button("**+**", key=f"add_{request}") 
-            if add:
-                methods.accept_friend_request(user_id, request)
-                st.toast(f"{request} added!")
-            remove = col3.button("**-**", key=f"remove_{request}")
-            if remove:
-                methods.remove_friend_request(user_id, request)
-                st.toast(f"{request} removed!")
+    with sidebar:
+        st.image(image='crumb-the-goose.png')
+        
+        st.write("**Friends**")
+        friends = methods.list_friends(user_id)
+        if not friends:
+            st.write("No friends")
+        else:
+            for friend in friends:
+                st.write(methods.get_username(friend))
 
-    st.write("**Add Friend**")
-    with st.form("Add Friend"):
-        friend = st.selectbox('Add Friend', names, placeholder="Search for friends by name!")
-        send = st.form_submit_button("Send Request")
-        if send:
-            methods.send_friend_request(user_id, methods.get_user_id_from_name(friend))
-            st.toast(f"Friend Request sent to {friend}!")
+        st.write("**Incoming Requests**")
+        col1, col2, col3 = st.columns((1,0.25,0.25))
+        
+        requests = methods.list_friend_requests(user_id)
+        if not requests:
+            st.write("No requests")
+        else:
+            for request in requests:
+                name = methods.get_username(request)
+                col1.write(name[2])
+                add = col2.button("**+**", key=f"add_{request}") 
+                if add:
+                    methods.accept_friend_request(user_id, request)
+                    st.toast(f"{name[2]} added!")
+                remove = col3.button("**-**", key=f"remove_{request}")
+                if remove:
+                    methods.remove_friend_request(user_id, request)
+                    st.toast(f"{name[2]} removed!")
 
-    st.write("**Outgoing Requests**")
-    outgoing = methods.list_outgoing_requests(user_id)
-    if not outgoing:
-        st.write("No requests")
-    else:
-        for request in outgoing:
-            st.write(methods.get_name(request))
+        st.write("**Add Friend**")
+        with st.form("Add Friend"):
+            friend = st.selectbox('Add Friend', users, format_func=lambda x: x[2], placeholder="Search for friends by name!")
+            send = st.form_submit_button("Send Request")
+            if send:
+                methods.send_friend_request(user_id, friend[0])
+                st.toast(f"Friend Request sent to {friend[2]}!")
 
-with main:
-    st.header("Social")
+        st.write("**Outgoing Requests**")
+        outgoing = methods.list_outgoing_requests(user_id)
+        if not outgoing:
+            st.write("No requests")
+        else:
+            for request in outgoing:
+                st.write(methods.get_username(request))
 
-    st.subheader("Recent Activity")
-    st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
+    with main:
+        st.header("Social")
 
+        updating_db.update_db_stuff()
+
+        st.subheader("Recent Activity")
+        st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
+
+else:
+    st.warning("Activate Social in settings to access your Social page.")
 
 # except:
 #     st.warning("Activate Social in settings to access your social page.")

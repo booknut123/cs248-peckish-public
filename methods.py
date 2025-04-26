@@ -652,10 +652,12 @@ def send_friend_request(userID, friend):
     usersinfriends = [user[0] for user in users]
 
     if friend in usersinfriends:
-        friends = list_friends(friend)
-        updated = ",".join(friends.append(userID))
-        cur.execute("UPDATE friends SET friends = ? WHERE user_id = ? ", (updated, friend))
-        conn.commit()
+        if userID not in list_friends(friend):
+            friends = list_friends(friend).append(userID)
+            if friends:
+                updated = ",".join(friends)
+                cur.execute("UPDATE friends SET friends = ? WHERE user_id = ? ", (updated, friend))
+                conn.commit()
 
     else:
         cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friend, userID))
@@ -674,16 +676,18 @@ def accept_friend_request(userID, friend):
     cur = conn.cursor()
 
     #Update user's friendlist
-    friends = list_friends(userID)
-    updatedfriends = ",".join(friends.append(friend))
-    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
-
+    friends = list_friends(userID).append(friend)
+    if friends:
+        updatedfriends = ",".join(friends)
+        cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+        conn.commit()
+    
     #Remove incoming request
     remove_friend_request(userID, friend)
 
     #Update friend's friendlist
-    friends = list_friends(friend)
-    updatedfriends = ",".join(friends.append(userID))
+    friends = list_friends(friend).append(userID)
+    updatedfriends = ",".join(friends)
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friend))
 
     conn.commit()
@@ -694,9 +698,10 @@ def remove_friend_request(userID, friend):
     conn = connect_db()
     cur = conn.cursor()
     requests = list_friend_requests(userID)
-    updatedrequests = ",".join([request for request in requests if request != friend])
 
-    cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
+    if requests:
+        updatedrequests = ",".join([request for request in requests if request != friend])
+        cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
     
     conn.commit()
     conn.close()
@@ -749,22 +754,48 @@ def list_outgoing_requests(userID):
 
     return outgoing
 
-# def get_all_users():
-#     """
-#     Returns a list of user_id, name and user_name of all users in the database.
-#     [(user_id, name, user_name)]
-#     """
-#     conn = connect_db()
-#     cur = conn.cursor()
+def get_all_users():
+    """
+    Returns a list of user_id, name and user_name of all users in the database.
+    [(user_id, name, user_name)]
+    """
+    conn = connect_db()
+    cur = conn.cursor()
 
-#     users = cur.execute("SELECT user_id, name, user_name FROM users").fetchall()
+    users = cur.execute("SELECT user_id, name, user_name FROM users").fetchall()
 
-#     return users
+    return users
 
 def get_user_id_from_name(name):
     conn = connect_db()
     cur = conn.cursor()
 
-    id = cur.execute("SELECT user_id FROM users WHERE name = ?", (name,)).fetchone()
-
+    id = cur.execute("SELECT user_id FROM users WHERE user_name = ?", (name,)).fetchone()
+    
     return id[0]
+
+def get_optin(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    current = cur.execute("SELECT optin FROM users WHERE user_id = ?", (userID,)).fetchone()[0]
+
+    if current == "true":
+        return True
+    else:
+        return False
+
+def toggle_optin(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    current = get_optin(userID)
+
+    if current:
+        cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
+    else:
+        cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
