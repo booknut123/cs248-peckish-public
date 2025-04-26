@@ -642,3 +642,129 @@ def generate_goose_fact():
     
     num = random.randint(0,len(facts))
     return (facts[num-1], num)
+
+def send_friend_request(userID, friend):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    #Check if friend is in friends table, updates if not and sends request
+    users = cur.execute("SELECT DISTINCT(user_id) FROM friends").fetchall()
+    usersinfriends = [user[0] for user in users]
+
+    if friend in usersinfriends:
+        friends = list_friends(friend)
+        updated = ",".join(friends.append(userID))
+        cur.execute("UPDATE friends SET friends = ? WHERE user_id = ? ", (updated, friend))
+        conn.commit()
+
+    else:
+        cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friend, userID))
+        conn.commit()
+
+    #Check if user is in friends table, updates if not
+    if not userID in usersinfriends:
+        cur.execute("INSERT INTO friends (user_id) VALUES (?)", (userID,))
+        conn.commit()
+
+    conn.close()
+    db_sync.push_db_to_github()
+
+def accept_friend_request(userID, friend):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    #Update user's friendlist
+    friends = list_friends(userID)
+    updatedfriends = ",".join(friends.append(friend))
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+
+    #Remove incoming request
+    remove_friend_request(userID, friend)
+
+    #Update friend's friendlist
+    friends = list_friends(friend)
+    updatedfriends = ",".join(friends.append(userID))
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friend))
+
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def remove_friend_request(userID, friend):
+    conn = connect_db()
+    cur = conn.cursor()
+    requests = list_friend_requests(userID)
+    updatedrequests = ",".join([request for request in requests if request != friend])
+
+    cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
+    
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def remove_friend(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    friends = list_friends(userID)
+    updatedfriends = ",".join([friend for friend in friends if friend != friendID])
+
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def list_friends(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    friends = cur.execute("SELECT friends FROM friends WHERE user_id = ?", (userID,)).fetchone()
+    if friends:
+        if not friends[0]:
+            return []
+        return friends[0].split(",")
+    return []
+
+def list_friend_requests(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    requests = cur.execute("SELECT requests FROM friends WHERE user_id = ?", (userID,)).fetchone()
+    if requests:    
+        if not requests[0]:
+            return []
+        return requests[0].split(",")
+    return []
+
+def list_outgoing_requests(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    users = cur.execute("SELECT DISTINCT(user_id) FROM friends").fetchall()
+    usersinfriends = [user[0] for user in users]
+
+    outgoing = []
+    for user in usersinfriends:
+        requests = list_friend_requests(user)
+        if userID in requests:
+            outgoing.append(user)
+
+    return outgoing
+
+# def get_all_users():
+#     """
+#     Returns a list of user_id, name and user_name of all users in the database.
+#     [(user_id, name, user_name)]
+#     """
+#     conn = connect_db()
+#     cur = conn.cursor()
+
+#     users = cur.execute("SELECT user_id, name, user_name FROM users").fetchall()
+
+#     return users
+
+def get_user_id_from_name(name):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    id = cur.execute("SELECT user_id FROM users WHERE name = ?", (name,)).fetchone()
+
+    return id[0]

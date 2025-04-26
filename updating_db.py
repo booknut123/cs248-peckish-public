@@ -8,15 +8,17 @@ def update_db_stuff():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
-    cur.execute("""
-                ALTER TABLE meal_log
-                DROP COLUMN tags
-                """)
+    cur.execute("DELETE FROM friends")
 
-    cur.execute("""
-                ALTER TABLE notes
-                ADD COLUMN tags TEXT
-                """)
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             RENAME COLUMN incoming_requests TO requests
+    #             """)
+
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             DROP COLUMN outgoing_requests
+    #             """)
     
     # cur.execute("""CREATE TABLE IF NOT EXISTS notes (
     #             user_id TEXT,

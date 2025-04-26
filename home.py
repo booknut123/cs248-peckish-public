@@ -39,7 +39,6 @@ def render_sidebar():
 
     else:
         st.sidebar.warning("Not logged in.")
-        st.sidebar.write("Please log in with your Google account:")
         logged_in = google_login()
         if logged_in:
             st.rerun()

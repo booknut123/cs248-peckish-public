@@ -65,17 +65,25 @@ try:
     st.divider()
 
     st.write("")
-    st.subheader("Set Account Username")
     
-    col1, col2 = st.columns((1,1.5))
+    col1, col2, col3 = st.columns((1,0.25,1))
     
     with col1:
+            st.subheader("Activate Social")
+            social = st.button("Activate")
+
+    with col3:
+        st.subheader("Update Username")
         with st.form("Update Username"):
-            newname = st.text_input("New Username:")
-            submitted = st.form_submit_button("Submit")
+            newname = st.text_input("New Username:", label_visibility="hidden", autocomplete=methods.get_username(user_id))
+            submitted = st.form_submit_button("Update")
             if submitted:
-                methods.set_username(user_id, newname)
+                if newname == None or newname == "" or str.isspace(newname):
+                    st.warning("Blank username not allowed.")
+                else:
+                    methods.set_username(user_id, newname)
         st.write(f"**Username**: {methods.get_username(user_id)}")
+    
 
 
     st.divider()
