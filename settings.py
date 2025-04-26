@@ -74,7 +74,7 @@ try:
     with col1:
             st.subheader("Activate Social")
             social = st.checkbox("Opt-In", value = methods.get_optin(user_id), on_change=toggle_optin, args=(user_id,))
-            st.write("By opting into Social, you can be become searchable, and can be added by others as a friend on the Social page.")
+            st.write("By opting into Social, you become searchable, and can be added by others as a friend.")
             st.write("Users are searchable by username. You can change your username at any time.")
 
     with col3:
