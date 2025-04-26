@@ -8,7 +8,13 @@ def update_db_stuff():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
-    cur.execute("DELETE FROM friends")
+    # cur.execute("DELETE FROM friends")
+
+    # cur.execute("""
+    #             ALTER TABLE users
+    #             ADD COLUMN optin TEXT
+    #             DEFAULT true
+    #             """)
 
     # cur.execute("""
     #             ALTER TABLE friends

@@ -68,9 +68,14 @@ try:
     
     col1, col2, col3 = st.columns((1,0.25,1))
     
+    def toggle_optin(user_id):
+        methods.toggle_optin(user_id)
+
     with col1:
             st.subheader("Activate Social")
-            social = st.button("Activate")
+            social = st.checkbox("Opt-In", value = methods.get_optin(user_id), on_change=toggle_optin, args=(user_id,))
+            st.write("By opting into Social, you can b added and add others as a friend on the Social page.")
+            st.write("Users are searchable by username. You can change your username at any time.")
 
     with col3:
         st.subheader("Update Username")
@@ -91,6 +96,7 @@ try:
     st.subheader("Usage Data")
     st.write(f"Date joined: {methods.get_user_join_date(user_id)}")
     st.write(f"Total dishes logged: {methods.get_total_dishes_logged(user_id)}")
+    st.write(f"Total friends: {len(methods.list_friends(user_id))}")
     
     st.divider()
 
