@@ -8,6 +8,12 @@ def update_db_stuff():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
+    cur.execute("""
+                UPDATE friends
+                SET friends = ?
+                WHERE user_id = ?""", 
+                (None, "113710513260861004152"))
+
     # cur.execute("DELETE FROM friends")
 
     # cur.execute("""

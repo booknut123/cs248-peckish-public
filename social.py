@@ -13,7 +13,7 @@ import updating_db
 
 user_id = st.session_state.get("user_id")
 
-sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
+sidebar, main = st.columns((0.75, 1.5), gap="small", vertical_alignment="top")
 if not methods.check_id(user_id):
     col1, col2 = st.columns((0.3, 1.5))
     col1.image(image='crumb-the-goose.png')
@@ -33,8 +33,11 @@ if not methods.check_id(user_id):
 
 # try:
 
-users = [name for name in methods.get_all_users() if name[0] != user_id and methods.get_optin(name[0])]
+#updating_db.update_db_stuff()
 
+
+users = [name for name in methods.get_all_users() if methods.get_optin(name[0])]
+#name[0] != user_id and
 if methods.get_optin(user_id):
 
     with sidebar:
@@ -45,27 +48,35 @@ if methods.get_optin(user_id):
         if not friends:
             st.write("No friends")
         else:
+            col1, col2 = st.columns((1,0.50))
             for friend in friends:
-                st.write(methods.get_username(friend))
+                col1.write(methods.get_username(friend))
+                unfriend = col2.button("**-**", key=f"remove_{friend}")
+                if unfriend:
+                    methods.remove_friend(user_id, friend)
+                    st.toast(f"{methods.get_username(friend)} removed.")
+                    st.rerun()
 
         st.write("**Incoming Requests**")
-        col1, col2, col3 = st.columns((1,0.25,0.25))
         
         requests = methods.list_friend_requests(user_id)
         if not requests:
             st.write("No requests")
         else:
+            col1, col2, col3 = st.columns((1,0.25,0.25))
             for request in requests:
                 name = methods.get_username(request)
-                col1.write(name[2])
+                col1.write(name)
                 add = col2.button("**+**", key=f"add_{request}") 
                 if add:
                     methods.accept_friend_request(user_id, request)
-                    st.toast(f"{name[2]} added!")
+                    st.toast(f"{name} added!")
+                    st.rerun()
                 remove = col3.button("**-**", key=f"remove_{request}")
                 if remove:
                     methods.remove_friend_request(user_id, request)
-                    st.toast(f"{name[2]} removed!")
+                    st.toast(f"{name} removed.")
+                    st.rerun()
 
         st.write("**Add Friend**")
         with st.form("Add Friend"):
@@ -73,7 +84,8 @@ if methods.get_optin(user_id):
             send = st.form_submit_button("Send Request")
             if send:
                 methods.send_friend_request(user_id, friend[0])
-                st.toast(f"Friend Request sent to {friend[2]}!")
+                st.toast(f"Friend request sent to {friend[2]}!")
+                st.rerun()
 
         st.write("**Outgoing Requests**")
         outgoing = methods.list_outgoing_requests(user_id)
@@ -81,12 +93,16 @@ if methods.get_optin(user_id):
             st.write("No requests")
         else:
             for request in outgoing:
-                st.write(methods.get_username(request))
+                col1, col2 = st.columns((1,0.5))
+                col1.write(methods.get_username(request))
+                removerequest = col2.button("**-**", key = f"remove_request_{request}")
+                if removerequest:
+                    methods.remove_friend_request(request, user_id)
+                    st.toast("Friend request removed.")
+                    st.rerun()
 
     with main:
         st.header("Social")
-
-        updating_db.update_db_stuff()
 
         st.subheader("Recent Activity")
         st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       

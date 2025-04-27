@@ -653,15 +653,20 @@ def send_friend_request(userID, friend):
 
     if friend in usersinfriends:
         if userID not in list_friends(friend):
-            friends = list_friends(friend).append(userID)
+            friends = list_friends(friend)
             if friends:
+                friends = friends.append(userID)
                 updated = ",".join(friends)
-                cur.execute("UPDATE friends SET friends = ? WHERE user_id = ? ", (updated, friend))
-                conn.commit()
+            else:
+                updated = userID
+            cur.execute("UPDATE friends SET requests = ? WHERE user_id = ? ", (updated, friend))
+            conn.commit()
 
     else:
         cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friend, userID))
         conn.commit()
+
+    db_sync.push_db_to_github()
 
     #Check if user is in friends table, updates if not
     if not userID in usersinfriends:
@@ -679,16 +684,24 @@ def accept_friend_request(userID, friend):
     friends = list_friends(userID).append(friend)
     if friends:
         updatedfriends = ",".join(friends)
-        cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
-        conn.commit()
+    else:
+        updatedfriends = friend
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+    conn.commit()
+
+    db_sync.push_db_to_github()
     
     #Remove incoming request
     remove_friend_request(userID, friend)
 
     #Update friend's friendlist
     friends = list_friends(friend).append(userID)
-    updatedfriends = ",".join(friends)
+    if friends:
+        updatedfriends = ",".join(friends)
+    else:
+        updatedfriends = userID
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friend))
+    conn.commit()
 
     conn.commit()
     conn.close()
