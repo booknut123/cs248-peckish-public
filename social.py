@@ -107,8 +107,37 @@ if methods.get_optin(user_id):
     with main:
         st.header("Social")
 
-        st.subheader("Recent Activity")
-        st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
+        st.subheader("Friend Activity")
+
+        friends = methods.list_friends(user_id)
+        if not friends:
+            st.warning("You must have atleast one friend added to view activity.")
+        else:
+            for friend in friends:
+                with st.container(border=True):
+                    st.write(f"**{methods.get_username(friend)}**")
+                    with st.expander("**Shared Favorites**"):
+
+                        sharedfaves = methods.compare_favorites(user_id, friend)
+
+                        if not sharedfaves:
+                            st.write("No shared favorites.")
+
+                        else:
+                            for fave in sharedfaves:
+                                friendname = methods.get_username(friend)
+                                dishname = methods.get_dish_name(fave)
+                                st.write(f"-- {dishname}")
+                                st.write(f"**Date Added** You: {methods.get_fave_date(user_id, fave)} | {friendname}: {methods.get_fave_date(user_id, fave)}")
+                                st.write(f"**Last Logged** You: {methods.get_last_logged_date(user_id, dishname)} | {friendname}: {methods.get_last_logged_date(friend, dishname)}")
+                                st.write("")
+                    with st.expander("**Recent Notes**"):
+                        st.write("WIP")
+                    with st.expander("**Tag History**"):
+                        st.write("WIP")
+
+
+            st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
 
 else:
     st.warning("Activate Social in settings to access your Social page.")

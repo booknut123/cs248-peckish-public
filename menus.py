@@ -122,11 +122,12 @@ try:
                                 if st.session_state[heart_key]:
                                     methods.add_favorite(user_id, row['dish_id'])
                                     st.toast("Favorite added")
+                                    st.rerun()
                                 else:
                                     methods.remove_favorite(user_id, row['dish_id'])
                                     st.toast("Favorite removed")
+                                    st.rerun()
                                 #methods.favorites_toggle(user_id, row['id'])
-                                st.rerun()
                             
                             with col2.expander(row['dish_name']):
                                 info = methods.get_dish_info(row['dish_id'])[7:]

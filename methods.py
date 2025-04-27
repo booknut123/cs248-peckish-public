@@ -643,7 +643,7 @@ def generate_goose_fact():
     num = random.randint(0,len(facts))
     return (facts[num-1], num)
 
-def send_friend_request(userID, friend):
+def send_friend_request(userID, friendID):
     conn = connect_db()
     cur = conn.cursor()
 
@@ -651,19 +651,19 @@ def send_friend_request(userID, friend):
     users = cur.execute("SELECT DISTINCT(user_id) FROM friends").fetchall()
     usersinfriends = [user[0] for user in users]
 
-    if friend in usersinfriends:
-        if userID not in list_friends(friend):
-            friends = list_friends(friend)
+    if friendID in usersinfriends:
+        if userID not in list_friends(friendID):
+            friends = list_friends(friendID)
             if friends:
                 friends = friends.append(userID)
                 updated = ",".join(friends)
             else:
                 updated = userID
-            cur.execute("UPDATE friends SET requests = ? WHERE user_id = ? ", (updated, friend))
+            cur.execute("UPDATE friends SET requests = ? WHERE user_id = ? ", (updated, friendID))
             conn.commit()
 
     else:
-        cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friend, userID))
+        cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friendID, userID))
         conn.commit()
 
     db_sync.push_db_to_github()
@@ -676,44 +676,44 @@ def send_friend_request(userID, friend):
     conn.close()
     db_sync.push_db_to_github()
 
-def accept_friend_request(userID, friend):
+def accept_friend_request(userID, friendID):
     conn = connect_db()
     cur = conn.cursor()
 
     #Update user's friendlist
-    friends = list_friends(userID).append(friend)
+    friends = list_friends(userID).append(friendID)
     if friends:
         updatedfriends = ",".join(friends)
     else:
-        updatedfriends = friend
+        updatedfriends = friendID
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
     conn.commit()
 
     db_sync.push_db_to_github()
     
     #Remove incoming request
-    remove_friend_request(userID, friend)
+    remove_friend_request(userID, friendID)
 
     #Update friend's friendlist
-    friends = list_friends(friend).append(userID)
+    friends = list_friends(friendID).append(userID)
     if friends:
         updatedfriends = ",".join(friends)
     else:
         updatedfriends = userID
-    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friend))
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
     conn.commit()
 
     conn.commit()
     conn.close()
     db_sync.push_db_to_github()
 
-def remove_friend_request(userID, friend):
+def remove_friend_request(userID, friendID):
     conn = connect_db()
     cur = conn.cursor()
     requests = list_friend_requests(userID)
 
     if requests:
-        updatedrequests = ",".join([request for request in requests if request != friend])
+        updatedrequests = ",".join([request for request in requests if request != friendID])
         cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
     
     conn.commit()
@@ -812,3 +812,48 @@ def toggle_optin(userID):
     conn.close()
     db_sync.push_db_to_github()
 
+def compare_favorites(userID, friendID):
+    userfaves = [fave[0] for fave in get_user_favorites(userID)]
+    friendfaves = [fave[0] for fave in get_user_favorites(friendID)]
+
+    sharedfaves = [fave for fave in userfaves if fave in friendfaves]
+
+    return sharedfaves
+
+def get_fave_date(userID, dishID):
+    conn = connect_db()
+    cur = conn.cursor()
+    date = cur.execute("SELECT date_added FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID,)).fetchone()[0]
+
+    if date:
+        date = '/'.join((date)[5:].split('-'))
+        return date
+    
+def get_log_date(logID):
+    conn = connect_db()
+    cur = conn.cursor()
+    date = cur.execute("SELECT date_logged FROM meal_log WHERE log_id = ?", (logID,)).fetchone()[0]
+
+    if date:
+        date = '/'.join((date)[5:].split('-'))
+        return date
+
+def get_last_logged_date(userID, dishname):
+    conn = connect_db()
+    cur = conn.cursor()
+    logs = get_user_logs(userID)
+
+    dates = []
+    for log in logs:
+        dishes = [get_dish_name(dish) for dish in get_log_dishes(log)]
+        if dishname in dishes:
+            dates.append(get_log_date(log))
+    
+    if dates:
+        return max(dates)
+    else:
+        return "Never"
+
+
+
+    
