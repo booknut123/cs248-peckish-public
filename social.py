@@ -57,7 +57,10 @@ if methods.get_optin(user_id):
                     st.toast(f"{methods.get_username(friend)} removed.")
                     st.rerun()
 
-        st.write("**Incoming Requests**")
+        if methods.list_friend_requests(user_id):
+            st.write("**Incoming Requests 🔴**")
+        else:
+            st.write("**Incoming Requests**")
         
         requests = methods.list_friend_requests(user_id)
         if not requests:
