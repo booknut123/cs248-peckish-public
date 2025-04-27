@@ -9,10 +9,9 @@ def update_db_stuff():
     cur = conn.cursor()
 
     cur.execute("""
-                UPDATE friends
-                SET friends = ?
-                WHERE user_id = ?""", 
-                (None, "113710513260861004152"))
+                UPDATE notes
+                SET tags = ?""", 
+                (None,))
 
     # cur.execute("DELETE FROM friends")
 

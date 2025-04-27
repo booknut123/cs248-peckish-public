@@ -129,17 +129,32 @@ def streamlit_print(df):
             st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
-    streamlit_print(methods.print_menu([], [], "Bates", other_meal, date.today()))
+    menu = methods.print_menu([], [], "Bates", other_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col2:
     st.subheader("Lulu")
-    streamlit_print(methods.print_menu([], [], "Lulu", lulu_meal, date.today()))
+    menu = methods.print_menu([], [], "Lulu", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col3:
     st.subheader("Tower")
-    streamlit_print(methods.print_menu([], [], "Tower", other_meal, date.today()))
+    menu = methods.print_menu([], [], "Tower", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col4:
     st.subheader("StoneD")
-    streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today()))
-
+    menu = methods.print_menu([], [], "StoneD", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 
 col1, col2 = st.columns((3.25,1))
 

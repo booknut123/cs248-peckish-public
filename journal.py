@@ -161,7 +161,7 @@ try:
                 if tags[0]:
                     tags = tags[0].split(",")
                 if tags[0]:
-                    st.write(f"**Tags**: {', '.join([tag for tag in tags])}")
+                    st.write(f"**Tags**: {', '.join([methods.get_username(tag) for tag in tags])}")
 
             col1, col2 = st.columns((2)) 
             
@@ -191,7 +191,7 @@ try:
                     st.write("You must add a friend on your Social page to tag them.")
                 else:
                     with st.form(f"Tag Friend {key}"):
-                        tagged = st.multiselect('Tags (submit blank to delete):', [methods.get_username(user) for user in methods.list_friends(user_id)], placeholder="Search for friends by name!")
+                        tagged = st.multiselect('Tags (submit blank to delete):', friends, format_func=lambda x: methods.get_username(x), placeholder="Search for friends by name!")
                         submittedT = st.form_submit_button("Submit Tags")
                         if submittedT:
                             methods.add_tags(user_id, key, tagged)
