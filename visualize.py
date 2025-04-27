@@ -51,9 +51,7 @@ with sidebar:
     if all:
         all=True
     
-    #none = col2.button("None")
-    #if none:
-        #none=True
+    kcal, mg, g = [], [], []
 
     for stat in stats:
         if all:
@@ -69,17 +67,12 @@ with sidebar:
         if selected:
             selectednone=False
             if stat == "calories":
-                uom.append("kcal")
-            if stat == "cholesterol" or stat == "sodium" and "mg" not in uom:
-                uom.append("mg")
-            if stat not in ["calories", "cholesterol", "sodium"] and "g" not in uom:
-                uom.append("g")
+                kcal.append(stat)
+            if stat in ["cholesterol", "sodium"]:
+                mg.append(stat)
+            elif stat not in ["calories", "cholesterol", "sodium"]:
+                g.append(stat)
             selectedstats.append(stat)
-
-    colors = ["#0B3954", "#FF6663", "#247BA0", "#70C1B3", "#FFCB77", "#9D6A89", "#D4A5A5"]
-    colors = colors[:len(selectedstats)]
-    
-    uom = " / ".join(uom)
 
 with main:
     st.header("Visualize")
@@ -112,11 +105,27 @@ with main:
             st.warning(f"Please select a date at or before your latest meal log: {borderdates['max']}")
     
     else:
-        st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], selectedstats),  
-            y_label = f"{uom}", 
-            x_label="date",
-            color = colors
-            )
+
+        if kcal:
+            label = ", ".join([stat.capitalize() for stat in kcal])
+            st.write(f"**{label}**")
+            st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], kcal),
+                          y_label = "kcal",
+                          x_label = "date")
+        if g:
+            label = ", ".join([stat.capitalize() for stat in g])
+            st.write(f"**{label}**")
+            st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], g),
+                          y_label = "mg",
+                          x_label = "date")
+        if mg:
+            label = ", ".join([stat.capitalize() for stat in mg])
+            st.write(f"**{label}**")
+            st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], mg),
+                          y_label = "mg",
+                          x_label = "date")
+        
+        
 
     #st.write(f"Viewing: {stat}")
     st.write("---")
