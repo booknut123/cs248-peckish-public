@@ -731,12 +731,18 @@ def remove_friend(userID, friendID):
     cur = conn.cursor()
 
     friends = list_friends(userID)
-    updatedfriends = ",".join([friend for friend in friends if friend != friendID])
+    if friends:
+        updatedfriends = ",".join([friend for friend in friends if friend != friendID])
+    else:
+        updatedfriends = None
 
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
 
     friends = list_friends(friendID)
-    updatedfriends = ",".join([friend for friend in friends if friend != userID])
+    if friends:
+        updatedfriends = ",".join([friend for friend in friends if friend != userID])
+    else:
+        updatedfriends = None
 
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
     
