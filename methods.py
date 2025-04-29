@@ -897,5 +897,20 @@ def get_user_icon(userID):
     else:
         return None
 
+def get_tag_history(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
 
-    
+    logs = get_user_logs(friendID)
+    dates = set([get_log_date(log) for log in logs])
+    dates = [str(datetime.strptime(f"2025/{date}", "%Y/%m/%d").date()) for date in dates]
+
+    taghistory = {}
+    for date in dates:
+        tags = get_tags(friendID, date)
+        if tags and tags[0]:
+            tags = (tags[0]).split(",")
+            if tags and (userID in tags):
+                taghistory[date] = (get_note(friendID, date), tags)
+
+    return taghistory

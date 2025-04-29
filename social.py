@@ -134,10 +134,32 @@ if methods.get_optin(user_id):
                                 st.write(f"**Date Added** You: {methods.get_fave_date(user_id, fave)} | {friendname}: {methods.get_fave_date(user_id, fave)}")
                                 st.write(f"**Last Logged** You: {methods.get_last_logged_date(user_id, dishname)} | {friendname}: {methods.get_last_logged_date(friend, dishname)}")
                                 st.write("")
-                    with st.expander("**Recent Notes**"):
-                        st.write("WIP")
                     with st.expander("**Tag History**"):
-                        st.write("WIP")
+                        st.write("**Friend Tags**")
+                        taghistory = methods.get_tag_history(user_id, friend)
+                        if taghistory:
+                            for date in taghistory:
+                                tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
+                                st.write(f"**{date}**: {tags}")
+                                st.write(taghistory[date][0])
+
+                        else:
+                            st.write("This friend has not tagged you.")
+
+                        st.divider()
+
+                        st.write("**Your Tags**")
+                        taghistory = methods.get_tag_history(friend, user_id)
+                        if taghistory:
+                            for date in taghistory:
+                                tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
+                                st.write(f"**{date}**: {tags}")
+                                st.write(taghistory[date][0])
+
+                        else:
+                            st.write("You have not tagged this friend.")
+                        
+                    methods.get_tag_history(user_id, friend)
 
 
             st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
