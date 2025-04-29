@@ -653,12 +653,13 @@ def send_friend_request(userID, friendID):
 
     if friendID in usersinfriends:
         if userID not in list_friends(friendID):
-            friends = list_friends(friendID)
+            friends = list_friend_requests(friendID)
             if friends:
-                friends = friends.append(userID)
+                friends.append(userID)
                 updated = ",".join(friends)
             else:
                 updated = userID
+
             cur.execute("UPDATE friends SET requests = ? WHERE user_id = ? ", (updated, friendID))
             conn.commit()
 
@@ -684,7 +685,7 @@ def accept_friend_request(userID, friendID):
         if friendID in friends:
             updatedfriends = ",".join(friends)
         else:
-            updatedfriends = friends.append(friendID)
+            friends.append(friendID)
             updatedfriends = ",".join(friends)
     else:
         updatedfriends = friendID
@@ -703,7 +704,7 @@ def accept_friend_request(userID, friendID):
         if userID in friends:
             updatedfriends = ",".join(friends)
         else:
-            updatedfriends = friends.append(userID)
+            friends.append(userID)
             updatedfriends = ",".join(friends)
     else:
         updatedfriends = userID

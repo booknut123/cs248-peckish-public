@@ -49,14 +49,14 @@ if methods.get_optin(user_id):
             st.write("No friends")
         else:
             for i, friend in zip(range(len(friends)),friends):
-                col1, col2 = st.columns((1,0.50))
-                col1.write(methods.get_username(friend))
-                unfriend = col2.button("**-**", key=f"remove_{i}_{friend}")
+                col1, col2 = st.columns((0.15,1), vertical_alignment="center")
+                unfriend = col1.button("**-**", key=f"remove_{i}_{friend}")
                 if unfriend:
                     methods.remove_friend(user_id, friend)
                     st.toast(f"{methods.get_username(friend)} removed.")
                     st.rerun()
-
+                col2.write(methods.get_username(friend))
+                
         if methods.list_friend_requests(user_id):
             st.write("**Incoming Requests 🔴**")
         else:
@@ -66,20 +66,21 @@ if methods.get_optin(user_id):
         if not requests:
             st.write("No requests")
         else:
-            col1, col2, col3 = st.columns((1,0.25,0.25))
             for request in requests:
+                col1, col2, col3 = st.columns((0.15,0.15,0.75), vertical_alignment="center")
                 name = methods.get_username(request)
-                col1.write(name)
-                add = col2.button("**+**", key=f"add_{request}") 
+                add = col1.button("**+**", key=f"add_{request}") 
                 if add:
                     methods.accept_friend_request(user_id, request)
                     st.toast(f"{name} added!")
                     st.rerun()
-                remove = col3.button("**-**", key=f"remove_{request}")
+                remove = col2.button("**-**", key=f"remove_{request}")
                 if remove:
                     methods.remove_friend_request(user_id, request)
                     st.toast(f"{name} removed.")
                     st.rerun()
+                col3.write(name)
+                
 
         st.write("**Add Friend**")
         with st.form("Add Friend"):
@@ -96,13 +97,13 @@ if methods.get_optin(user_id):
             st.write("No requests")
         else:
             for request in outgoing:
-                col1, col2 = st.columns((1,0.5))
-                col1.write(methods.get_username(request))
-                removerequest = col2.button("**-**", key = f"remove_request_{request}")
+                col1, col2 = st.columns((0.15,1), vertical_alignment="center")
+                removerequest = col1.button("**-**", key = f"remove_request_{request}")
                 if removerequest:
                     methods.remove_friend_request(request, user_id)
                     st.toast("Friend request removed.")
                     st.rerun()
+                col2.write(methods.get_username(request))
 
     with main:
         st.header("Social")
