@@ -820,12 +820,11 @@ def toggle_optin(userID):
     current = get_optin(userID)
 
     if current:    
+        for user in get_all_users():
+            remove_friend(user[0], userID)
         conn = connect_db()
         cur = conn.cursor()
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
-        conn.close()
-        for user in get_all_users():
-            remove_friend(user[0], userID)
     else: 
         conn = connect_db()
         cur = conn.cursor()
