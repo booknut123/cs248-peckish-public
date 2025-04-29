@@ -719,6 +719,11 @@ def remove_friend_request(userID, friendID):
         updatedrequests = ",".join([request for request in requests if request != friendID])
         cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
     
+    requests = list_friend_requests(friendID)
+    if userID in requests:
+        updatedrequests = ",".join([request for request in requests if request != userID])
+        cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, friendID))
+
     conn.commit()
     conn.close()
     db_sync.push_db_to_github()
