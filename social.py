@@ -48,10 +48,10 @@ if methods.get_optin(user_id):
         if not friends:
             st.write("No friends")
         else:
-            for friend in friends:
+            for i, friend in zip(range(len(friends)),friends):
                 col1, col2 = st.columns((1,0.50))
                 col1.write(methods.get_username(friend))
-                unfriend = col2.button("**-**", key=f"remove_{friend}")
+                unfriend = col2.button("**-**", key=f"remove_{i}_{friend}")
                 if unfriend:
                     methods.remove_friend(user_id, friend)
                     st.toast(f"{methods.get_username(friend)} removed.")
@@ -115,7 +115,9 @@ if methods.get_optin(user_id):
         else:
             for friend in friends:
                 with st.container(border=True):
-                    st.write(f"**{methods.get_username(friend)}**")
+                    col1, col2 = st.columns((0.1,1), vertical_alignment="center")
+                    col1.image(methods.get_user_icon(friend), width=30)
+                    col2.write(f"**{methods.get_username(friend)}**")
                     with st.expander("**Shared Favorites**"):
 
                         sharedfaves = methods.compare_favorites(user_id, friend)

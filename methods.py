@@ -681,8 +681,11 @@ def accept_friend_request(userID, friendID):
     #Update user's friendlist
     friends = list_friends(userID)
     if friends:
-        updatedfriends = friends.append(friendID)
-        updatedfriends = ",".join(friends)
+        if friendID in friends:
+            updatedfriends = ",".join(friends)
+        else:
+            updatedfriends = friends.append(friendID)
+            updatedfriends = ",".join(friends)
     else:
         updatedfriends = friendID
     
@@ -697,8 +700,11 @@ def accept_friend_request(userID, friendID):
     #Update friend's friendlist
     friends = list_friends(friendID)
     if friends:
-        updatedfriends = friends.append(userID)
-        updatedfriends = ",".join(friends)
+        if userID in friends:
+            updatedfriends = ",".join(friends)
+        else:
+            updatedfriends = friends.append(userID)
+            updatedfriends = ",".join(friends)
     else:
         updatedfriends = userID
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
@@ -879,6 +885,16 @@ def get_last_logged_date(userID, dishname):
     else:
         return "Never"
 
+def get_user_icon(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    image = cur.execute("SELECT picture_url FROM users where user_id = ?", (userID,)).fetchone()
+
+    if image:
+        return image[0]
+    else:
+        return None
 
 
     
