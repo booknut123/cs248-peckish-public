@@ -48,8 +48,8 @@ if methods.get_optin(user_id):
         if not friends:
             st.write("No friends")
         else:
-            col1, col2 = st.columns((1,0.50))
             for friend in friends:
+                col1, col2 = st.columns((1,0.50))
                 col1.write(methods.get_username(friend))
                 unfriend = col2.button("**-**", key=f"remove_{friend}")
                 if unfriend:
