@@ -666,8 +666,6 @@ def send_friend_request(userID, friendID):
         cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friendID, userID))
         conn.commit()
 
-    db_sync.push_db_to_github()
-
     #Check if user is in friends table, updates if not
     if not userID in usersinfriends:
         cur.execute("INSERT INTO friends (user_id) VALUES (?)", (userID,))
@@ -736,14 +734,13 @@ def remove_friend(userID, friendID):
     updatedfriends = ",".join([friend for friend in friends if friend != friendID])
 
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
-    conn.commit()
 
     friends = list_friends(friendID)
     updatedfriends = ",".join([friend for friend in friends if friend != userID])
 
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
+    
     conn.commit()
-
     conn.close()
     db_sync.push_db_to_github()
 
@@ -825,6 +822,7 @@ def toggle_optin(userID):
             remove_friend(user[0], userID)
     else:
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
+    
     conn.commit()
     conn.close()
     db_sync.push_db_to_github()
