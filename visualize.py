@@ -79,7 +79,7 @@ with main:
 
     col1, col2 = st.columns((1.5,1))
 
-    col1.subheader("Nutritionals Graph")
+    col1.subheader("Nutritionals Graphs")
 
     dates = col2.date_input("Select Date Range",
                                 format="MM-DD-YYYY", 

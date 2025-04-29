@@ -9,7 +9,7 @@ st.set_page_config(
 pages = {
     "Menu": [
         st.Page("home.py", title="Home"),
-        st.Page("menus.py", title="Menus"),
+        st.Page("log.py", title="Log"),
         st.Page("journal.py", title="Journal"),
         st.Page("visualize.py", title="Visualize"),
         st.Page("favorites.py", title="Favorites"),

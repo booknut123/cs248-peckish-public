@@ -681,11 +681,13 @@ def accept_friend_request(userID, friendID):
     cur = conn.cursor()
 
     #Update user's friendlist
-    friends = list_friends(userID).append(friendID)
+    friends = list_friends(userID)
     if friends:
+        updatedfriends = friends.append(friendID)
         updatedfriends = ",".join(friends)
     else:
         updatedfriends = friendID
+    
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
     conn.commit()
 
@@ -695,8 +697,9 @@ def accept_friend_request(userID, friendID):
     remove_friend_request(userID, friendID)
 
     #Update friend's friendlist
-    friends = list_friends(friendID).append(userID)
+    friends = list_friends(friendID)
     if friends:
+        updatedfriends = friends.append(userID)
         updatedfriends = ",".join(friends)
     else:
         updatedfriends = userID
@@ -729,6 +732,13 @@ def remove_friend(userID, friendID):
 
     cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
     conn.commit()
+
+    friends = list_friends(friendID)
+    updatedfriends = ",".join([friend for friend in friends if friend != userID])
+
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
+    conn.commit()
+
     conn.close()
     db_sync.push_db_to_github()
 
@@ -806,6 +816,8 @@ def toggle_optin(userID):
 
     if current:
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
+        for user in get_all_users():
+            remove_friend(user[0], userID)
     else:
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
     conn.commit()
