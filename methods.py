@@ -386,6 +386,18 @@ def top5favs():
     conn.close()
     return top5
 
+def weeklyTop5favs():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT dish_id FROM current_dishes")
+    dishes = cur.fetchall()
+    dishes = [id[0] for id in dishes]
+    ids = ", ".join(str(id) for id in dishes)
+    cur.execute(f"SELECT dish_name, rating FROM dishes WHERE dish_id in ({ids}) ORDER BY rating DESC")
+    top5 = cur.fetchmany(5)
+    conn.close()
+    return top5
+
 
 def sort_meals_by_date(df):
     dates = sorted(df["date"].unique(), reverse=True)
