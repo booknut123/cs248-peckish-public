@@ -817,16 +817,18 @@ def get_optin(userID):
         return False
 
 def toggle_optin(userID):
-    conn = connect_db()
-    cur = conn.cursor()
-
     current = get_optin(userID)
 
-    if current:
+    if current:    
+        conn = connect_db()
+        cur = conn.cursor()
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
+        conn.close()
         for user in get_all_users():
             remove_friend(user[0], userID)
-    else:
+    else: 
+        conn = connect_db()
+        cur = conn.cursor()
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
     
     conn.commit()
