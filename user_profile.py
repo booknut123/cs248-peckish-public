@@ -102,6 +102,7 @@ def render_user_profile():
         st.sidebar.success("Logged in ✅")
 
 def add_user(user_info): # == added by Kailyn ==
+    new_user = False
     """Insert or update user in peckish.db using Google auth info"""
     
     db_sync.download_db_from_github()
@@ -159,10 +160,15 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture"),
                 "true"
             ))
-        
+            
+            new_user = True
         conn.commit()
         st.session_state["user_id"] = user_id
-        return user_id
+        
     finally:
         conn.close()
+        db_sync.push_db_to_github()
+        if (new_user):
+            methods.new_user_welcome()
+        return user_id
     
