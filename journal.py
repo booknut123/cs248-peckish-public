@@ -37,7 +37,6 @@ if not methods.check_id(user_id):
 st.header("Journal")
     
 try: 
-    names = [name[0] for name in methods.get_all_names() if name[0] != methods.get_name(user_id)]
     mealLog = methods.get_meal_log(user_id)
     
     def get_calories(dish_id):
@@ -162,7 +161,7 @@ try:
                 if tags[0]:
                     tags = tags[0].split(",")
                 if tags[0]:
-                    st.write(f"**Tags**: {', '.join([tag for tag in tags])}")
+                    st.write(f"**Tags**: {', '.join([methods.get_username(tag) for tag in tags])}")
 
             col1, col2 = st.columns((2)) 
             
@@ -187,13 +186,17 @@ try:
                         st.toast("Note added!")
                         st.rerun()
                 
-                with st.form(f"Tag Friend {key}"):
-                    tagged = st.multiselect('Tags (submit blank to delete):',names, placeholder="Search for friends by name!")
-                    submittedT = st.form_submit_button("Submit Tags")
-                    if submittedT:
-                        methods.add_tags(user_id, key, tagged)
-                        st.toast("Tags added!")
-                        st.rerun()
+                friends = methods.list_friends(user_id)
+                if not friends:
+                    st.write("You must add a friend on your Social page to tag them.")
+                else:
+                    with st.form(f"Tag Friend {key}"):
+                        tagged = st.multiselect('Tags (submit blank to delete):', friends, format_func=lambda x: methods.get_username(x), placeholder="Search for friends by name!")
+                        submittedT = st.form_submit_button("Submit Tags")
+                        if submittedT:
+                            methods.add_tags(user_id, key, tagged)
+                            st.toast("Tags added!")
+                            st.rerun()
         st.write("")
 
 except Exception as e:

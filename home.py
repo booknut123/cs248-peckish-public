@@ -39,7 +39,6 @@ def render_sidebar():
 
     else:
         st.sidebar.warning("Not logged in.")
-        st.sidebar.write("Please log in with your Google account:")
         logged_in = google_login()
         if logged_in:
             st.rerun()
@@ -83,6 +82,16 @@ else:
 
 #run this (with new starting date) if you reset entire database, or else week will be empty
 #helper_methods.weekly_update_db("2025-04-20")
+st.header("Top Rated Meals this Week:")
+with st.container(border=True):
+        col1, col2 = st.columns((0.25, 4.5))
+        i = 1
+        favorites = methods.weeklyTop5favs()
+        for fav in favorites:
+            if fav[1] != 0:
+                col1.write(f"**{i}.**")
+                col2.write(f"❤️ {fav[1]} {fav[0]}")
+                i += 1
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
@@ -136,17 +145,32 @@ def streamlit_print(df):
             st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
-    streamlit_print(methods.print_menu([], [], "Bates", other_meal, date.today()))
+    menu = methods.print_menu([], [], "Bates", other_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col2:
     st.subheader("Lulu")
-    streamlit_print(methods.print_menu([], [], "Lulu", lulu_meal, date.today()))
+    menu = methods.print_menu([], [], "Lulu", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col3:
     st.subheader("Tower")
-    streamlit_print(methods.print_menu([], [], "Tower", other_meal, date.today()))
+    menu = methods.print_menu([], [], "Tower", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 with col4:
     st.subheader("StoneD")
-    streamlit_print(methods.print_menu([], [], "StoneD", other_meal, date.today()))
-
+    menu = methods.print_menu([], [], "StoneD", lulu_meal, date.today())
+    if not menu.empty:
+        streamlit_print(menu)
+    else:
+        st.write("No menu items.")
 
 col1, col2 = st.columns((3.25,1))
 

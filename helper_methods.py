@@ -212,6 +212,14 @@ def update_dish_db(df): # For use with dishes table
     
 # @st.cache_data            
 def weekly_update_db(sunday_date): # For use with current_dishes table
+    conn = connect_db()
+    cur = conn.cursor()
+
+    #if table already populated, exit method
+    num = cur.execute("SELECT COUNT(*) FROM current_dishes").fetchone()
+    if num[0] != 0:
+        return
+
     mealDict = {
         "Bates": {
             "Breakfast": 145,
@@ -236,9 +244,6 @@ def weekly_update_db(sunday_date): # For use with current_dishes table
     
     st.write("weekly_update_db()")
     date_obj = datetime.strptime((sunday_date), "%Y-%m-%d")  # Parse the string
-    
-    conn = connect_db()
-    cur = conn.cursor()
    
     cur.execute("""DROP TABLE IF EXISTS current_dishes""")
     cur.execute("""CREATE TABLE IF NOT EXISTS current_dishes (

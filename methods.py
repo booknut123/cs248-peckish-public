@@ -386,6 +386,18 @@ def top5favs():
     conn.close()
     return top5
 
+def weeklyTop5favs():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT dish_id FROM current_dishes")
+    dishes = cur.fetchall()
+    dishes = [id[0] for id in dishes]
+    ids = ", ".join(str(id) for id in dishes)
+    cur.execute(f"SELECT dish_name, rating FROM dishes WHERE dish_id in ({ids}) ORDER BY rating DESC")
+    top5 = cur.fetchmany(5)
+    conn.close()
+    return top5
+
 
 def sort_meals_by_date(df):
     dates = sorted(df["date"].unique(), reverse=True)
@@ -642,8 +654,8 @@ def generate_goose_fact():
     
     num = random.randint(0,len(facts))
     return (facts[num-1], num)
-
-def new_user_welcome():
+  
+  def new_user_welcome():
     user_welcomed = False
     placeholder = st.empty()
     with placeholder.container():
@@ -665,3 +677,274 @@ def new_user_welcome():
         st.write(user_welcomed)
     placeholder.empty()
     
+def send_friend_request(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    #Check if friend is in friends table, updates if not and sends request
+    users = cur.execute("SELECT DISTINCT(user_id) FROM friends").fetchall()
+    usersinfriends = [user[0] for user in users]
+
+    if friendID in usersinfriends:
+        if userID not in list_friends(friendID):
+            friends = list_friend_requests(friendID)
+            if friends:
+                friends.append(userID)
+                updated = ",".join(friends)
+            else:
+                updated = userID
+
+            cur.execute("UPDATE friends SET requests = ? WHERE user_id = ? ", (updated, friendID))
+            conn.commit()
+
+    else:
+        cur.execute("INSERT INTO friends (user_id, requests) VALUES (?, ?)", (friendID, userID))
+        conn.commit()
+
+    #Check if user is in friends table, updates if not
+    if not userID in usersinfriends:
+        cur.execute("INSERT INTO friends (user_id) VALUES (?)", (userID,))
+        conn.commit()
+
+    conn.close()
+    db_sync.push_db_to_github()
+
+def accept_friend_request(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    #Update user's friendlist
+    friends = list_friends(userID)
+    if friends:
+        if friendID in friends:
+            updatedfriends = ",".join(friends)
+        else:
+            friends.append(friendID)
+            updatedfriends = ",".join(friends)
+    else:
+        updatedfriends = friendID
+    
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+    conn.commit()
+
+    db_sync.push_db_to_github()
+    
+    #Remove incoming request
+    remove_friend_request(userID, friendID)
+
+    #Update friend's friendlist
+    friends = list_friends(friendID)
+    if friends:
+        if userID in friends:
+            updatedfriends = ",".join(friends)
+        else:
+            friends.append(userID)
+            updatedfriends = ",".join(friends)
+    else:
+        updatedfriends = userID
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
+    conn.commit()
+
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def remove_friend_request(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+    requests = list_friend_requests(userID)
+
+    if requests:
+        updatedrequests = ",".join([request for request in requests if request != friendID])
+        cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, userID))
+    
+    requests = list_friend_requests(friendID)
+    if userID in requests:
+        updatedrequests = ",".join([request for request in requests if request != userID])
+        cur.execute("UPDATE friends SET requests = ? WHERE user_id = ?", (updatedrequests, friendID))
+
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def remove_friend(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    friends = list_friends(userID)
+    if friends:
+        updatedfriends = ",".join([friend for friend in friends if friend != friendID])
+    else:
+        updatedfriends = None
+
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, userID))
+
+    friends = list_friends(friendID)
+    if friends:
+        updatedfriends = ",".join([friend for friend in friends if friend != userID])
+    else:
+        updatedfriends = None
+
+    cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (updatedfriends, friendID))
+    
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def list_friends(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    friends = cur.execute("SELECT friends FROM friends WHERE user_id = ?", (userID,)).fetchone()
+    if friends:
+        if not friends[0]:
+            return []
+        return friends[0].split(",")
+    return []
+
+def list_friend_requests(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    requests = cur.execute("SELECT requests FROM friends WHERE user_id = ?", (userID,)).fetchone()
+    if requests:    
+        if not requests[0]:
+            return []
+        return requests[0].split(",")
+    return []
+
+def list_outgoing_requests(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    users = cur.execute("SELECT DISTINCT(user_id) FROM friends").fetchall()
+    usersinfriends = [user[0] for user in users]
+
+    outgoing = []
+    for user in usersinfriends:
+        requests = list_friend_requests(user)
+        if userID in requests:
+            outgoing.append(user)
+
+    return outgoing
+
+def get_all_users():
+    """
+    Returns a list of user_id, name and user_name of all users in the database.
+    [(user_id, name, user_name)]
+    """
+    conn = connect_db()
+    cur = conn.cursor()
+
+    users = cur.execute("SELECT user_id, name, user_name FROM users").fetchall()
+
+    return users
+
+def get_user_id_from_name(name):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    id = cur.execute("SELECT user_id FROM users WHERE user_name = ?", (name,)).fetchone()
+    
+    return id[0]
+
+def get_optin(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+    
+    current = cur.execute("SELECT optin FROM users WHERE user_id = ?", (userID,)).fetchone()[0]
+
+    if current == "true":
+        return True
+    else:
+        return False
+
+def toggle_optin(userID):
+    current = get_optin(userID)
+
+    if current:    
+        for user in get_all_users():
+            remove_friend(user[0], userID)
+            if userID in list_friend_requests(user[0]):
+                remove_friend_request(user[0], userID)
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
+        cur.execute("UPDATE friends SET friends = ? WHERE user_id = ?", (None, userID))
+    else: 
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
+    
+    conn.commit()
+    conn.close()
+    db_sync.push_db_to_github()
+
+def compare_favorites(userID, friendID):
+    userfaves = [fave[0] for fave in get_user_favorites(userID)]
+    friendfaves = [fave[0] for fave in get_user_favorites(friendID)]
+
+    sharedfaves = [fave for fave in userfaves if fave in friendfaves]
+
+    return sharedfaves
+
+def get_fave_date(userID, dishID):
+    conn = connect_db()
+    cur = conn.cursor()
+    date = cur.execute("SELECT date_added FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID,)).fetchone()[0]
+
+    if date:
+        date = '/'.join((date)[5:].split('-'))
+        return date
+    
+def get_log_date(logID):
+    conn = connect_db()
+    cur = conn.cursor()
+    date = cur.execute("SELECT date_logged FROM meal_log WHERE log_id = ?", (logID,)).fetchone()[0]
+
+    if date:
+        date = '/'.join((date)[5:].split('-'))
+        return date
+
+def get_last_logged_date(userID, dishname):
+    conn = connect_db()
+    cur = conn.cursor()
+    logs = get_user_logs(userID)
+
+    dates = []
+    for log in logs:
+        dishes = [get_dish_name(dish) for dish in get_log_dishes(log)]
+        if dishname in dishes:
+            dates.append(get_log_date(log))
+    
+    if dates:
+        return max(dates)
+    else:
+        return "Never"
+
+def get_user_icon(userID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    image = cur.execute("SELECT picture_url FROM users where user_id = ?", (userID,)).fetchone()
+
+    if image:
+        return image[0]
+    else:
+        return None
+
+def get_tag_history(userID, friendID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    logs = get_user_logs(friendID)
+    dates = set([get_log_date(log) for log in logs])
+    dates = [str(datetime.strptime(f"2025/{date}", "%Y/%m/%d").date()) for date in dates]
+
+    taghistory = {}
+    for date in dates:
+        tags = get_tags(friendID, date)
+        if tags and tags[0]:
+            tags = (tags[0]).split(",")
+            if tags and (userID in tags):
+                taghistory[date] = (get_note(friendID, date), tags)
+
+    return taghistory

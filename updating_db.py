@@ -9,14 +9,27 @@ def update_db_stuff():
     cur = conn.cursor()
 
     cur.execute("""
-                ALTER TABLE meal_log
-                DROP COLUMN tags
-                """)
+                UPDATE notes
+                SET tags = ?""", 
+                (None,))
 
-    cur.execute("""
-                ALTER TABLE notes
-                ADD COLUMN tags TEXT
-                """)
+    # cur.execute("DELETE FROM friends")
+
+    # cur.execute("""
+    #             ALTER TABLE users
+    #             ADD COLUMN optin TEXT
+    #             DEFAULT true
+    #             """)
+
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             RENAME COLUMN incoming_requests TO requests
+    #             """)
+
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             DROP COLUMN outgoing_requests
+    #             """)
     
     # cur.execute("""CREATE TABLE IF NOT EXISTS notes (
     #             user_id TEXT,
