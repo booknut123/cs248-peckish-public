@@ -54,25 +54,31 @@ if "selected_meal" not in st.session_state:
 # Always render sidebar, otherwise it will be rewritten
 render_sidebar()
 
-
-col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
-col1.image(image='crumb-the-goose.png')
-col2.header("Peckish")
-col2.write("Welcome to Peckish!")
-col2.write("CS248 '25")
-col2.write("Kailyn, Maya, Nina")
-
-fact = methods.generate_goose_fact()
-col3.header(f"Goose Fact #{fact[1]+1}")
-col3.write("Did you know...")
-col3.write(fact[0])
-
 # wait for the user to login before showing anything
 if "access_token" not in st.session_state:
+    col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
+    col1.image(image='crumb-the-goose.png')
+    col2.header("Peckish")
+    col2.write("Welcome to Peckish!")
+    col2.write("CS248 '25")
+    col2.write("Kailyn, Maya, Nina")
+
     st.warning("Not logged in.")    
     st.stop()
+else:
+    user_id = st.session_state.get("user_id")
+    
+    col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
+    col1.image(image='crumb-the-goose.png')
+    col2.header("Peckish")
+    col2.write("Welcome to Peckish!")
+    col2.write("CS248 '25")
+    col2.write("Kailyn, Maya, Nina")
 
-user_id = st.session_state.get("user_id")
+    fact = methods.generate_goose_fact()
+    col3.header(f"Goose Fact #{fact[1]+1}")
+    col3.write("Did you know...")
+    col3.write(fact[0])
 
 #run this (with new starting date) if you reset entire database, or else week will be empty
 #helper_methods.weekly_update_db("2025-04-20")
