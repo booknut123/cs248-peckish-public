@@ -119,6 +119,7 @@ def add_user(user_info): # == added by Kailyn ==
             (user_id,)
         )
         result = cur.fetchone()
+        cur.commit()
 
         if result:
             # Existing user - update and return existing user_id
