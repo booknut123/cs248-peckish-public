@@ -101,6 +101,7 @@ def render_user_profile():
     else:
         st.sidebar.success("Logged in ✅")
 
+import traceback
 def add_user(user_info): # == added by Kailyn ==
     is_new_user = False
     """Insert or update user in peckish.db using Google auth info"""
@@ -163,6 +164,7 @@ def add_user(user_info): # == added by Kailyn ==
                 is_new_user = True
             except Exception as e:
                 print("ERROR during INSERT:", e)
+                traceback.print_exc()
             #methods.new_user_welcome()
         conn.commit()
         st.session_state["user_id"] = user_id
