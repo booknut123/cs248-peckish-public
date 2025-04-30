@@ -106,8 +106,6 @@ if datetime.now().weekday() == 6:
 # if datetime.now().weekday() == 1: ## current day for debugging purposes
 #     helper_methods.weekly_update_db("2025-4-20")
 
-
-
 eastern = ZoneInfo("America/New_York")
 current_time_est = datetime.now(eastern).time()
 is_weekend = datetime.now(eastern).weekday() >= 5  # 5=Saturday, 6=Sunday
