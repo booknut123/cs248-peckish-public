@@ -95,9 +95,10 @@ if not favs.empty:
         st.warning("If you have notifications on and are seeing this warning, none of the dishes are being served this week!")
 
     st.header("This Week...")
+    st.write("")
     col1, col2 = st.columns((2))
     col1.subheader("Top Rated Meals")
-    with col1.container(border=True):
+    with col1.container():
         c1, c2 = st.columns((0.25, 3))
         i = 1
         favorites = methods.weeklyTop5favs()
@@ -107,8 +108,13 @@ if not favs.empty:
                 c2.write(f"❤️ {fav[1]} {fav[0]}")
                 i += 1
     col2.subheader("Top Dining Halls")
-    with col2.container(border=True):
-        st.bar_chart(vm.hall_popularity_last_7_days(), horizontal=True, height=185)
+    with col2.container():
+                    st.bar_chart(vm.hall_popularity_last_7_days(), 
+                     horizontal=True, 
+                     height=240,
+                     width=250,
+                     x_label="Number of Logs",
+                     )
 
 else:
     st.warning("Please add a favorite in the Log tab to view your favorites.")
