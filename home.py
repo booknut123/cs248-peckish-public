@@ -23,13 +23,18 @@ def fake_login():
 
 def render_sidebar():
     """A function to handle the login in the sidebar."""
-    st.sidebar.header("Login")
 
     if DEBUG and "access_token" not in st.session_state:
         fake_login()
 
     # If already logged in
     if "access_token" in st.session_state:
+        # st.session_state["show"] = st.sidebar.checkbox("Show profile info")
+
+        # st.sidebar.write(st.session_state["show"])
+        # if st.session_state["show"]:
+        #     render_user_profile()
+
         render_user_profile()
 
         if st.sidebar.button("Logout"):
@@ -38,6 +43,7 @@ def render_sidebar():
             st.rerun()
 
     else:
+        st.sidebar.header("Login")
         st.sidebar.warning("Not logged in.")
         logged_in = google_login()
         if logged_in:

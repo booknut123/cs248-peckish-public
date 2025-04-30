@@ -36,8 +36,7 @@ if not methods.check_id(user_id):
 #updating_db.update_db_stuff()
 
 
-users = [name for name in methods.get_all_users() if methods.get_optin(name[0])]
-#name[0] != user_id and
+users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id]
 if methods.get_optin(user_id):
 
     with sidebar:
