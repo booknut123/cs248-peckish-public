@@ -123,7 +123,7 @@ def add_user(user_info): # == added by Kailyn ==
         if result:
             # Existing user - update and return existing user_id
             user_id = result[0]
-            conn.execute("""
+            cur.execute("""
                 UPDATE users SET
                     email = ?,
                     name = ?,
@@ -159,6 +159,7 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture"),
                 "true"
             ))
+            conn.commit()
 
             methods.new_user_welcome()
         conn.commit()
