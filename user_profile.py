@@ -105,7 +105,7 @@ def add_user(user_info): # == added by Kailyn ==
     is_new_user = False
     """Insert or update user in peckish.db using Google auth info"""
     
-    db_sync.download_db_from_github()
+    # db_sync.download_db_from_github()
     with sqlite3.connect(db_sync.get_db_path()) as conn:
         cur = conn.cursor()
         
@@ -145,7 +145,6 @@ def add_user(user_info): # == added by Kailyn ==
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
-            cur = conn.cursor()
             name = "".join((user_info.get("name")).split(" "))
 
             cur.execute("""
