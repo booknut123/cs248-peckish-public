@@ -8,10 +8,13 @@ def update_db_stuff():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
-    cur.execute("""
-                UPDATE notes
-                SET tags = ?""", 
-                (None,))
+    # cur.execute("""DELETE FROM users
+    #                 WHERE user_id = ?;""", (___,))
+    
+    # cur.execute("""
+    #             UPDATE notes
+    #             SET tags = ?""", 
+    #             (None,))
 
     # cur.execute("DELETE FROM friends")
 
@@ -45,4 +48,4 @@ def update_db_stuff():
    
     return conn
 
-#update_db_stuff()
+# update_db_stuff()
