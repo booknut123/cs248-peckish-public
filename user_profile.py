@@ -114,19 +114,6 @@ def add_user(user_info): # == added by Kailyn ==
         
         user_id = str(google_id)
         
-        cur.execute("""
-                INSERT INTO users 
-                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
-                user_id,
-                user_info.get("email"),
-                user_info.get("name"),
-                name,
-                user_info.get("given_name"),
-                user_info.get("picture"),
-                "true"
-            ))
-        
         cur.execute(
             "SELECT user_id FROM users WHERE user_id = ?", 
             (user_id,)
@@ -158,6 +145,7 @@ def add_user(user_info): # == added by Kailyn ==
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
+            cur = conn.cursor()
             name = "".join((user_info.get("name")).split(" "))
 
             cur.execute("""
