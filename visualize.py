@@ -71,6 +71,7 @@ try:
                 elif stat not in ["calories", "cholesterol", "sodium"]:
                     g.append(stat)
                 selectedstats.append(stat)
+        st.write("Zero values may represent either 0 of that nutrient, or nothing logged on that day.")
 
     with main:
         st.header("Visualize")
@@ -149,7 +150,7 @@ try:
                         y_label="Meal")
 
 except:
-    st.warning("Please log a meal in the Menus tab to view your visualizations.")
+    st.warning("Please log a meal in the Log tab to view your visualizations.")
 
 
 #import plotly express as px to use

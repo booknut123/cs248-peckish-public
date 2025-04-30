@@ -111,7 +111,7 @@ if not favs.empty:
         st.bar_chart(vm.hall_popularity_last_7_days(), horizontal=True, height=185)
 
 else:
-    st.warning("Please add a favorite in the Menus tab to view your favorites.")
+    st.warning("Please add a favorite in the Log tab to view your favorites.")
     
 
 #methods.update_ratings() to make sure favorite counts are correct
