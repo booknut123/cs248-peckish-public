@@ -147,6 +147,8 @@ def add_user(user_info): # == added by Kailyn ==
         else:
             name = "".join((user_info.get("name")).split(" "))
             
+            cur.execute("SELECT *")
+            st.write(cur.fetchone())
             cur.execute("""
                 INSERT INTO users (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)
