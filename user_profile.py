@@ -159,10 +159,10 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture")
             ))
 
-            #methods.new_user_welcome()
+            methods.new_user_welcome()
         conn.commit()
         st.session_state["user_id"] = user_id
-        methods.new_user_welcome() # For testing purposes
+        #methods.new_user_welcome() # For testing purposes
         return user_id
     finally:
         conn.close()
