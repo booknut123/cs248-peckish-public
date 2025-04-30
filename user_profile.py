@@ -102,73 +102,67 @@ def render_user_profile():
         st.sidebar.success("Logged in ✅")
 
 def add_user(user_info): # == added by Kailyn ==
-    is_new_user = False
     """Insert or update user in peckish.db using Google auth info"""
     
     db_sync.download_db_from_github()
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
     
-    # First try to find existing user by google_id
-    google_id = user_info["sub"]
-    
-    user_id = str(google_id)
-    
-    cur.execute(
-        "SELECT user_id FROM users WHERE user_id = ?", 
-        (user_id,)
-    )
-    result = cur.fetchone()
-    conn.commit()
+    try:
+        # First try to find existing user by google_id
+        google_id = user_info["sub"]
+        
+        user_id = str(google_id)
+        
+        cur.execute(
+            "SELECT user_id FROM users WHERE user_id = ?", 
+            (user_id,)
+        )
+        result = cur.fetchone()
 
-    if result:
-        # Existing user - update and return existing user_id
-        user_id = result[0]
-        cur.execute("""
-            UPDATE users SET
-                email = ?,
-                name = ?,
-                given_name = ?,
-                picture_url = ?,
-                last_login = CURRENT_TIMESTAMP
-            WHERE user_id = ?
-        """, (
-            user_info.get("email"),
-            user_info.get("name"),
-            user_info.get("given_name"),
-            user_info.get("picture"),
-            user_id
-        ))
+        if result:
+            # Existing user - update and return existing user_id
+            user_id = result[0]
+            conn.execute("""
+                UPDATE users SET
+                    email = ?,
+                    name = ?,
+                    given_name = ?,
+                    picture_url = ?,
+                    last_login = CURRENT_TIMESTAMP
+                WHERE user_id = ?
+            """, (
+                user_info.get("email"),
+                user_info.get("name"),
+                user_info.get("given_name"),
+                user_info.get("picture"),
+                user_id
+            ))
 
-        cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
-        name = cur.fetchone()
-        if name[0] == None:
-            cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
-            conn.commit()
+            cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
+            name = cur.fetchone()
+            if name[0] == None:
+                cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
+                conn.commit()
+        else:
+            name = "".join((user_info.get("name")).split(" "))
 
-    else:
-        name = "".join((user_info.get("name")).split(" "))
-
-        cur.execute("""
-            INSERT INTO users 
-            (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
-            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
-            user_id,
-            user_info.get("email"),
-            user_info.get("name"),
-            name,
-            user_info.get("given_name"),
-            user_info.get("picture"),
-            "true"
-        ))
-        is_new_user = True
-    #methods.new_user_welcome()
+            cur.execute("""
+                INSERT INTO users 
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
+                user_id,
+                user_info.get("email"),
+                user_info.get("name"),
+                name,
+                user_info.get("given_name"),
+                user_info.get("picture"),
+                "true"
+            ))
+        
         conn.commit()
-    conn.close()
-    st.session_state["user_id"] = user_id
-    #methods.new_user_welcome() # For testing purposes
-    if is_new_user:
-        methods.new_user_welcome()
-    return user_id
-    
+        st.session_state["user_id"] = user_id
+        return user_id
+    finally:
+        conn.close()
     
