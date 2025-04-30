@@ -3,6 +3,7 @@ import streamlit as st
 from auth import google_login
 from user_profile import render_user_profile
 from datetime import datetime, date, time
+from zoneinfo import ZoneInfo
 import pandas as pd
 import requests
 from db_sync import download_db_from_github
@@ -104,30 +105,32 @@ if datetime.now().weekday() == 6:
 
 # if datetime.now().weekday() == 1: ## current day for debugging purposes
 #     helper_methods.weekly_update_db("2025-4-20")
-now = datetime.now().time()
-is_weekend = datetime.now().weekday() >= 5  # 5=Saturday, 6=Sunday
+
+eastern = ZoneInfo("America/New_York")
+current_time_est = datetime.now(eastern).time()
+is_weekend = datetime.now(eastern).weekday() >= 5  # 5=Saturday, 6=Sunday
 
 # Lulu Schedule
 if is_weekend:
-    lulu_meal = "Lunch" if time(10,30) <= now < time(14,0) else \
-               "Dinner" if time(17,0) <= now < time(23,0) else \
-               "Lunch" if now < time(10,30) else "Dinner" 
+    lulu_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
+               "Dinner" if time(17,0) <= current_time_est < time(23,0) else \
+               "Lunch" if current_time_est < time(10,30) else "Dinner" 
 else:
-    lulu_meal = "Breakfast" if time(7,0) <= now < time(10,0) else \
-               "Lunch" if time(11,30) <= now < time(14,0) else \
-               "Dinner" if time(17,0) <= now < time(23,0) else \
-               "Breakfast" if now < time(7,0) else "Lunch" 
+    lulu_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
+               "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
+               "Dinner" if time(17,0) <= current_time_est < time(23,0) else \
+               "Breakfast" if current_time_est < time(7,0) else "Lunch" 
 
 # Bates/Tower/StoneD Schedule (same for all three)
 if is_weekend:
-    other_meal = "Lunch" if time(10,30) <= now < time(14,0) else \
-                "Dinner" if time(17,0) <= now < time(18,30) else \
-                "Lunch" if now < time(10,30) else "Dinner"
+    other_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
+                "Dinner" if time(17,0) <= current_time_est < time(18,30) else \
+                "Lunch" if current_time_est < time(10,30) else "Dinner"
 else:
-    other_meal = "Breakfast" if time(7,0) <= now < time(10,0) else \
-                "Lunch" if time(11,30) <= now < time(14,0) else \
-                "Dinner" if time(17,0) <= now < time(20,0) else \
-                "Breakfast" if now < time(7,0) else "Lunch"
+    other_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
+                "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
+                "Dinner" if time(17,0) <= current_time_est < time(20,0) else \
+                "Breakfast" if current_time_est < time(7,0) else "Lunch"
 
 # st.header("Today's Favorites:")
 # favs = st.columns(1, gap = "small", vertical_alignment="top", border=True)
