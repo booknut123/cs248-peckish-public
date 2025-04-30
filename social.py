@@ -141,7 +141,11 @@ if methods.get_optin(user_id):
                             for date in taghistory:
                                 tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
                                 st.write(f"**{date}**: {tags}")
-                                st.write(taghistory[date][0])
+                                note = taghistory[date][0]
+                                if note:
+                                    st.write(note)
+                                else:
+                                    st.write("No note.")
 
                         else:
                             st.write("This friend has not tagged you.")
@@ -154,7 +158,11 @@ if methods.get_optin(user_id):
                             for date in taghistory:
                                 tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
                                 st.write(f"**{date}**: {tags}")
-                                st.write(taghistory[date][0])
+                                note = taghistory[date][0]
+                                if note:
+                                    st.write(note)
+                                else:
+                                    st.write("No note.")
 
                         else:
                             st.write("You have not tagged this friend.")
