@@ -63,6 +63,7 @@ if not favs.empty:
             methods.remove_favorite(user_id, row["dish_id"])
             st.toast("Favorite Deleted")
             st.rerun()
+        #st.write(methods.get_dupe_dishIDs(methods.get_dish_name(row['dish_id'])))
 
     st.write("---")
 

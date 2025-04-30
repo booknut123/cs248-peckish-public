@@ -116,6 +116,7 @@ if methods.get_optin(user_id):
             for friend in friends:
                 with st.container(border=True):
                     col1, col2 = st.columns((0.1,1), vertical_alignment="center")
+                    image = methods.get_user_icon(friend)
                     col1.image(methods.get_user_icon(friend), width=30)
                     col2.write(f"**{methods.get_username(friend)}**")
                     with st.expander("**Shared Favorites**"):

@@ -948,3 +948,11 @@ def get_tag_history(userID, friendID):
                 taghistory[date] = (get_note(friendID, date), tags)
 
     return taghistory
+
+def get_dupe_dishIDs(dishname):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    dishids = cur.execute("SELECT dish_id FROM dishes WHERE dish_name = ?", (dishname,)).fetchall()
+
+    return dishids
