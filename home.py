@@ -76,6 +76,16 @@ user_id = st.session_state.get("user_id")
 
 #run this (with new starting date) if you reset entire database, or else week will be empty
 #helper_methods.weekly_update_db("2025-04-20")
+st.header("Top Rated Meals this Week:")
+with st.container(border=True):
+        col1, col2 = st.columns((0.25, 4.5))
+        i = 1
+        favorites = methods.weeklyTop5favs()
+        for fav in favorites:
+            if fav[1] != 0:
+                col1.write(f"**{i}.**")
+                col2.write(f"❤️ {fav[1]} {fav[0]}")
+                i += 1
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
