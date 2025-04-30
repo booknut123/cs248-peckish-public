@@ -169,9 +169,6 @@ if methods.get_optin(user_id):
                         
                     methods.get_tag_history(user_id, friend)
 
-
-            st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
-
 else:
     st.warning("Activate Social in settings to access your Social page.")
 

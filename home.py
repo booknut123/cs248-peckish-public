@@ -9,6 +9,7 @@ import requests
 from db_sync import download_db_from_github
 import methods
 import helper_methods
+import visualization_methods as vm
 
 # This is needed to get the database
 download_db_from_github()
@@ -89,16 +90,19 @@ else:
 
 #run this (with new starting date) if you reset entire database, or else week will be empty
 #helper_methods.weekly_update_db("2025-04-20")
-st.header("Top Rated Meals this Week:")
-with st.container(border=True):
-        col1, col2 = st.columns((0.25, 4.5))
-        i = 1
-        favorites = methods.weeklyTop5favs()
-        for fav in favorites:
-            if fav[1] != 0:
-                col1.write(f"**{i}.**")
-                col2.write(f"❤️ {fav[1]} {fav[0]}")
-                i += 1
+st.header("This Week...")
+col1, col2 = st.columns((2), border=True)
+col1.subheader("Top Rated Meal")
+i = 1
+favorite = methods.weeklyTop5favs()[0]
+with col1.container():
+    col1.write(f"{favorite[0]}: ❤️ {favorite[1]} ")
+
+with col2.container():
+    col2.subheader("Top Dining Hall")
+    hall = vm.hall_popularity_last_7_days()
+    tophall = max(hall, key=hall.get)
+    col2.write(f"{tophall}: {hall[tophall]} meals logged")
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])

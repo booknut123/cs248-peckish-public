@@ -3,6 +3,7 @@ import pandas as pd
 from pandas import DataFrame
 import datetime
 from datetime import date
+from datetime import timedelta
 import requests
 import numpy as np
 import methods as m
@@ -118,6 +119,18 @@ def get_stats_by_date_range(user_id, date1, date2, nutrients):
             stats[n][date] = info[n]
 
     return stats
+
+def hall_popularity_last_7_days():
+    today = date.today()
+    dates = [str(today - timedelta(days=i)) for i in range(0,7)]
+
+    logs = m.get_logIDs_by_date_range(dates)
+
+    halls = [m.get_log_hall(log) for log in logs]
+    
+    hallcounts = {"Bates": halls.count("Bates"), "Lulu": halls.count("Lulu"), "Tower": halls.count("Tower"), "StoneD": halls.count("StoneD")}
+
+    return hallcounts
 
 
 

@@ -97,6 +97,7 @@ def render_user_profile():
         col1, col2 = st.sidebar.columns([1, 4])
         with col1:
             st.image(picture, width=40)
+            
         with col2:
             st.markdown(f"**Hello, {first_name}!**")
     else:

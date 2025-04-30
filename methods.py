@@ -920,6 +920,24 @@ def get_last_logged_date(userID, dishname):
     else:
         return "Never"
 
+def get_logIDs_by_date_range(dates):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    logs = []
+    for date in dates:
+        logs += cur.execute("SELECT log_id FROM meal_log WHERE date_logged = ?", (date,)).fetchall()
+
+    return [log[0] for log in logs]
+
+def get_log_hall(logID):
+    conn = connect_db()
+    cur = conn.cursor()
+
+    hall = cur.execute("SELECT dining_hall FROM meal_log WHERE log_id = ?", (logID,)).fetchone()[0]
+
+    return hall
+
 def get_user_icon(userID):
     conn = connect_db()
     cur = conn.cursor()
