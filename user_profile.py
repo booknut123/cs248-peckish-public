@@ -145,8 +145,8 @@ def add_user(user_info): # == added by Kailyn ==
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
-            st.write(user_info.get("name"))
             name = "".join((user_info.get("name")).split(" "))
+            st.write(name)
 
             cur.execute("""
                 INSERT INTO users 
