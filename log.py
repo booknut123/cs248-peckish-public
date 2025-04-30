@@ -74,7 +74,7 @@ with sidebar:
                     selected_allergens.append(aller)
         
     with st.expander("Preferences"):
-        preferences = ["Vegan", "Vegetarian", "Gluten Sensitive"]
+        preferences = ["Vegan", "Vegetarian", "Gluten Sensitive", "Pescatarian"]
         selected_preferences = []
         for i, pref in enumerate(preferences):
             sel = False

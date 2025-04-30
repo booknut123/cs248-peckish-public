@@ -485,9 +485,20 @@ def connect_bridge(userID, logID):
     db_sync.push_db_to_github()
   
 def filter_menu(df, allergens, preferences):
+    for pref in preferences:
+        if pref == "Pescatarian":
+            df = pescatarian(df)
     if not df.empty:
         for allergen in allergens:
             df = df[df["allergens"].apply(lambda x: allergen not in x)]
         for preference in preferences:
-            df = df[df["preferences"].apply(lambda x: preference in x)]
+            if preference != "Pescatarian":
+                df = df[df["preferences"].apply(lambda x: preference in x)]
+    return df
+
+def pescatarian(df):
+    if not df.empty:
+        df1 = df[df["allergens"].apply(lambda x: 'Fish' in x or 'Shellfish' in x)]
+        df2 = df[df["preferences"].apply(lambda x: 'Vegetarian' in x)]
+        df = pd.concat([df1, df2])
     return df
