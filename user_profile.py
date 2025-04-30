@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import methods
 
 # ## === TO CONNECT TO PECKISH.DB === ##
 import sqlite3
