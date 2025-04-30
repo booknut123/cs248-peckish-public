@@ -146,11 +146,10 @@ def add_user(user_info): # == added by Kailyn ==
                 conn.commit()
         else:
             name = "".join((user_info.get("name")).split(" "))
-            st.write(name)
 
             cur.execute("""
                 INSERT INTO users 
-                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login. optin)
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
                 user_id,
                 user_info.get("email"),
