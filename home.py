@@ -145,10 +145,18 @@ col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", bo
 
 def streamlit_print(df):
     for index, row in df.iterrows():
+        dupes = methods.get_dupe_dishIDs(row['dish_name'])
         if methods.check_is_favorite(user_id, row['dish_id']):
             st.write(f":heart: {row['dish_name']}")
         else:
-            st.write(row["dish_name"])
+            fav = False
+            for dish in dupes:
+                if methods.check_is_favorite(user_id, dish[0]):
+                    fav = True
+            if fav:
+                st.write(f":heart: {row['dish_name']}")
+            else:
+                st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
     menu = methods.print_menu([], [], "Bates", other_meal, date.today())
