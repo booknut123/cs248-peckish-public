@@ -106,7 +106,10 @@ try:
                         col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Breakfast**")
-                        col2.write(methods.get_dish_name(dish['dish_id']))
+                        if methods.check_is_favorite(user_id, dish['dish_id']):
+                            col2.write(f"{methods.get_dish_name(dish['dish_id'])} :heart:")
+                        else: 
+                            col2.write(methods.get_dish_name(dish['dish_id']))
                         col3.write(dish['location'])
                         delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
                         if delete:
@@ -123,7 +126,10 @@ try:
                         col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Lunch**")
-                        col2.write(methods.get_dish_name(dish['dish_id']))
+                        if methods.check_is_favorite(user_id, dish['dish_id']):
+                            col2.write(f"{methods.get_dish_name(dish['dish_id'])} :heart:")
+                        else: 
+                            col2.write(methods.get_dish_name(dish['dish_id']))
                         col3.write(dish['location'])
                         delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
                         if delete:
@@ -140,7 +146,10 @@ try:
                         col1, col2, col3, col4 = st.columns((1,3, 1, 1))
                         if i==1:
                             col1.write("**Dinner**")
-                        col2.write(methods.get_dish_name(dish['dish_id']))
+                        if methods.check_is_favorite(user_id, dish['dish_id']):
+                            col2.write(f"{methods.get_dish_name(dish['dish_id'])} :heart:")
+                        else: 
+                            col2.write(methods.get_dish_name(dish['dish_id']))
                         col3.write(dish['location'])
                         delete = col4.button("**-**", key=f"delete_{key}_{dish['dish_id']}") 
                         if delete:

@@ -174,3 +174,5 @@ def add_user(user_info): # == added by Kailyn ==
             methods.new_user_welcome()
         return user_id
     
+    
+    

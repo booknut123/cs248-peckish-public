@@ -96,6 +96,9 @@ def create_database():
     return conn
 
 def clear_db():
+    """
+    Resets peckish database and removes all entries.
+    """
     conn = connect_db()
     cur = conn.cursor()
 
@@ -212,6 +215,9 @@ def update_dish_db(df): # For use with dishes table
     
 # @st.cache_data            
 def weekly_update_db(sunday_date): # For use with current_dishes table
+    """
+    Updates current_dishes table for the next week.
+    """
     conn = connect_db()
     cur = conn.cursor()
 
@@ -306,6 +312,9 @@ def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to 
     return df
 
 def get_menu(hall, meal, date):
+    """
+    Returns dataframe for a certain dining hall, meal, and date.
+    """
     conn = connect_db()  
     df = pd.read_sql_query(
             """SELECT * FROM CURRENT_DISHES WHERE location = ? AND meal = ? AND date = ?""",
@@ -485,6 +494,9 @@ def connect_bridge(userID, logID):
     db_sync.push_db_to_github()
   
 def filter_menu(df, allergens, preferences):
+    """
+    Uses inputted allergens and preferences and returns a dataframe with meals that match the filter criteria.
+    """
     for pref in preferences:
         if pref == "Pescatarian":
             df = pescatarian(df)
@@ -497,6 +509,9 @@ def filter_menu(df, allergens, preferences):
     return df
 
 def pescatarian(df):
+    """
+    Helper method for creating a preference that filters for dishes that include fish and shellfish, but no meat
+    """
     if not df.empty:
         df1 = df[df["allergens"].apply(lambda x: 'Fish' in x or 'Shellfish' in x)]
         df2 = df[df["preferences"].apply(lambda x: 'Vegetarian' in x)]
