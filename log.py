@@ -116,6 +116,17 @@ with main:
                             f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
                             key=f"btn_{heart_key}"
                         )
+                        # if methods.check_is_favorite(user_id, row['dish_id']):
+                        #     heart_clicked = col1.button(f"❤️ {numfaves}", key=f"btn_{heart_key}")
+                        # else:
+                        #     fav = False
+                        #     for dish in dupes:
+                        #         if methods.check_is_favorite(user_id, dish[0]):
+                        #             fav = True
+                        #     if fav:
+                        #         heart_clicked = col1.button(f"❤️ {numfaves}", key=f"btn_{heart_key}")
+                        #     else:
+                        #         heart_clicked = col1.button(f"🤍 {numfaves}", key=f"btn_{heart_key}")
 
                         if heart_clicked:
                             st.session_state[heart_key] = not st.session_state[heart_key]

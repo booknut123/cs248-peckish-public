@@ -36,8 +36,7 @@ if not methods.check_id(user_id):
 #updating_db.update_db_stuff()
 
 
-users = [name for name in methods.get_all_users() if methods.get_optin(name[0])]
-#name[0] != user_id and
+users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id]
 if methods.get_optin(user_id):
 
     with sidebar:
@@ -117,6 +116,7 @@ if methods.get_optin(user_id):
             for friend in friends:
                 with st.container(border=True):
                     col1, col2 = st.columns((0.1,1), vertical_alignment="center")
+                    image = methods.get_user_icon(friend)
                     col1.image(methods.get_user_icon(friend), width=30)
                     col2.write(f"**{methods.get_username(friend)}**")
                     with st.expander("**Shared Favorites**"):
@@ -141,7 +141,11 @@ if methods.get_optin(user_id):
                             for date in taghistory:
                                 tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
                                 st.write(f"**{date}**: {tags}")
-                                st.write(taghistory[date][0])
+                                note = taghistory[date][0]
+                                if note:
+                                    st.write(note)
+                                else:
+                                    st.write("No note.")
 
                         else:
                             st.write("This friend has not tagged you.")
@@ -154,15 +158,16 @@ if methods.get_optin(user_id):
                             for date in taghistory:
                                 tags = ", ".join(methods.get_username(tag) for tag in taghistory[date][1])
                                 st.write(f"**{date}**: {tags}")
-                                st.write(taghistory[date][0])
+                                note = taghistory[date][0]
+                                if note:
+                                    st.write(note)
+                                else:
+                                    st.write("No note.")
 
                         else:
                             st.write("You have not tagged this friend.")
                         
                     methods.get_tag_history(user_id, friend)
-
-
-            st.write("Work in progress. Will add here meals you were tagged in by friends, or something else. Not sure yet.")       
 
 else:
     st.warning("Activate Social in settings to access your Social page.")

@@ -3,11 +3,13 @@ import streamlit as st
 from auth import google_login
 from user_profile import render_user_profile
 from datetime import datetime, date, time
+from zoneinfo import ZoneInfo
 import pandas as pd
 import requests
 from db_sync import download_db_from_github
 import methods
 import helper_methods
+import visualization_methods as vm
 
 # This is needed to get the database
 download_db_from_github()
@@ -23,13 +25,18 @@ def fake_login():
 
 def render_sidebar():
     """A function to handle the login in the sidebar."""
-    st.sidebar.header("Login")
 
     if DEBUG and "access_token" not in st.session_state:
         fake_login()
 
     # If already logged in
     if "access_token" in st.session_state:
+        # st.session_state["show"] = st.sidebar.checkbox("Show profile info")
+
+        # st.sidebar.write(st.session_state["show"])
+        # if st.session_state["show"]:
+        #     render_user_profile()
+
         render_user_profile()
 
         if st.sidebar.button("Logout"):
@@ -38,6 +45,7 @@ def render_sidebar():
             st.rerun()
 
     else:
+        st.sidebar.header("Login")
         st.sidebar.warning("Not logged in.")
         logged_in = google_login()
         if logged_in:
@@ -54,68 +62,79 @@ if "selected_meal" not in st.session_state:
 # Always render sidebar, otherwise it will be rewritten
 render_sidebar()
 
-
-col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
-col1.image(image='crumb-the-goose.png')
-col2.header("Peckish")
-col2.write("Welcome to Peckish!")
-col2.write("CS248 '25")
-col2.write("Kailyn, Maya, Nina")
-
-fact = methods.generate_goose_fact()
-col3.header(f"Goose Fact #{fact[1]+1}")
-col3.write("Did you know...")
-col3.write(fact[0])
-
 # wait for the user to login before showing anything
 if "access_token" not in st.session_state:
+    col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
+    col1.image(image='crumb-the-goose.png')
+    col2.header("Peckish")
+    col2.write("Welcome to Peckish!")
+    col2.write("CS248 '25")
+    col2.write("Kailyn, Maya, Nina")
+
     st.warning("Not logged in.")    
     st.stop()
+else:
+    user_id = st.session_state.get("user_id")
+    
+    col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
+    col1.image(image='crumb-the-goose.png')
+    col2.header("Peckish")
+    col2.write("Welcome to Peckish!")
+    col2.write("CS248 '25")
+    col2.write("Kailyn, Maya, Nina")
 
-user_id = st.session_state.get("user_id")
+    fact = methods.generate_goose_fact()
+    col3.header(f"Goose Fact #{fact[1]+1}")
+    col3.write("Did you know...")
+    col3.write(fact[0])
 
 #run this (with new starting date) if you reset entire database, or else week will be empty
 #helper_methods.weekly_update_db("2025-04-20")
-st.header("Top Rated Meals this Week:")
-with st.container(border=True):
-        col1, col2 = st.columns((0.25, 4.5))
-        i = 1
-        favorites = methods.weeklyTop5favs()
-        for fav in favorites:
-            if fav[1] != 0:
-                col1.write(f"**{i}.**")
-                col2.write(f"❤️ {fav[1]} {fav[0]}")
-                i += 1
+st.header("This Week...")
+col1, col2 = st.columns((2), border=True)
+col1.subheader("Top Rated Meal")
+i = 1
+favorite = methods.weeklyTop5favs()[0]
+with col1.container():
+    col1.write(f"{favorite[0]}: ❤️ {favorite[1]} ")
+
+with col2.container():
+    col2.subheader("Top Dining Hall")
+    hall = vm.hall_popularity_last_7_days()
+    tophall = max(hall, key=hall.get)
+    col2.write(f"{tophall}: {hall[tophall]} meals logged")
 
 if datetime.now().weekday() == 6:
     helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
 
 # if datetime.now().weekday() == 1: ## current day for debugging purposes
 #     helper_methods.weekly_update_db("2025-4-20")
-now = datetime.now().time()
-is_weekend = datetime.now().weekday() >= 5  # 5=Saturday, 6=Sunday
+
+eastern = ZoneInfo("America/New_York")
+current_time_est = datetime.now(eastern).time()
+is_weekend = datetime.now(eastern).weekday() >= 5  # 5=Saturday, 6=Sunday
 
 # Lulu Schedule
 if is_weekend:
-    lulu_meal = "Lunch" if time(10,30) <= now < time(14,0) else \
-               "Dinner" if time(17,0) <= now < time(23,0) else \
-               "Lunch" if now < time(10,30) else "Dinner" 
+    lulu_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
+               "Dinner" if time(17,0) <= current_time_est < time(23,0) else \
+               "Lunch" if current_time_est < time(10,30) else "Dinner" 
 else:
-    lulu_meal = "Breakfast" if time(7,0) <= now < time(10,0) else \
-               "Lunch" if time(11,30) <= now < time(14,0) else \
-               "Dinner" if time(17,0) <= now < time(23,0) else \
-               "Breakfast" if now < time(7,0) else "Lunch" 
+    lulu_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
+               "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
+               "Dinner" if time(17,0) <= current_time_est < time(23,0) else \
+               "Breakfast" if current_time_est < time(7,0) else "Lunch" 
 
 # Bates/Tower/StoneD Schedule (same for all three)
 if is_weekend:
-    other_meal = "Lunch" if time(10,30) <= now < time(14,0) else \
-                "Dinner" if time(17,0) <= now < time(18,30) else \
-                "Lunch" if now < time(10,30) else "Dinner"
+    other_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
+                "Dinner" if time(17,0) <= current_time_est < time(18,30) else \
+                "Lunch" if current_time_est < time(10,30) else "Dinner"
 else:
-    other_meal = "Breakfast" if time(7,0) <= now < time(10,0) else \
-                "Lunch" if time(11,30) <= now < time(14,0) else \
-                "Dinner" if time(17,0) <= now < time(20,0) else \
-                "Breakfast" if now < time(7,0) else "Lunch"
+    other_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
+                "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
+                "Dinner" if time(17,0) <= current_time_est < time(20,0) else \
+                "Breakfast" if current_time_est < time(7,0) else "Lunch"
 
 # st.header("Today's Favorites:")
 # favs = st.columns(1, gap = "small", vertical_alignment="top", border=True)
@@ -133,10 +152,18 @@ col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", bo
 
 def streamlit_print(df):
     for index, row in df.iterrows():
+        dupes = methods.get_dupe_dishIDs(row['dish_name'])
         if methods.check_is_favorite(user_id, row['dish_id']):
             st.write(f":heart: {row['dish_name']}")
         else:
-            st.write(row["dish_name"])
+            fav = False
+            for dish in dupes:
+                if methods.check_is_favorite(user_id, dish[0]):
+                    fav = True
+            if fav:
+                st.write(f":heart: {row['dish_name']}")
+            else:
+                st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
     menu = methods.print_menu([], [], "Bates", other_meal, date.today())

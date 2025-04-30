@@ -3,6 +3,7 @@ import methods
 import time
 import datetime
 from datetime import date
+import visualization_methods as vm
 
 # import helper_methods
 # helper_methods.create_database()
@@ -63,6 +64,7 @@ if not favs.empty:
             methods.remove_favorite(user_id, row["dish_id"])
             st.toast("Favorite Deleted")
             st.rerun()
+        # st.write(methods.get_dupe_dishIDs(methods.get_dish_name(row['dish_id'])))
 
     st.write("---")
 
@@ -90,20 +92,32 @@ if not favs.empty:
             st.write("---")
     else:
         st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
+        st.warning("If you have notifications on and are seeing this warning, none of the dishes are being served this week!")
 
-    st.header("Top User Favorites")
-    with st.container(border=True):
-        col1, col2 = st.columns((0.25, 4.5))
+    st.header("This Week...")
+    st.write("")
+    col1, col2 = st.columns((2))
+    col1.subheader("Top Rated Meals")
+    with col1.container():
+        c1, c2 = st.columns((0.25, 3))
         i = 1
-        favorites = methods.top5favs()
+        favorites = methods.weeklyTop5favs()
         for fav in favorites:
             if fav[1] != 0:
-                col1.write(f"**{i}.**")
-                col2.write(f"❤️ {fav[1]} {fav[0]}")
+                c1.write(f"**{i}.**")
+                c2.write(f"❤️ {fav[1]} {fav[0]}")
                 i += 1
+    col2.subheader("Top Dining Halls")
+    with col2.container():
+                    st.bar_chart(vm.hall_popularity_last_7_days(), 
+                     horizontal=True, 
+                     height=240,
+                     width=250,
+                     x_label="Number of Logs",
+                     )
 
 else:
-    st.warning("Please add a favorite in the Menus tab to view your favorites.")
+    st.warning("Please add a favorite in the Log tab to view your favorites.")
     
 
 #methods.update_ratings() to make sure favorite counts are correct

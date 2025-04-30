@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import methods
 
 # ## === TO CONNECT TO PECKISH.DB === ##
 import sqlite3
@@ -74,9 +75,10 @@ def render_user_profile():
     if not access_token:
         return
 
-    show_profile = st.sidebar.checkbox("Show profile info", value=True)
+    #for now
+    show = True
 
-    if show_profile:
+    if show:
         if "fake_user_name" in st.session_state:
             first_name = st.session_state["fake_user_name"]
             picture = st.session_state["fake_user_picture"]
@@ -95,12 +97,14 @@ def render_user_profile():
         col1, col2 = st.sidebar.columns([1, 4])
         with col1:
             st.image(picture, width=40)
+            
         with col2:
             st.markdown(f"**Hello, {first_name}!**")
     else:
         st.sidebar.success("Logged in ✅")
 
 def add_user(user_info): # == added by Kailyn ==
+    new_user = False
     """Insert or update user in peckish.db using Google auth info"""
     
     db_sync.download_db_from_github()
@@ -148,7 +152,7 @@ def add_user(user_info): # == added by Kailyn ==
 
             cur.execute("""
                 INSERT INTO users 
-                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login. optin)
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
                 VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
                 user_id,
                 user_info.get("email"),
@@ -158,10 +162,15 @@ def add_user(user_info): # == added by Kailyn ==
                 user_info.get("picture"),
                 "true"
             ))
-        
+            
+            new_user = True
         conn.commit()
         st.session_state["user_id"] = user_id
-        return user_id
+        
     finally:
         conn.close()
+        db_sync.push_db_to_github()
+        if (new_user):
+            methods.new_user_welcome()
+        return user_id
     
