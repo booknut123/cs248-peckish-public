@@ -121,47 +121,48 @@ def add_user(user_info): # == added by Kailyn ==
         result = cur.fetchone()
         conn.commit()
 
-        if result:
-            # Existing user - update and return existing user_id
-            user_id = result[0]
-            cur.execute("""
-                UPDATE users SET
-                    email = ?,
-                    name = ?,
-                    given_name = ?,
-                    picture_url = ?,
-                    last_login = CURRENT_TIMESTAMP
-                WHERE user_id = ?
-            """, (
-                user_info.get("email"),
-                user_info.get("name"),
-                user_info.get("given_name"),
-                user_info.get("picture"),
-                user_id
-            ))
+        # if result:
+        #     # Existing user - update and return existing user_id
+        #     user_id = result[0]
+        #     cur.execute("""
+        #         UPDATE users SET
+        #             email = ?,
+        #             name = ?,
+        #             given_name = ?,
+        #             picture_url = ?,
+        #             last_login = CURRENT_TIMESTAMP
+        #         WHERE user_id = ?
+        #     """, (
+        #         user_info.get("email"),
+        #         user_info.get("name"),
+        #         user_info.get("given_name"),
+        #         user_info.get("picture"),
+        #         user_id
+        #     ))
 
-            cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
-            name = cur.fetchone()
-            if name[0] == None:
-                cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
-                conn.commit()
-        else:
-            name = "".join((user_info.get("name")).split(" "))
+        #     cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
+        #     name = cur.fetchone()
+        #     if name[0] == None:
+        #         cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
+        #         conn.commit()
 
-            cur.execute("""
-                INSERT INTO users 
-                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
-                user_id,
-                user_info.get("email"),
-                user_info.get("name"),
-                name,
-                user_info.get("given_name"),
-                user_info.get("picture"),
-                "true"
-            ))
-            is_new_user = True
-            #methods.new_user_welcome()
+        # else:
+        name = "".join((user_info.get("name")).split(" "))
+
+        cur.execute("""
+            INSERT INTO users 
+            (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
+            user_id,
+            user_info.get("email"),
+            user_info.get("name"),
+            name,
+            user_info.get("given_name"),
+            user_info.get("picture"),
+            "true"
+        ))
+        is_new_user = True
+        #methods.new_user_welcome()
         conn.commit()
         st.session_state["user_id"] = user_id
         #methods.new_user_welcome() # For testing purposes
