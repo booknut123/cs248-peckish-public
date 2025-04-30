@@ -101,7 +101,6 @@ def render_user_profile():
     else:
         st.sidebar.success("Logged in ✅")
 
-import traceback
 def add_user(user_info): # == added by Kailyn ==
     is_new_user = False
     """Insert or update user in peckish.db using Google auth info"""
@@ -115,12 +114,24 @@ def add_user(user_info): # == added by Kailyn ==
         
         user_id = str(google_id)
         
+        cur.execute("""
+                INSERT INTO users 
+                (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
+                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
+                user_id,
+                user_info.get("email"),
+                user_info.get("name"),
+                name,
+                user_info.get("given_name"),
+                user_info.get("picture"),
+                "true"
+            ))
+        
         cur.execute(
             "SELECT user_id FROM users WHERE user_id = ?", 
             (user_id,)
         )
         result = cur.fetchone()
-        conn.commit()
 
         if result:
             # Existing user - update and return existing user_id
