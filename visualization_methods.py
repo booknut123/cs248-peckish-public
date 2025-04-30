@@ -116,7 +116,9 @@ def get_stats_by_date_range(user_id, date1, date2, nutrients):
     for date in dates:
         info = get_stats_by_date(user_id, date)
         for n in nutrients:
-            stats[n][date] = info[n]
+            num = info[n]
+            if num > 0:
+                stats[n][date] = info[n]
 
     return stats
 
