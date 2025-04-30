@@ -23,7 +23,7 @@ try:
             
         st.image(image='crumb-the-goose.png')
         
-        test = vm.get_total_nutrients(user_id, "calories")
+        # test = vm.get_total_nutrients(user_id, "calories")
 
         d = date.today()
         today = d.weekday()
