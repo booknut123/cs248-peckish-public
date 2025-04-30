@@ -1,12 +1,12 @@
 import pandas as pd
-import datetime
-from datetime import date
+from datetime import date, time
 import requests
 import numpy as np
 import streamlit as st
 import db_sync
 import random
 import random
+import time
 
 from helper_methods import *
 
@@ -386,6 +386,18 @@ def top5favs():
     conn.close()
     return top5
 
+def weeklyTop5favs():
+    conn = connect_db()
+    cur = conn.cursor()
+    cur.execute("SELECT dish_id FROM current_dishes")
+    dishes = cur.fetchall()
+    dishes = [id[0] for id in dishes]
+    ids = ", ".join(str(id) for id in dishes)
+    cur.execute(f"SELECT dish_name, rating FROM dishes WHERE dish_id in ({ids}) ORDER BY rating DESC")
+    top5 = cur.fetchmany(5)
+    conn.close()
+    return top5
+
 
 def sort_meals_by_date(df):
     dates = sorted(df["date"].unique(), reverse=True)
@@ -642,7 +654,29 @@ def generate_goose_fact():
     
     num = random.randint(0,len(facts))
     return (facts[num-1], num)
-
+  
+def new_user_welcome():
+    user_welcomed = False
+    placeholder = st.empty()
+    with placeholder.container():
+        col1, col2 = st.columns((0.5, 2.5), )
+        col1.image(image='crumb-the-goose.png')
+        col2.header ("Welcome to Peckish!")
+        col2.subheader("We're so glad you're here.")
+        
+        st.write("""At Peckish, our mission is to make campus dining work better for you - your schedule, your preferences, your community.
+                    Peckish isn’t about micromanaging your meals. We don’t track your diet — we help you track your experiences.
+                    """)
+        st.write("Ready to explore?")
+        go = st.button("Let's get started! 🪿")
+        #st.write(go)
+        while not go:
+            time.sleep(1)
+            #st.write(go)
+        user_welcomed = True
+        st.write(user_welcomed)
+    placeholder.empty()
+    
 def send_friend_request(userID, friendID):
     conn = connect_db()
     cur = conn.cursor()

@@ -89,7 +89,7 @@ if not favs.empty:
                 col4.write("/".join(f["date"].split("-")[1:]))
             st.write("---")
     else:
-        st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
+        st.warning("Please turn on notifications for atleast one dish to see when it will be served. If you have notifications on and are seeing this warning, none of the dishes are being served this week!")
 
     st.header("Top User Favorites")
     with st.container(border=True):
