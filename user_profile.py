@@ -102,7 +102,6 @@ def render_user_profile():
         st.sidebar.success("Logged in ✅")
 
 def add_user(user_info): # == added by Kailyn ==
-    st.write("Run")
     is_new_user = False
     """Insert or update user in peckish.db using Google auth info"""
     
@@ -146,12 +145,13 @@ def add_user(user_info): # == added by Kailyn ==
                 cur.execute("UPDATE users SET user_name = ? WHERE user_id = ?", ("".join(user_info.get("name").split(" ")), user_id))
                 conn.commit()
         else:
-            name = "".join((user_info.get("name")).split(" "))
-            
-            cur.execute("""
-                INSERT INTO users (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)
-                """, (
+            try:
+                name = "".join((user_info.get("name")).split(" "))
+
+                cur.execute("""
+                    INSERT INTO users 
+                    (user_id, email, name, user_name, given_name, picture_url, first_seen, last_login, optin)
+                    VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)""", (
                     user_id,
                     user_info.get("email"),
                     user_info.get("name"),
@@ -159,12 +159,10 @@ def add_user(user_info): # == added by Kailyn ==
                     user_info.get("given_name"),
                     user_info.get("picture"),
                     "true"
-            ))
-            
-            st.write("3")
-            conn.commit()
-            
-            is_new_user = True
+                ))
+                is_new_user = True
+            except Exception as e:
+                print("ERROR during INSERT:", e)
             #methods.new_user_welcome()
         conn.commit()
         st.session_state["user_id"] = user_id
