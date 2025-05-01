@@ -1,6 +1,7 @@
 import streamlit as st
 import methods
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 import pandas as pd
 import emoji
 import visualization_methods as vm
@@ -10,6 +11,7 @@ import helper_methods
 # st.write("Created database")
 # helper_methods.weekly_update_db("4-20-2025")
 # st.write("Updated weekly database")
+eastern = ZoneInfo("America/New_York")
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 user_id = st.session_state.get("user_id")
@@ -38,7 +40,7 @@ with sidebar:
         ("Breakfast", "Lunch", "Dinner"),
     )
     
-    d = date.today()
+    d = datetime.now(eastern).date()
     today = d.weekday() # Monday, Tuesday, Wednesday, etc.
     if(today == 6):
         today = -1
