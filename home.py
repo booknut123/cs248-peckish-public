@@ -150,8 +150,9 @@ else:
 
 #st.write(datetime.now(eastern).date())
 #st.write(f"{lulu_meal} and {other_meal}")
+date = datetime.now(eastern).date()
 
-st.header(f"Current Menus: {lulu_meal} {datetime.now(eastern).date()}")
+st.header(f"Current Menus: {lulu_meal} {date}")
 col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", border=True)
 
 def streamlit_print(df):
@@ -170,28 +171,28 @@ def streamlit_print(df):
                 st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
-    menu = methods.print_menu([], [], "Bates", other_meal, date.today())
+    menu = methods.print_menu([], [], "Bates", other_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col2:
     st.subheader("Lulu")
-    menu = methods.print_menu([], [], "Lulu", lulu_meal, date.today())
+    menu = methods.print_menu([], [], "Lulu", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col3:
     st.subheader("Tower")
-    menu = methods.print_menu([], [], "Tower", lulu_meal, date.today())
+    menu = methods.print_menu([], [], "Tower", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col4:
     st.subheader("StoneD")
-    menu = methods.print_menu([], [], "StoneD", lulu_meal, date.today())
+    menu = methods.print_menu([], [], "StoneD", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
