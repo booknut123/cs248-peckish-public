@@ -117,26 +117,26 @@ is_weekend = datetime.now(eastern).weekday() >= 5  # 5=Saturday, 6=Sunday
 # Lulu Schedule
 if is_weekend:
     lulu_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
-               "Dinner" if time(17,0) <= current_time_est < time(23,59) else \
+               "Dinner" if time(14,0) <= current_time_est < time(23,59) else \
                "Lunch" 
     #if current_time_est < time(10,30) else "Dinner" 
 else:
     lulu_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
                "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
-               "Dinner" if time(17,0) <= current_time_est < time(23,59) else \
+               "Dinner" if time(14,0) <= current_time_est < time(23,59) else \
                "Breakfast" 
     #if current_time_est < time(7,0) else "Lunch" 
 
 # Bates/Tower/StoneD Schedule (same for all three)
 if is_weekend:
     other_meal = "Lunch" if time(10,30) <= current_time_est < time(14,0) else \
-                "Dinner" if time(17,0) <= current_time_est < time(23,59) else \
+                "Dinner" if time(14,0) <= current_time_est < time(23,59) else \
                 "Lunch" 
     #if current_time_est < time(10,30) else "Dinner"
 else:
     other_meal = "Breakfast" if time(7,0) <= current_time_est < time(10,0) else \
                 "Lunch" if time(11,30) <= current_time_est < time(14,0) else \
-                "Dinner" if time(17,0) <= current_time_est < time(23,59) else \
+                "Dinner" if time(14,0) <= current_time_est < time(23,59) else \
                 "Breakfast" 
     #if current_time_est < time(7,0) else "Lunch"
 
