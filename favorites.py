@@ -105,7 +105,7 @@ if not favs.empty:
         for fav in favorites:
             if fav[1] != 0:
                 c1.write(f"**{i}.**")
-                c2.write(f"❤️ {fav[1]} {fav[0]}")
+                c2.write(f"{fav[0]}: ❤️ {fav[1]}")
                 i += 1
     col2.subheader("Top Dining Halls")
     with col2.container():
