@@ -373,8 +373,9 @@ def get_dish_rating(dishID):
     conn = connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT COUNT(*) FROM favorites WHERE dish_id = {dishID}")
+    cur.execute(f"SELECT rating FROM dishes WHERE dish_id = {dishID}")
     num = cur.fetchone()[0]
+    conn.close()
     return num
 
 def top5favs():
