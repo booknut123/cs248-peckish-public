@@ -33,8 +33,9 @@ if not methods.check_id(user_id):
 
 # try:
 
-#updating_db.update_db_stuff()
+# updating_db.update_db_stuff()
 
+# methods.accept_friend_request("117172280817080874657", "103701573573617392189")
 
 users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id]
 if methods.get_optin(user_id):
@@ -168,7 +169,6 @@ if methods.get_optin(user_id):
                             st.write("You have not tagged this friend.")
                         
                     methods.get_tag_history(user_id, friend)
-
 else:
     st.warning("Activate Social in settings to access your Social page.")
 

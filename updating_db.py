@@ -8,6 +8,23 @@ def update_db_stuff():
     conn = sqlite3.connect(db_sync.get_db_path())
     cur = conn.cursor()
 
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             DROP COLUMN requests
+    #             """)
+    
+    # cur.execute("""
+    #             ALTER TABLE friends
+    #             RENAME COLUMN friends TO friend
+    #             """)
+    
+    # cur.execute("""CREATE TABLE IF NOT EXISTS requests (
+    #             request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    #             user_id TEXT,
+    #             request TEXT
+    #             );
+    #             """)
+
     # cur.execute("""DELETE FROM users
     #                 WHERE user_id = ?;""", (___,))
     
@@ -16,7 +33,7 @@ def update_db_stuff():
     #             SET tags = ?""", 
     #             (None,))
 
-    # cur.execute("DELETE FROM friends")
+    cur.execute("DELETE FROM friends")
 
     # cur.execute("""
     #             ALTER TABLE users
