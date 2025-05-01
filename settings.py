@@ -27,7 +27,7 @@ else:
 
 try:
     a = ["Dairy", "Egg", "Fish", "Peanut", "Sesame", "Shellfish", "Soy", "Tree Nut", "Wheat"]
-    p = ["Gluten Sensitive", "Vegan", "Vegetarian"]
+    p = ["Gluten Sensitive", "Vegan", "Vegetarian", "Pescatarian"]
         
     st.subheader("Set Allergens & Preferences")
 
