@@ -33,10 +33,11 @@ if not methods.check_id(user_id):
 
 # try:
 
-#updating_db.update_db_stuff()
+# updating_db.update_db_stuff()
 
+friends = methods.list_friends(user_id)
+users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id and name[0] not in friends]
 
-users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id]
 if methods.get_optin(user_id):
 
     with sidebar:
@@ -168,7 +169,6 @@ if methods.get_optin(user_id):
                             st.write("You have not tagged this friend.")
                         
                     methods.get_tag_history(user_id, friend)
-
 else:
     st.warning("Activate Social in settings to access your Social page.")
 
