@@ -20,10 +20,7 @@ if not methods.check_id(user_id):
 
 try:
     with sidebar:
-            
         st.image(image='crumb-the-goose.png')
-        
-        # test = vm.get_total_nutrients(user_id, "calories")
 
         d = date.today()
         today = d.weekday()
@@ -34,8 +31,6 @@ try:
         else:
             sun = d + timedelta(days=-today)
             sat = d + timedelta(days=5 - today)
-
-        # st.subheader("Customize")
             
         borderdates = methods.get_border_log_dates(user_id)
         
@@ -124,9 +119,6 @@ try:
                             y_label = "mg",
                             x_label = "date")
             
-            
-
-        #st.write(f"Viewing: {stat}")
         st.write("---")
 
         col1, col2 = st.columns((3,1))
@@ -151,14 +143,3 @@ try:
 
 except:
     st.warning("Please log a meal in the Log tab to view your visualizations.")
-
-
-#import plotly express as px to use
-# fig1 = px.line(vm.get_stats_by_date_range(user_id, "2025-04-20", "2025-04-21",["calories","fat"]))
-    
-# fig1.update_layout(
-#                 paper_bgcolor='white',  # Change the color of the entire chart area
-#                 plot_bgcolor='white'      # Change the color of the plotting area
-#                 )
-
-# st.write(fig1)

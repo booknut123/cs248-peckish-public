@@ -4,13 +4,12 @@ from auth import google_login
 from user_profile import render_user_profile
 from datetime import datetime, date, time
 from zoneinfo import ZoneInfo
-import pandas as pd
-import requests
 from db_sync import download_db_from_github
 import methods
 import helper_methods
 import visualization_methods as vm
 
+# == Prof Eni's code == #
 # This is needed to get the database
 download_db_from_github()
 
@@ -31,6 +30,7 @@ def render_sidebar():
 
     # If already logged in
     if "access_token" in st.session_state:
+        # Removed by Team Peckish
         # st.session_state["show"] = st.sidebar.checkbox("Show profile info")
 
         # st.sidebar.write(st.session_state["show"])
@@ -62,8 +62,9 @@ if "selected_meal" not in st.session_state:
 # Always render sidebar, otherwise it will be rewritten
 render_sidebar()
 
+# == TEAM PECKISH CODE BELOW == #
 # wait for the user to login before showing anything
-if "access_token" not in st.session_state:
+if "access_token" not in st.session_state: # warning screen
     col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
     col1.image(image='crumb-the-goose.png')
     col2.header("Peckish")
@@ -73,7 +74,7 @@ if "access_token" not in st.session_state:
 
     st.warning("Not logged in.")    
     st.stop()
-else:
+else: # intro screen
     user_id = st.session_state.get("user_id")
     
     col1, col2, col3 = st.columns((0.5, 0.6, 0.9))
@@ -88,8 +89,10 @@ else:
     col3.write("Did you know...")
     col3.write(fact[0])
 
-#run this (with new starting date) if you reset entire database, or else week will be empty
-#helper_methods.weekly_update_db("2025-04-20")
+# run this (with new starting date) if you reset entire database, or else week will be empty
+# helper_methods.weekly_update_db("2025-04-20")
+
+# == TOP RATES == #
 st.header("This Week...")
 col1, col2 = st.columns((2), border=True)
 col1.subheader("Top Rated Meal")
@@ -110,6 +113,7 @@ if datetime.now().weekday() == 6:
 # if datetime.now().weekday() == 1: ## current day for debugging purposes
 #     helper_methods.weekly_update_db("2025-4-20")
 
+# == QUICK LOOK == #
 eastern = ZoneInfo("America/New_York")
 current_time_est = datetime.now(eastern).time()
 is_weekend = datetime.now(eastern).weekday() >= 5  # 5=Saturday, 6=Sunday
@@ -140,16 +144,6 @@ else:
                 "Breakfast" 
     #if current_time_est < time(7,0) else "Lunch"
 
-# st.header("Today's Favorites:")
-# favs = st.columns(1, gap = "small", vertical_alignment="top", border=True)
-# with favs:
-#     #for fav in favorites for user check if it is in today's menu
-#     allDishes = pd.DataFrame()
-#     bates = methods.get_menu("bates", other_meal, date.today())
-#     lulu = methods.get_menu("lulu", lulu_meal, date.today())
-
-#st.write(datetime.now(eastern).date())
-#st.write(f"{lulu_meal} and {other_meal}")
 date = datetime.now(eastern).date()
 
 st.header(f"Current Menus: {lulu_meal} {date}")
@@ -200,6 +194,7 @@ with col4:
 
 col1, col2 = st.columns((3.25,1))
 
+# == DISCLAIMERS/LINK == #
 col1.write("* Menus may not be accurate.")
 col1.write("Menus displayed on Peckish are pulled from Wellesley Fresh. Any discrepancies will be shared.")
 

@@ -1,3 +1,6 @@
+# Mostly Prof Eni's code, with some edits by Kailyn (specifically with saving tmp path and setting up github)
+# Used to sync all changes to a remote repo for consistent data storage
+
 import os
 import tempfile
 import requests

@@ -17,6 +17,7 @@ if not methods.check_id(user_id):
 st.header("Settings")
 st.divider()
 
+# === ALLERGENS AND PREFERENCES === #
 data = methods.get_user_allergens_preferences(user_id)
 if data:
     userA = data[0]
@@ -61,8 +62,9 @@ try:
 
         st.write("* Selections will filter menus shown in the Menus tab.")
 
-
     st.divider()
+    
+    # === PRIVACY/SECURITY === #
 
     st.write("")
     
@@ -89,10 +91,9 @@ try:
                     methods.set_username(user_id, newname)
         st.write(f"**Username**: {methods.get_username(user_id)}")
     
-
-
     st.divider()
 
+    # === EXTRA === #
     st.subheader("Usage Data")
     st.write(f"Date joined: {methods.get_user_join_date(user_id)}")
     st.write(f"Total dishes logged: {methods.get_total_dishes_logged(user_id)}")
@@ -105,7 +106,6 @@ try:
     st.write("- Kailyn Lau '28")
     st.write("- Maya Gurewitz '26")
     st.write("- The students of CS 248 Spring '25")
-
 
 except:
     st.write("Something went wrong.")

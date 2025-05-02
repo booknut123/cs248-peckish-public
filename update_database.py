@@ -1,9 +1,8 @@
+# Prof Eni's code
+
 import sqlite3
 from datetime import datetime
 from typing import List
-
-# Define the database schema
-# DB_NAME = "missing_menu.db"
 
 from db_sync import get_db_path
 DB_NAME = get_db_path()

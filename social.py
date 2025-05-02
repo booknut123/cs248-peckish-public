@@ -1,15 +1,7 @@
 import streamlit as st
 import methods
-import pandas as pd
 from datetime import date
-from datetime import datetime
-import sqlite3
-import time
 import visualization_methods as vm
-import random
-import db_sync
-import helper_methods
-import updating_db
 
 user_id = st.session_state.get("user_id")
 
@@ -24,16 +16,6 @@ if not methods.check_id(user_id):
     st.warning("Not logged in.")
     st.write("Please return to home and log in with your Google account.")
     st.stop()
-
-# with sidebar:
-#     col1, col2 = st.columns((0.5, 1.5))
-#     col1.image(image='crumb-the-goose.png')
-#     col2.header("Peckish")
-#     st.write(f"Today: {date.today()}")
-
-# try:
-
-# updating_db.update_db_stuff()
 
 friends = methods.list_friends(user_id)
 users = [name for name in methods.get_all_users() if methods.get_optin(name[0]) and name[0] != user_id and name[0] not in friends]
@@ -171,6 +153,3 @@ if methods.get_optin(user_id):
                     methods.get_tag_history(user_id, friend)
 else:
     st.warning("Activate Social in settings to access your Social page.")
-
-# except:
-#     st.warning("Activate Social in settings to access your social page.")

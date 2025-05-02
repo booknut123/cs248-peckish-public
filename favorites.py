@@ -1,15 +1,7 @@
 import streamlit as st
 import methods
-import time
-import datetime
 from datetime import date
 import visualization_methods as vm
-
-# import helper_methods
-# helper_methods.create_database()
-# st.write("Created database")
-# helper_methods.weekly_update_db("4-20-2025")
-# st.write("Updated weekly database")
 
 user_id = st.session_state.get("user_id")
 
@@ -38,7 +30,7 @@ if not favs.empty:
     col4.write("**Delete**")
     st.write("---")
 
-
+    # == NOTIFICATIONS == #
     for index, row in favs.iterrows():
         col1, col2, col3, col4 = st.columns((0.5,2,0.75,0.5))
         
@@ -56,15 +48,12 @@ if not favs.empty:
         
         col2.write(methods.get_dish_name(row["dish_id"]))
         col3.write(row["date_added"])
-            
-        
 
         delete = col4.button("**-**", key=f"F{index}")
         if delete:
             methods.remove_favorite(user_id, row["dish_id"])
             st.toast("Favorite Deleted")
             st.rerun()
-        # st.write(methods.get_dupe_dishIDs(methods.get_dish_name(row['dish_id'])))
 
     st.write("---")
 
@@ -94,6 +83,7 @@ if not favs.empty:
         st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
         st.warning("If you have notifications on and are seeing this warning, none of the dishes are being served this week!")
 
+    # === TOP 5 === #
     st.header("This Week...")
     st.write("")
     col1, col2 = st.columns((2))
@@ -118,7 +108,6 @@ if not favs.empty:
 
 else:
     st.warning("Please add a favorite in the Log tab to view your favorites.")
-    
 
 #methods.update_ratings() to make sure favorite counts are correct
     

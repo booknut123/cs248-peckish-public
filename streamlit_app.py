@@ -1,3 +1,5 @@
+# == Run streamlit from here!!! ==
+
 import streamlit as st
 
 st.set_page_config(
@@ -6,6 +8,7 @@ st.set_page_config(
         initial_sidebar_state="expanded",
         layout="wide")
 
+# Pages configuration setup - will show as part of the sidebar
 pages = {
     "Menu": [
         st.Page("home.py", title="Home"),

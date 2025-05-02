@@ -1,7 +1,6 @@
 import sqlite3
 import pandas as pd
-from pandas import DataFrame
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import requests
 import numpy as np
 import db_sync
@@ -321,45 +320,6 @@ def get_menu(hall, meal, date):
             conn,
             params=(hall, meal, date))
     return df
-    
-# def get_filtered_menu(allergens, preferences, hall, meal, date):
-#     """
-#     * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
-#     * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian] 
-#     * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
-#     * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
-#     * date: datetime object, YYYY-MM-DD   
-#     Returns the menu for a specific hall and meal on a specific date with a specific filter applied.
-#     Checks that each dish in the menu is already included in the "dish" database.
-#     If a dish is not included, adds the dish to the database with a new ID.
-#     """
-#     df = get_menu(hall, meal, date)
-#     st.write(df)
-#     dfFiltered = filter_menu(df, allergens, preferences)
-#     st.write(dfFiltered)
-
-#     #if not dfFiltered.empty:
-#     return dfFiltered
-
-# def connect_bridge(userID, logID): # CREATED BELOW
-#     """
-#     Connects userID and logID in the bridge table.
-#     """
-#     conn = connect_db()
-#     cur = conn.cursor()
-
-#     cur.execute("SELECT COUNT(*) FROM dishes_log_bridge")
-#     if cur.fetchone()[0] == 0:
-#         bridgeID = 1
-#     else:
-#         cur.execute("SELECT bridge_id FROM dishes_log_bridge ORDER BY bridge_id DESC LIMIT 1;")
-#         bridgeID = cur.fetchone()[0] + 1
-
-#     cur.execute("INSERT INTO dishes_log_bridge (bridge_id, user_id, log_id) VALUES (?, ?, ?)", (bridgeID, userID, logID))
-#     conn.commit()
-#     conn.close()
-    
-#     db_sync.push_db_to_github()
 
 def get_user_logs(userID):
     """

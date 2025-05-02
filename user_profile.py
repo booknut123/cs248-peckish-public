@@ -1,3 +1,6 @@
+# Mostly Prof Eni's code, with some edits by Kailyn (add_user())
+# Used to grant user's access to the app
+
 import streamlit as st
 import requests
 import methods

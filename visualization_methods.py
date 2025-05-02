@@ -1,11 +1,6 @@
-import sqlite3
 import pandas as pd
-from pandas import DataFrame
-import datetime
 from datetime import date
 from datetime import timedelta
-import requests
-import numpy as np
 import methods as m
 import helper_methods as hm
 

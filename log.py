@@ -2,15 +2,7 @@ import streamlit as st
 import methods
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
-import pandas as pd
-import emoji
-import visualization_methods as vm
 
-import helper_methods
-# helper_methods.create_database()
-# st.write("Created database")
-# helper_methods.weekly_update_db("4-20-2025")
-# st.write("Updated weekly database")
 eastern = ZoneInfo("America/New_York")
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
@@ -27,8 +19,7 @@ if not methods.check_id(user_id):
     st.write("Please return to home and log in with your Google account.")
     st.stop()
 
-# try:
-with sidebar:
+with sidebar: # Location, meal, date, filters - control tab
     st.image(image='crumb-the-goose.png')
         
     st.subheader("Selection")
@@ -44,7 +35,7 @@ with sidebar:
     today = d.weekday() # Monday, Tuesday, Wednesday, etc.
     if(today == 6):
         today = -1
-    values = [-1, 0, 1, 2, 3, 4, 5] #our week starts on Sunday which is index -1 in lables
+    values = [-1, 0, 1, 2, 3, 4, 5] # our week starts on Sunday which is index -1 in lables
     labels = ['Monday','Tuesday','Wednesday','Thursday', 'Friday', 'Saturday', 'Sunday']   
     selection = st.select_slider(
         "**Day**", values, value=today,
@@ -52,7 +43,6 @@ with sidebar:
         )
 
     d += timedelta(days=selection - today)
-    # st.write("Selected Date: ", d)
 
     data = methods.get_user_allergens_preferences(user_id)
     if data:
@@ -86,9 +76,8 @@ with sidebar:
             if st.checkbox(pref, value=sel):
                 selected_preferences.append(pref)
     
-with main:
+with main: # menu display - item, add, favorite
     if selected_locations:
-        
         st.subheader(f"{meal}")
         st.write(f"{labels[selection]}, {d} {'(Today)' if str(d) == str(date.today()) else ''}")
         
@@ -108,7 +97,7 @@ with main:
                     for index, row in df.iterrows():
                         col1, col2, col3 = st.columns((0.75, 3.25, 0.5), vertical_alignment="top")
 
-                        # Favorite toggle (empty/filled heart)
+                        # == FAVORITE TOGGLE (empty/filled heart) ==
                         heart_key = f"favorite_{loc}_{index}"
                         if heart_key not in st.session_state:
                             st.session_state[heart_key] = False
@@ -118,17 +107,6 @@ with main:
                             f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
                             key=f"btn_{heart_key}"
                         )
-                        # if methods.check_is_favorite(user_id, row['dish_id']):
-                        #     heart_clicked = col1.button(f"❤️ {numfaves}", key=f"btn_{heart_key}")
-                        # else:
-                        #     fav = False
-                        #     for dish in dupes:
-                        #         if methods.check_is_favorite(user_id, dish[0]):
-                        #             fav = True
-                        #     if fav:
-                        #         heart_clicked = col1.button(f"❤️ {numfaves}", key=f"btn_{heart_key}")
-                        #     else:
-                        #         heart_clicked = col1.button(f"🤍 {numfaves}", key=f"btn_{heart_key}")
 
                         if heart_clicked:
                             st.session_state[heart_key] = not st.session_state[heart_key]
@@ -140,8 +118,7 @@ with main:
                                 methods.remove_favorite(user_id, row['dish_id'])
                                 st.toast("Favorite removed")
                                 st.rerun()
-                            #methods.favorites_toggle(user_id, row['id'])
-                        
+                        # == DESCRIPTION == #
                         with col2.expander(row['dish_name']):
                             info = methods.get_dish_info(row['dish_id'])[7:]
                             descr = methods.get_dish_info(row['dish_id'])[2]
@@ -158,7 +135,7 @@ with main:
                                     uom = "mg"
                                 st.write(f"{stat}: {i} {uom}")
                         
-                        # Add to journal button
+                        # == ADD == #
                         def add_button(user_id, row_id, loc, meal, d):
                             if methods.log_meal(user_id, row_id, loc, meal, d):
                                 st.toast("Meal added!")
@@ -178,5 +155,3 @@ with main:
                         
     else:
         st.subheader("No locations selected.")
-# except:
-#     st.warning("Something went wrong.")
