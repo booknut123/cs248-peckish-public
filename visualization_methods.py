@@ -7,6 +7,10 @@ import helper_methods as hm
 
 
 def get_user_stats_by_meal(userID):
+    """
+    userID: int
+    Returns
+    """
     conn = hm.connect_db()
     cur = conn.cursor()
 
@@ -34,6 +38,11 @@ def visualize_total_stats(userID, stat):
     return df[stat].tolist()
 
 def dining_hall_tracker(userID):
+    """
+    userID: int
+    Returns how often a user visits each dining hall
+    Credits: Maya
+    """
     conn = hm.connect_db()
     cur = conn.cursor()
     logids = m.get_user_logs(userID)

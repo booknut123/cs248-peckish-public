@@ -23,6 +23,7 @@ def get_dish_calories(dishID):
 def get_dish_name(dishID):
         """
         Returns just the name of a dish based on id
+        Credits: Maya
         """
         conn = connect_db()
         cur = conn.cursor()
@@ -97,6 +98,7 @@ def add_favorite(userID, dishID):
     * dishID: int
     Checks if a dish is already favorited by the user.
     If not, adds the dish as a new entry.
+    Credits: Maya,
     """
     conn = connect_db()
     cur = conn.cursor()
@@ -112,6 +114,11 @@ def add_favorite(userID, dishID):
     db_sync.push_db_to_github()
 
 def update_ratings():
+    """
+    Helper function when favorites table did not align with ratings in dish table
+    Updates ratings according to the favorites table
+    Credits: Maya
+    """
     conn = connect_db()
     cur = conn.cursor()
     
@@ -135,6 +142,7 @@ def remove_favorite(userID, dishID):
     * dishID: int
     Checks if a dish is already favorited by the user.
     If it is, it removes the dish from the table.
+    Credit: Maya
     """
     conn = connect_db()
     cur = conn.cursor()
@@ -146,18 +154,6 @@ def remove_favorite(userID, dishID):
     
     db_sync.push_db_to_github()
 
-def remove_favorite(userID, dishID):
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(f"SELECT COUNT(*) FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID))
-    if cur.fetchone()[0] > 0:
-        cur.execute(f"DELETE FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID))
-    
-    cur.execute(f"UPDATE dishes SET rating = rating - 1 WHERE dish_id = {dishID}")
-    conn.commit()
-    conn.close()
-        
-    db_sync.push_db_to_github()
 
 def check_is_favorite(userID, dishID):
     """
@@ -176,7 +172,6 @@ def check_is_favorite(userID, dishID):
 def display_favorites(userID):
     conn = connect_db()
     df = pd.read_sql_query(f"SELECT * FROM favorites WHERE user_id = ?", conn, params=(userID, ))
-    # st.write(df)
     conn.close()
     return df
 
@@ -208,39 +203,12 @@ def delete_meal(logID, dishID):
     
     db_sync.push_db_to_github()
 
-def display_meal_log(userID):
-    """
-    * userID: int
-    * logID: int
-    Removes meal associated with a given user ID and log ID from the dishes database.
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-
-    logIDs = get_user_logs(userID)
-    
-    meals = []
-    for log in logIDs:
-        meals.append(get_log_dishes(log))
-
-    for meal in meals:
-        for id in meal:
-            cur.execute("SELECT * FROM dishes WHERE dish_id = ?")
-
-def check_is_favorite(userID, dishID):
-    conn = connect_db()
-    cur = conn.cursor()
-
-    cur.execute(f"SELECT COUNT(*) FROM favorites WHERE user_id = ? AND dish_id = ?", (userID, dishID))
-    num = cur.fetchone()[0]
-
-    if num == 0:
-        return False
-    else:
-        return True
-
 def get_meal_log(userID):
-    
+    """
+    userID: int
+    Returns a list of all meals logged by a user
+    Credits: Maya
+    """
     logIDs = get_user_logs(userID)
     logIDs = ",".join([str(logID) for logID in logIDs])
     conn = connect_db()
@@ -251,6 +219,11 @@ def get_meal_log(userID):
     return dishes
 
 def get_dish_rating(dishID):
+    """
+    dishID: int
+    returns rating of dish from dishes table
+    Credit: Maya
+    """
     conn = connect_db()
     cur = conn.cursor()
 
@@ -260,6 +233,10 @@ def get_dish_rating(dishID):
     return num
 
 def top5favs():
+    """
+    Returns a list of the dishes with the top 5 highest ratings in dishes table
+    Credit: Maya
+    """
     conn = connect_db()
     cur = conn.cursor()
 
@@ -269,6 +246,10 @@ def top5favs():
     return top5
 
 def weeklyTop5favs():
+    """
+    Returns a list of the top 5 dishes being served this week with the highest rating
+    Credit: Maya
+    """
     conn = connect_db()
     cur = conn.cursor()
     cur.execute("SELECT dish_id FROM current_dishes")
@@ -281,6 +262,10 @@ def weeklyTop5favs():
     return top5
 
 def sort_meals_by_date(df):
+    """
+    df: DataFrame
+    
+    """
     dates = sorted(df["date"].unique(), reverse=True)
 
     my_dict = df.to_dict(orient='index')

@@ -83,7 +83,7 @@ if not favs.empty:
         st.warning("Please turn on notifications for atleast one dish to see when it will be served.")
         st.warning("If you have notifications on and are seeing this warning, none of the dishes are being served this week!")
 
-    # === TOP 5 === #
+    # === TOP 5 === # 
     st.header("This Week...")
     st.write("")
     col1, col2 = st.columns((2))
