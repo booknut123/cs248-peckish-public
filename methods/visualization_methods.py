@@ -1,9 +1,9 @@
 import pandas as pd
 from datetime import date
 from datetime import timedelta
-import methods as m
-import helper_methods as hm
 
+import methods.database_menu_methods as dm
+import methods.dishes_log_methods as dl
 
 
 def get_user_stats_by_meal(userID):
@@ -11,11 +11,11 @@ def get_user_stats_by_meal(userID):
     userID: int
     Returns
     """
-    conn = hm.connect_db()
+    conn = dm.connect_db()
     cur = conn.cursor()
 
-    logids = m.get_user_logs(userID)
-    dishes = [m.get_log_dishes(logid) for logid in logids]
+    logids = dl.get_user_logs(userID)
+    dishes = [dl.get_log_dishes(logid) for logid in logids]
 
     stats = []
 
@@ -43,9 +43,9 @@ def dining_hall_tracker(userID):
     Returns how often a user visits each dining hall
     Credits: Maya
     """
-    conn = hm.connect_db()
+    conn = dm.connect_db()
     cur = conn.cursor()
-    logids = m.get_user_logs(userID)
+    logids = dl.get_user_logs(userID)
     dhall_counter = {'Lulu': 0, 'Bates': 0, 'StoneD': 0, 'Tower': 0}
     for id in logids:
         cur.execute(f"SELECT dining_hall FROM meal_log WHERE log_id = {id}")
@@ -55,10 +55,10 @@ def dining_hall_tracker(userID):
     return dhall_counter
 
 def average_cals_by_meal(userID):
-    conn = hm.connect_db()
+    conn = dm.connect_db()
     cur = conn.cursor()
 
-    logids = m.get_user_logs(userID)
+    logids = dl.get_user_logs(userID)
 
     mealcounts = {"Breakfast": 0, "Lunch":0, "Dinner":0}
     mealcals = {"Breakfast": 0, "Lunch":0, "Dinner":0}
@@ -70,10 +70,10 @@ def average_cals_by_meal(userID):
 
         mealcounts[mealName] += 1
 
-        dishes = m.get_log_dishes(id)
+        dishes = dl.get_log_dishes(id)
         cals = 0
         for dish in dishes:
-            cals += m.get_dish_calories(dish)
+            cals += dl.get_dish_calories(dish)
         
         mealcals[mealName] += cals
 
@@ -88,10 +88,10 @@ def average_cals_by_meal(userID):
     return avgcals
 
 def get_stats_by_date(user_id, date):
-    conn = hm.connect_db()
+    conn = dm.connect_db()
     cur = conn.cursor()
 
-    logs = m.get_user_logs(user_id)
+    logs = dl.get_user_logs(user_id)
     placeholders = ','.join('?' for _ in logs)
     query = f"SELECT dish_ids FROM meal_log WHERE log_id IN ({placeholders}) AND date_logged = ?"
     dishes = cur.execute(query, (*logs, date)).fetchall()
@@ -104,7 +104,7 @@ def get_stats_by_date(user_id, date):
     for dish in dishes:
         dishs = dish.split(",")
         for d in dishs:
-            info = m.get_dish_info(d)
+            info = dl.get_dish_info(d)
             for i, nutrient in enumerate(nutrients):
                 statdict[nutrient] += info[start_index + i]
         
@@ -128,9 +128,9 @@ def hall_popularity_last_7_days():
     today = date.today()
     dates = [str(today - timedelta(days=i)) for i in range(0,7)]
 
-    logs = m.get_logIDs_by_date_range(dates)
+    logs = dl.get_logIDs_by_date_range(dates)
 
-    halls = [m.get_log_hall(log) for log in logs]
+    halls = [dl.get_log_hall(log) for log in logs]
     
     hallcounts = {"Bates": halls.count("Bates"), "Lulu": halls.count("Lulu"), "Tower": halls.count("Tower"), "StoneD": halls.count("StoneD")}
 

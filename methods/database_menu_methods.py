@@ -1,11 +1,20 @@
-import sqlite3
-import pandas as pd
-from datetime import datetime, timedelta
-import requests
-import numpy as np
 import db_sync
-import methods
+import sqlite3
+import datetime
+from datetime import timedelta
+from datetime import datetime
 import streamlit as st
+import pandas as pd
+import numpy as np
+import requests
+
+import methods.dishes_log_methods as dl
+
+def connect_db():
+    """
+    Connects to peckish database.
+    """
+    return sqlite3.connect(db_sync.get_db_path())
 
 def create_database():
     db_sync.download_db_from_github()
@@ -110,11 +119,42 @@ def clear_db():
 
     create_database()
 
-def connect_db():
+def clean_dicts(dct, name):
     """
-    Connects to peckish database.
+    Helper function for clean_WF_menu().
+    Converts names from a dictionary into a comma separated strings.
     """
-    return sqlite3.connect(db_sync.get_db_path())
+    lst = []
+    for i in dct:
+        lst.append(i["name"])
+    return lst
+
+def clean_WF_menu(df):
+    """
+    Cleans a WF API dataframe.
+    Removes unused categories.
+    Reformats nutritionals into new columns.
+    Converts allergens and preferences into comma seperated strings.
+    """
+    cols = ["image","categoryName","stationOrder","price","servingSize","servingSizeUOM","caloriesFromFat","saturatedFat","transFat","dietaryFiber","addedSugar"]
+    for col in cols:
+        if col in df.columns:
+            df = df.drop(col, axis=1)
+   
+    if not df.empty:
+        cats = ['calories','fat','cholesterol','sodium','carbohydrates','sugars','protein']
+        for cat in cats:
+            if 'nutritionals' in df.columns:
+                df[cat] = df['nutritionals'].apply(lambda dct: int(dct[cat]) if dct[cat] else np.nan)
+        
+        df = df.drop("nutritionals", axis=1)
+
+        df["allergens"] = df["allergens"].apply(lambda dct: clean_dicts(dct, "allergens"))
+        df["preferences"] = df["preferences"].apply(lambda dct:clean_dicts(dct, "preferences"))
+
+        df = df.drop_duplicates(subset=["id", "date"])
+
+    return df
 
 def get_location_meal_ids(hall, meal):
     """
@@ -143,56 +183,7 @@ def get_location_meal_ids(hall, meal):
                 "LocationID": 131}}
     return (mealDict[hall]["LocationID"], mealDict[hall][meal])
 
-def clean_dicts(dct, name):
-    """
-    Helper function for clean_WF_menu().
-    Converts names from a dictionary into a comma separated strings.
-    """
-    lst = []
-    for i in dct:
-        lst.append(i["name"])
-    return lst
-
-def clean_WF_menu(df): # For use with dishes table
-    """
-    Cleans a WF API dataframe.
-    Removes unused categories.
-    Reformats nutritionals into new columns.
-    Converts allergens and preferences into comma seperated strings.
-    """
-    cols = ["image","categoryName","stationOrder","price","servingSize","servingSizeUOM","caloriesFromFat","saturatedFat","transFat","dietaryFiber","addedSugar"]
-    for col in cols:
-        if col in df.columns:
-            df = df.drop(col, axis=1)
-   
-    if not df.empty:
-        cats = ['calories','fat','cholesterol','sodium','carbohydrates','sugars','protein']
-        for cat in cats:
-            if 'nutritionals' in df.columns:
-                df[cat] = df['nutritionals'].apply(lambda dct: int(dct[cat]) if dct[cat] else np.nan)
-        
-        df = df.drop("nutritionals", axis=1)
-
-        df["allergens"] = df["allergens"].apply(lambda dct: clean_dicts(dct, "allergens"))
-        df["preferences"] = df["preferences"].apply(lambda dct:clean_dicts(dct, "preferences"))
-
-        df = df.drop_duplicates(subset=["id", "date"])
-
-    return df
-
-def insert_dish(row): # For use with dishes table
-    """
-    Inserts the dish into the dishes database.
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(f"INSERT INTO dishes (dish_id, dish_name, description, rating, station, allergens, preferences, calories, fat, cholesterol, sodium, carbohydrates, sugars, protein) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(row['id'], row['name'], row['description'], 0, row['stationName'], ",".join(row['allergens']), ",".join(row['preferences']), row['calories'], row['fat'], row['cholesterol'], row['sodium'], row['carbohydrates'], row['sugars'], row['protein']))
-    conn.commit()
-    conn.close()
-    
-    db_sync.push_db_to_github()
-
-def update_dish_db(df): # For use with dishes table
+def update_dish_db(df):
     """
     Updates the dishes database after viewing a menu.
     For each dish, checks if that dish's ID is already in the database.
@@ -204,15 +195,44 @@ def update_dish_db(df): # For use with dishes table
     cur.execute("SELECT COUNT(*) FROM dishes")
     if cur.fetchall() == 0:
         for _,row in df.iterrows():
-            insert_dish(row)
+            dl.insert_dish(row)
     else:
         for _,row in df.iterrows():
             cur.execute(f"SELECT COUNT(*) FROM dishes WHERE dish_id = {row['id']}")
             num = cur.fetchall()[0][0]
             if num == 0:
-                insert_dish(row)
+                dl.insert_dish(row)
+
+@st.cache_data
+def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to dishes
+    """
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
+    Returns the menu for a specific hall and meal on a specific date.
+    Checks that each dish in the menu is already included in the "dish" database.
+    If a dish is not included, adds the dish to the database with a new ID.
+    """
+    locationID, mealID = get_location_meal_ids(hall, meal)
+    base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
+    params = {"date":date,"locationID":locationID,"mealID":mealID}
+    try:
+        response = requests.get(base_url,params=params)
+    except:
+        return pd.DataFrame()
+    data = response.json()
+    df = pd.DataFrame(data)
+
+    if not df.empty:
+        df = clean_WF_menu(df)
+
+        df['date'] = df['date'].apply(lambda x: x.split("T")[0])
+        df = df[df['date'] == str(date)]
+        update_dish_db(df)
+        db_sync.push_db_to_github()
     
-# @st.cache_data            
+    return df
+
 def weekly_update_db(sunday_date): # For use with current_dishes table
     """
     Updates current_dishes table for the next week.
@@ -223,7 +243,9 @@ def weekly_update_db(sunday_date): # For use with current_dishes table
     #if table already populated, exit method
     num = cur.execute("SELECT COUNT(*) FROM current_dishes").fetchone()
     if num[0] != 0:
-        return
+        date = cur.execute("SELECT date FROM current_dishes LIMIT 1").fetchone()
+        if date[0] == sunday_date:
+            return
 
     mealDict = {
         "Bates": {
@@ -265,10 +287,10 @@ def weekly_update_db(sunday_date): # For use with current_dishes table
         for location, meals in mealDict.items():
             for meal, __ in meals.items():
                 if meal != "LocationID":
-                    df = methods.scrape_menu(location, meal, new_date)
+                    df = scrape_menu(location, meal, new_date)
                     #st.write(f"{location} {meal} {new_date}")
                     #st.write(df)
-                    methods.update_dish_db(df)
+                    update_dish_db(df)
                     
                     ## add to current_dishes
                     for _,row in df.iterrows():
@@ -278,181 +300,19 @@ def weekly_update_db(sunday_date): # For use with current_dishes table
                                 
     cur.close()
     conn.close()
-    db_sync.push_db_to_github()                
-    
-@st.cache_data
-def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to dishes
-    """
-    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
-    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
-    * date: datetime object, YYYY-MM-DD
-    Returns the menu for a specific hall and meal on a specific date.
-    Checks that each dish in the menu is already included in the "dish" database.
-    If a dish is not included, adds the dish to the database with a new ID.
-    """
-    locationID, mealID = get_location_meal_ids(hall, meal)
-    base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
-    params = {"date":date,"locationID":locationID,"mealID":mealID}
-    try:
-        response = requests.get(base_url,params=params)
-    except:
-        return pd.DataFrame()
-    data = response.json()
-    df = pd.DataFrame(data)
+    db_sync.push_db_to_github()  
 
+def pescatarian(df):
+    """
+    Helper method for creating a preference that filters for dishes that include fish and shellfish, but no meat
+    Credits: Maya
+    """
     if not df.empty:
-        df = clean_WF_menu(df)
-
-        df['date'] = df['date'].apply(lambda x: x.split("T")[0])
-        df = df[df['date'] == str(date)]
-        update_dish_db(df)
-        db_sync.push_db_to_github()
-    
+        df1 = df[df["allergens"].apply(lambda x: 'Fish' in x or 'Shellfish' in x)]
+        df2 = df[df["preferences"].apply(lambda x: 'Vegetarian' in x)]
+        df = pd.concat([df1, df2])
     return df
 
-def get_menu(hall, meal, date):
-    """
-    Returns dataframe for a certain dining hall, meal, and date.
-    """
-    conn = connect_db()  
-    df = pd.read_sql_query(
-            """SELECT * FROM CURRENT_DISHES WHERE location = ? AND meal = ? AND date = ?""",
-            conn,
-            params=(hall, meal, date))
-    return df
-
-def get_user_logs(userID):
-    """
-    Returns a list of meal log IDs associated with a given user ID
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(f"SELECT log_id FROM dishes_log_bridge WHERE user_id = ?", (userID,))
-    logs = cur.fetchall()
-   
-    logids = []
-
-    for log in logs:
-        if log[0] not in logids:
-            logids.append(log[0])
-
-    return logids
-
-def get_log_dishes(logID):
-    """
-    Returns the dish IDs associated with a given log ID
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(f"SELECT dish_ids FROM meal_log WHERE log_id = {logID}")
-
-    dishes = cur.fetchone()[0].split(",")
-
-    return dishes
-
-def get_logIds_by_date(userId, date):
-    """
-    Returns dataframe of all logs from a certain date
-    """
-    logIds = get_user_logs(userId)
-    conn = connect_db()
-    cur = conn.cursor()
-    id_list = ", ".join("?" for _ in logIds)
-    df = pd.read_sql_query(f"SELECT log_id, dish_ids, dining_hall, meal_name FROM meal_log WHERE log_id IN ({id_list}) AND date_logged = date")
-    conn.close()
-    return df
-    
-def get_dishes_from_meal_log(userID, date, meal):
-    """
-    Returns a database dishes (and their calories) associated with a given User ID for a given date
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-
-    logIDs = get_logIds_by_date(userID, date)
-    meals = {}
-    for id in logIDs:
-        cur.exectue(f"SELECT dish_ids, dining_hall, meal_name WHERE (log_id = {id})")
-  
-    for meal in meals:
-        dish = meals[meal]
-        for id in dish:
-            cur.execute(f"SELECT * FROM dishes WHERE dish_id = {id}")
-            d = cur.fetchall()[0]
-            meals.append({"meal": meal,"name": d[1], "calories": d[7]})
-    df = pd.DataFrame(meals)
-    conn.close()
-    return df
-
-def create_meal(userID, dishID, hall, mealName, date):
-    """
-    Creates an entry in the meal database.
-    Returns the logID for use in connect_bridge().
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-
-    try:
-        logs = get_user_logs(userID)
-    except:
-        logs = []
-    found = False
-    if logs:
-        for log in logs:
-            cur.execute(f"SELECT log_id FROM meal_log WHERE log_id = ? AND dining_hall = ? AND meal_name = ? AND date_logged = ?", (log, hall, mealName, date))
-            meal = cur.fetchall()
-            if meal:
-                logID = meal[0][0]
-                found = True
-                break
-
-    try:
-        dishes = get_log_dishes(logID)
-        if str(dishID) in dishes:
-            return None
-    except:
-        dishes = []
-
-    if found:
-        cur.execute(f"SELECT dish_ids FROM meal_log WHERE log_id = {logID}")
-        dishes = cur.fetchone()[0]
-
-        newDishes = f"{dishes},{dishID}"
-
-        cur.execute(f"UPDATE meal_log SET dish_ids = ? WHERE log_id = ?", (newDishes, logID))
-        conn.commit()
-        conn.close()
-        
-    else:
-        date = str(date)
-        cur.execute("INSERT INTO meal_log (dish_ids, dining_hall, meal_name, date_logged) VALUES (?,?,?,?)", (dishID, hall, mealName, date))
-
-        cur.execute("SELECT MAX(log_id) FROM meal_log")
-        
-        logID = cur.fetchone()[0]
-
-        conn.commit()
-        conn.close()
-        
-    db_sync.push_db_to_github()
-    return logID
-
-def connect_bridge(userID, logID):
-    """
-    Connects userID and logID in the bridge table.
-    """
-    conn = connect_db()
-    cur = conn.cursor()
-
-    cur.execute("SELECT COUNT(*) FROM dishes_log_bridge WHERE user_id = ? AND log_id = ?", (userID, logID))
-    if cur.fetchone()[0] == 0:
-        cur.execute("INSERT INTO dishes_log_bridge (user_id, log_id) VALUES (?, ?)", (userID, logID))
-    
-    conn.commit()
-    conn.close()
-    
-    db_sync.push_db_to_github()
-  
 def filter_menu(df, allergens, preferences):
     """
     Uses inputted allergens and preferences and returns a dataframe with meals that match the filter criteria.
@@ -469,13 +329,38 @@ def filter_menu(df, allergens, preferences):
                 df = df[df["preferences"].apply(lambda x: preference in x)]
     return df
 
-def pescatarian(df):
+def get_menu(hall, meal, date):
     """
-    Helper method for creating a preference that filters for dishes that include fish and shellfish, but no meat
-    Credits: Maya
+    Returns dataframe for a certain dining hall, meal, and date.
     """
-    if not df.empty:
-        df1 = df[df["allergens"].apply(lambda x: 'Fish' in x or 'Shellfish' in x)]
-        df2 = df[df["preferences"].apply(lambda x: 'Vegetarian' in x)]
-        df = pd.concat([df1, df2])
+    conn = connect_db()  
+    df = pd.read_sql_query(
+            """SELECT * FROM CURRENT_DISHES WHERE location = ? AND meal = ? AND date = ?""",
+            conn,
+            params=(hall, meal, date))
     return df
+
+def print_menu(allergens, preferences, hall, meal, date):
+    """
+    * userID: int
+    * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
+    * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian]
+    Updates the user's allergens and preferences.
+    Credits: 
+    """
+    current_menu = get_menu(hall, meal, date)
+    
+    conn = connect_db()
+    dish_details = pd.read_sql_query(
+        f"""SELECT dish_id, dish_name, calories, allergens, preferences FROM dishes
+            WHERE dish_id IN ({','.join(['?'] * len(current_menu))})""",
+        conn,
+        params=current_menu['dish_id'].tolist()
+    )
+    conn.close()
+    
+    # Merge and select columns
+    full_menu = current_menu.merge(dish_details, on='dish_id')[['dish_id', 'dish_name', 'calories', 'allergens', 'preferences']]
+    dfFiltered = filter_menu(full_menu, allergens, preferences)
+
+    return dfFiltered

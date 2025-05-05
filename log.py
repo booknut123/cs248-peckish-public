@@ -1,14 +1,18 @@
 import streamlit as st
-import methods
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
+
+import methods.database_menu_methods as dm
+import methods.dishes_log_methods as dl
+import methods.favorites_methods as f
+import methods.users_methods as u
 
 eastern = ZoneInfo("America/New_York")
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 user_id = st.session_state.get("user_id")
 
-if not methods.check_id(user_id):
+if not u.check_id(user_id):
     col1, col2 = st.columns((0.3, 1.5))
     col1.image(image='crumb-the-goose.png')
     col2.header("Peckish")
@@ -44,7 +48,7 @@ with sidebar: # Location, meal, date, filters - control tab
 
     d += timedelta(days=selection - today)
 
-    data = methods.get_user_allergens_preferences(user_id)
+    data = u.get_user_allergens_preferences(user_id)
     if data:
         userA = data[0]
         userP = data[1]
@@ -84,7 +88,7 @@ with main: # menu display - item, add, favorite
         for loc in selected_locations:
             with st.container(border=True):
                 st.subheader(loc)
-                df = methods.print_menu(selected_allergens, selected_preferences, loc, meal, d)
+                df = dm.print_menu(selected_allergens, selected_preferences, loc, meal, d)
                 if not df.empty:
                     # Header row
                     col1, col2, col3 = st.columns((0.75, 3.25, 0.5), vertical_alignment="top")
@@ -102,26 +106,26 @@ with main: # menu display - item, add, favorite
                         if heart_key not in st.session_state:
                             st.session_state[heart_key] = False
 
-                        numfaves = str(methods.get_dish_rating(row['dish_id']))
+                        numfaves = str(dl.get_dish_rating(row['dish_id']))
                         heart_clicked = col1.button(
-                            f"❤️ {numfaves}" if methods.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
+                            f"❤️ {numfaves}" if f.check_is_favorite(user_id, row['dish_id']) else f"🤍 {numfaves}",
                             key=f"btn_{heart_key}"
                         )
 
                         if heart_clicked:
                             st.session_state[heart_key] = not st.session_state[heart_key]
                             if st.session_state[heart_key]:
-                                methods.add_favorite(user_id, row['dish_id'])
+                                f.add_favorite(user_id, row['dish_id'])
                                 st.toast("Favorite added")
                                 st.rerun()
                             else:
-                                methods.remove_favorite(user_id, row['dish_id'])
+                                f.remove_favorite(user_id, row['dish_id'])
                                 st.toast("Favorite removed")
                                 st.rerun()
                         # == DESCRIPTION == #
                         with col2.expander(row['dish_name']):
-                            info = methods.get_dish_info(row['dish_id'])[7:]
-                            descr = methods.get_dish_info(row['dish_id'])[2]
+                            info = dl.get_dish_info(row['dish_id'])[7:]
+                            descr = dl.get_dish_info(row['dish_id'])[2]
                             if descr:
                                 st.write(f"*{descr}*")
                             else:
@@ -137,7 +141,7 @@ with main: # menu display - item, add, favorite
                         
                         # == ADD == #
                         def add_button(user_id, row_id, loc, meal, d):
-                            if methods.log_meal(user_id, row_id, loc, meal, d):
+                            if dl.log_meal(user_id, row_id, loc, meal, d):
                                 st.toast("Meal added!")
                             else:
                                 st.toast("This dish has already been logged in this meal.")
