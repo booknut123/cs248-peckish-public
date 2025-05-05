@@ -455,8 +455,8 @@ def connect_bridge(userID, logID):
   
 def filter_menu(df, allergens, preferences):
     """
-    Credits: ?, Maya
     Uses inputted allergens and preferences and returns a dataframe with meals that match the filter criteria.
+    Credits: Nina, Maya
     """
     for pref in preferences:
         if pref == "Pescatarian":
@@ -471,8 +471,8 @@ def filter_menu(df, allergens, preferences):
 
 def pescatarian(df):
     """
-    Credits: Maya
     Helper method for creating a preference that filters for dishes that include fish and shellfish, but no meat
+    Credits: Maya
     """
     if not df.empty:
         df1 = df[df["allergens"].apply(lambda x: 'Fish' in x or 'Shellfish' in x)]
