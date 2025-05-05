@@ -6,6 +6,12 @@ import methods.database_menu_methods as dm
 import methods.dishes_log_methods as dl
 
 def add_note(userID, date, note):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    * note: string
+    Adds / updates the note for a day for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -24,6 +30,11 @@ def add_note(userID, date, note):
     conn.close()
 
 def get_note(userID, date):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    Returns the note for a day for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -36,6 +47,12 @@ def get_note(userID, date):
         return note[0]
     
 def add_tags(userID, date, tagslist):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    * taglist: list of strings (userIDs)
+    Adds / updates the tags for a day for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -55,6 +72,11 @@ def add_tags(userID, date, tagslist):
     db_sync.push_db_to_github()
 
 def get_tags(userID, date):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    Returns the tags for a day for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -67,6 +89,11 @@ def get_tags(userID, date):
         return tags
     
 def get_tag_history(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Returns the tags and notes associated with days where two users tagged eachother.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 

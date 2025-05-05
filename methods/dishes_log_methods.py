@@ -36,6 +36,7 @@ def get_user_logs(userID):
 
 def get_log_dishes(logID):
     """
+    * logID: int
     Returns the dish IDs associated with a given log ID
     """
     conn = dm.connect_db()
@@ -48,18 +49,23 @@ def get_log_dishes(logID):
 
 def get_logIds_by_date(userId, date):
     """
+    * userID: string
+    * date: datetime object, YYYY-MM-DD
     Returns dataframe of all logs from a certain date
     """
     logIds = get_user_logs(userId)
     conn = dm.connect_db()
     cur = conn.cursor()
     id_list = ", ".join("?" for _ in logIds)
-    df = pd.read_sql_query(f"SELECT log_id, dish_ids, dining_hall, meal_name FROM meal_log WHERE log_id IN ({id_list}) AND date_logged = date")
+    df = pd.read_sql_query(f"SELECT log_id, dish_ids, dining_hall, meal_name FROM meal_log WHERE log_id IN ({id_list}) AND date_logged = {date}")
     conn.close()
     return df
     
 def get_dishes_from_meal_log(userID, date, meal):
     """
+    * userID: string
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
     Returns a database dishes (and their calories) associated with a given User ID for a given date
     """
     conn = dm.connect_db()
@@ -82,6 +88,11 @@ def get_dishes_from_meal_log(userID, date, meal):
 
 def create_meal(userID, dishID, hall, mealName, date):
     """
+    * userID: string
+    * dishID: int
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * mealName: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
     Creates an entry in the meal database.
     Returns the logID for use in connect_bridge().
     """
@@ -135,6 +146,8 @@ def create_meal(userID, dishID, hall, mealName, date):
 
 def connect_bridge(userID, logID):
     """
+    * userID: string
+    * logID: int
     Connects userID and logID in the bridge table.
     """
     conn = dm.connect_db()
@@ -259,7 +272,7 @@ def get_dish_rating(dishID):
 def sort_meals_by_date(df):
     """
     df: DataFrame
-    
+    Returns a dictionary of meals sorted by date logged.
     """
     dates = sorted(df["date"].unique(), reverse=True)
 
@@ -278,6 +291,7 @@ def sort_meals_by_date(df):
 
 def get_border_log_dates(userID):
     """
+    * userID: string
     Returns all dates that meals were logged by a user,
     including the first and last dates
     """
@@ -295,6 +309,10 @@ def get_border_log_dates(userID):
     return dates2
 
 def get_total_dishes_logged(userID):
+    """
+    * userID: string
+    Returns an integer number of dishes logged by a user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     
@@ -307,6 +325,10 @@ def get_total_dishes_logged(userID):
     return numdishes
 
 def get_log_date(logID):
+    """
+    * logID: int
+    Returns the date in which a meal was logged by a user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     date = cur.execute("SELECT date_logged FROM meal_log WHERE log_id = ?", (logID,)).fetchone()[0]
@@ -316,6 +338,11 @@ def get_log_date(logID):
         return date
 
 def get_last_logged_date(userID, dishname):
+    """
+    * userID: string
+    * dishname: string
+    Returns the date in which a dish was last logged by a user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     logs = get_user_logs(userID)
@@ -332,6 +359,10 @@ def get_last_logged_date(userID, dishname):
         return "Never"
 
 def get_logIDs_by_date_range(dates):
+    """
+    * dates: list of datetime objects / strings, YYYY-MM-DD
+    Returns a list of logIDs logged within a given date range.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -342,6 +373,10 @@ def get_logIDs_by_date_range(dates):
     return [log[0] for log in logs]
 
 def get_log_hall(logID):
+    """
+    * logID: int
+    Returns the hall in which a meal was logged.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -350,6 +385,10 @@ def get_log_hall(logID):
     return hall
 
 def get_dupe_dishIDs(dishname):
+    """
+    * dishname: string
+    Returns the dishIDs for any dishes which share a common dishname.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 

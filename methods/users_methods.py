@@ -11,7 +11,6 @@ def update_user_allergens_preferences(userID, allergens, preferences):
     * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
     * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian]
     Updates the user's allergens and preferences.
-    Credits: Nina
     """
     conn = dm.connect_db()
     cur = conn.cursor()
@@ -42,15 +41,23 @@ def get_user_allergens_preferences(userID):
      conn.close()
      return stuff
 
-def get_username(user_id):
+def get_username(userID):
+    """
+    * userID: string
+    Returns the username associated with a given userID
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
-    cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (user_id,))
+    cur.execute(f"SELECT user_name FROM users WHERE user_id = ?", (userID,))
     username = cur.fetchone()
     return username[0]
  
 def set_username(userID, username):
+    """
+    * userID: string
+    Updates the username associated with a given userID
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -59,6 +66,10 @@ def set_username(userID, username):
     conn.close()
 
 def get_user_join_date(userID):
+    """
+    * userID: string
+    Returns the join date associated with a given userID
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -66,6 +77,10 @@ def get_user_join_date(userID):
     return date.split(" ")[0]
 
 def get_name(userID):
+    """
+    * userID: string
+    Returns the name associated with a given userID
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -74,6 +89,9 @@ def get_name(userID):
     return name[0]
   
 def get_all_names():
+    """
+    Returns the names of all users in the database.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -82,12 +100,19 @@ def get_all_names():
     return names
 
 def check_id(userID):
+    """
+    * userID: string
+    Checks whether the given userID is in the database.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     match = cur.execute("SELECT user_id FROM users WHERE user_id = ?", (userID, )).fetchone()
     return (match != None)
 
 def new_user_welcome(): # By Kailyn - used in user_profile
+    """
+    Writes a welcome page for users who are new to the database.
+    """
     user_welcomed = False
     placeholder = st.empty()
     with placeholder.container():
@@ -122,6 +147,10 @@ def get_all_users():
     return users
 
 def get_user_id_from_name(name):
+    """
+    * name: string
+    Returns the first userID associated with a name in the database.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -130,6 +159,10 @@ def get_user_id_from_name(name):
     return id[0]
 
 def get_user_icon(userID):
+    """
+    * userID: string
+    Returns the profile picture / icon associated with a given userID
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 

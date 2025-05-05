@@ -1,6 +1,10 @@
 import random
 
 def generate_goose_fact():
+    """
+    Generates and returns a random goose fact.
+    To be displayed on the home screen, and refreshed with each viewing.
+    """
     facts = ["Male geese are called 'Ganders'.", 
              "Geese eat seeds, nuts, grass, plants and berries", 
              "When flying in groups, geese trade off the leader position to avoid tiring out.", 

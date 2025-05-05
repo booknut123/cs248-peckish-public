@@ -3,6 +3,11 @@ import db_sync
 import methods.database_menu_methods as dm
 
 def send_friend_request(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Sends a friend request to a another user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -17,6 +22,11 @@ def send_friend_request(userID, friendID):
     db_sync.push_db_to_github()
 
 def accept_friend_request(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Accepts an incoming friend request. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -33,6 +43,11 @@ def accept_friend_request(userID, friendID):
 
 
 def remove_friend_request(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Removes an incoming friend request. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     
@@ -46,6 +61,11 @@ def remove_friend_request(userID, friendID):
     db_sync.push_db_to_github()
 
 def remove_friend(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Removes a current friend. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -60,6 +80,10 @@ def remove_friend(userID, friendID):
     db_sync.push_db_to_github()
 
 def list_friends(userID):
+    """
+    * userID: string
+    Lists userIDs of all current friends of a given user. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     friends = cur.execute("SELECT friend FROM friends WHERE user_id = ?", (userID,)).fetchall()
@@ -68,6 +92,10 @@ def list_friends(userID):
     return friends
 
 def list_friend_requests(userID):
+    """
+    * userID: string
+    Lists userIDs of all incoming friend requests for a given user. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     requests = cur.execute("SELECT user_id FROM requests WHERE request = ?", (userID,)).fetchall()
@@ -77,6 +105,10 @@ def list_friend_requests(userID):
     return requests
 
 def list_outgoing_requests(userID):
+    """
+    * userID: string
+    Lists userIDs of all outgoing friend requests from a given user. 
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -87,6 +119,10 @@ def list_outgoing_requests(userID):
     return requests
 
 def get_optin(userID):
+    """
+    * userID: string
+    Returns a boolean indicating whether a user has opted into Social.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     
@@ -98,7 +134,10 @@ def get_optin(userID):
         return False
 
 def toggle_optin(userID):
-    
+    """
+    * userID: string
+    Toggles optin for a user.
+    """
     current = get_optin(userID)
 
     conn = dm.connect_db()

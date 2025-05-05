@@ -158,6 +158,8 @@ def clean_WF_menu(df):
 
 def get_location_meal_ids(hall, meal):
     """
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
     Returns location and meal IDs associated with a specific request.
     """
     mealDict = {
@@ -315,6 +317,8 @@ def pescatarian(df):
 
 def filter_menu(df, allergens, preferences):
     """
+    * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
+    * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian]
     Uses inputted allergens and preferences and returns a dataframe with meals that match the filter criteria.
     Credits: Nina, Maya
     """
@@ -331,6 +335,9 @@ def filter_menu(df, allergens, preferences):
 
 def get_menu(hall, meal, date):
     """
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
     Returns dataframe for a certain dining hall, meal, and date.
     """
     conn = connect_db()  
@@ -342,9 +349,11 @@ def get_menu(hall, meal, date):
 
 def print_menu(allergens, preferences, hall, meal, date):
     """
-    * userID: int
     * allergens: list of strings, [Dairy, Egg, Fish, Peanut, Sesame, Shellfish, Soy, Tree Nut, Wheat]
     * preferences: list of strings, [Gluten Sensitive, Vegan, Vegetarian]
+    * hall: string, 'Bates', 'Lulu', 'Tower' or 'StoneD'
+    * meal: string, 'Breakfast', 'Lunch' or 'Dinner'
+    * date: datetime object, YYYY-MM-DD
     Updates the user's allergens and preferences.
     Credits: 
     """

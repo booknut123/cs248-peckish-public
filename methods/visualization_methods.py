@@ -8,8 +8,8 @@ import methods.dishes_log_methods as dl
 
 def get_user_stats_by_meal(userID):
     """
-    userID: int
-    Returns
+    * userID: string
+    Returns a dataframe including nutritional information about each meal logged by a user.
     """
     conn = dm.connect_db()
     cur = conn.cursor()
@@ -28,20 +28,29 @@ def get_user_stats_by_meal(userID):
     return df
 
 def get_total_nutrients(userID, stat):
+    """
+    * userID: string
+    * stat: string
+    Returns the total and average (per meal) number of a stat for a given user.
+    """
     df = get_user_stats_by_meal(userID)
     total = df[stat].sum()
     average = total/len(df)
     return (total, average)
 
 def visualize_total_stats(userID, stat):
+    """
+    * userID: string
+    * stat: string
+    Returns a list of nutritional information about each meal logged by a user.
+    """
     df = get_user_stats_by_meal(userID)
     return df[stat].tolist()
 
 def dining_hall_tracker(userID):
     """
-    userID: int
+    * userID: int
     Returns how often a user visits each dining hall
-    Credits: Maya
     """
     conn = dm.connect_db()
     cur = conn.cursor()
@@ -55,6 +64,10 @@ def dining_hall_tracker(userID):
     return dhall_counter
 
 def average_cals_by_meal(userID):
+    """
+    * userID: string
+    Returns average calories by meal type (breakfast, lunch, dinner) for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -88,6 +101,10 @@ def average_cals_by_meal(userID):
     return avgcals
 
 def get_stats_by_date(user_id, date):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -111,7 +128,13 @@ def get_stats_by_date(user_id, date):
     return statdict
  
 def get_stats_by_date_range(user_id, date1, date2, nutrients):
-
+    """
+    * userID: string
+    * date1: datetime object / string, YYYY-MM-DD
+    * date2: datetime object / string, YYYY-MM-DD
+    * nutrients: list of strings
+    Returns a dictionary of nutritional stats for a user in a given date range (date1 to date2).
+    """
     dates = pd.date_range(date1, date2)
     dates = [str(date).split(" ")[0] for date in dates]
     stats = {n:{} for n in nutrients}
@@ -125,6 +148,9 @@ def get_stats_by_date_range(user_id, date1, date2, nutrients):
     return stats
 
 def hall_popularity_last_7_days():
+    """
+    Returns a dictionary containing the number of meals logged at each dining hall in the past 7 days.
+    """
     today = date.today()
     dates = [str(today - timedelta(days=i)) for i in range(0,7)]
 

@@ -52,7 +52,7 @@ def update_ratings():
 
 def remove_favorite(userID, dishID):
     """
-    * userID: int
+    * userID: string
     * dishID: int
     Checks if a dish is already favorited by the user.
     If it is, it removes the dish from the table.
@@ -70,7 +70,7 @@ def remove_favorite(userID, dishID):
 
 def check_is_favorite(userID, dishID):
     """
-    * userID: int
+    * userID: string
     * dishID: int
     Returns a boolean indicating whether a dish is the favorite of a user or not.
     """
@@ -83,7 +83,10 @@ def check_is_favorite(userID, dishID):
     return True
 
 def display_favorites(userID):
-
+    """
+    * userID: string
+    Returns a dataframe of dishes favorited by a user.
+    """
     conn = dm.connect_db()
     df = pd.read_sql_query(f"SELECT * FROM favorites WHERE user_id = ?", conn, params=(userID, ))
     conn.close()
@@ -91,8 +94,7 @@ def display_favorites(userID):
 
 def top5favs():
     """
-    Returns a list of the dishes with the top 5 highest ratings in dishes table
-    Credit: Maya
+    Returns a list of the dishes with the top 5 highest ratings in dishes table.
     """
     conn = dm.connect_db()
     cur = conn.cursor()
@@ -104,8 +106,7 @@ def top5favs():
 
 def weeklyTop5favs():
     """
-    Returns a list of the top 5 dishes being served this week with the highest rating
-    Credit: Maya
+    Returns a list of the top 5 dishes being served this week with the highest rating.
     """
     conn = dm.connect_db()
     cur = conn.cursor()
@@ -119,6 +120,11 @@ def weeklyTop5favs():
     return top5
 
 def check_is_notif(userID, dishID):
+    """
+    * userID: string
+    * dishID: int
+    Returns a boolean indicating whether a user has turned on notifications for a favorited dish.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -129,6 +135,11 @@ def check_is_notif(userID, dishID):
     return True
 
 def toggle_notif(userID, dishID):
+    """
+    * userID: string
+    * dishID: int
+    Toggles notifications for a dish for a given user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -142,6 +153,7 @@ def toggle_notif(userID, dishID):
 
 def get_user_favorites(userID):
     """
+    * userID: string
     Returns dish ids and notif bool for each dish a user has favorited
     """
     conn = dm.connect_db()
@@ -151,6 +163,11 @@ def get_user_favorites(userID):
     return faves
 
 def get_faves_for_week(userID, date):
+    """
+    * userID: string
+    * date: datetime object / string, YYYY-MM-DD
+    Returns a list of dishes and their appearances in the upcoming week for a given user's favorites.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
 
@@ -177,6 +194,11 @@ def get_faves_for_week(userID, date):
     return organizeddishes
 
 def compare_favorites(userID, friendID):
+    """
+    * userID: string
+    * friendID: string
+    Returns a list of dishIDs shared between two users.
+    """
     userfaves = [fave[0] for fave in get_user_favorites(userID)]
     friendfaves = [fave[0] for fave in get_user_favorites(friendID)]
 
@@ -185,6 +207,11 @@ def compare_favorites(userID, friendID):
     return sharedfaves
 
 def get_fave_date(userID, dishID):
+    """
+    * userID: string
+    * dishID: int
+    Returns the date in which a dish was (most recently) favorited by a user.
+    """
     conn = dm.connect_db()
     cur = conn.cursor()
     date = cur.execute("SELECT date_added FROM favorites WHERE user_id = ? and dish_id = ?", (userID, dishID,)).fetchone()[0]
