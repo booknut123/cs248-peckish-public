@@ -110,7 +110,7 @@ with col2.container():
     col2.write(f"{tophall}: {hall[tophall]} meals logged")
 
 if datetime.now().weekday() == 0:
-    dm.weekly_update_db(str(datetime.now() - datetime.timedelta(1)).split(" ")[0])
+    dm.weekly_update_db(str(datetime.now() - timedelta(1)).split(" ")[0])
 
 # == QUICK LOOK == #
 eastern = ZoneInfo("America/New_York")
