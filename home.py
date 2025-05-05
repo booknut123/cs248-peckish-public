@@ -5,9 +5,12 @@ from user_profile import render_user_profile
 from datetime import datetime, date, time
 from zoneinfo import ZoneInfo
 from db_sync import download_db_from_github
-import methods
-import helper_methods
-import visualization_methods as vm
+
+import methods.database_menu_methods as dm
+import methods.dishes_log_methods as dl
+import methods.favorites_methods as f
+import methods.misc_methods as m
+import methods.visualization_methods as v
 
 # == Prof Eni's code == #
 # This is needed to get the database
@@ -84,34 +87,30 @@ else: # intro screen
     col2.write("CS248 '25")
     col2.write("Kailyn, Maya, Nina")
 
-    fact = methods.generate_goose_fact()
+    fact = m.generate_goose_fact()
     col3.header(f"Goose Fact #{fact[1]+1}")
     col3.write("Did you know...")
     col3.write(fact[0])
 
 # run this (with new starting date) if you reset entire database, or else week will be empty
-# helper_methods.weekly_update_db("2025-04-20")
 
 # == TOP RATES == #
 st.header("This Week...")
 col1, col2 = st.columns((2), border=True)
 col1.subheader("Top Rated Meal")
 i = 1
-favorite = methods.weeklyTop5favs()[0]
+favorite = f.weeklyTop5favs()[0]
 with col1.container():
     col1.write(f"{favorite[0]}: ❤️ {favorite[1]} ")
 
 with col2.container():
     col2.subheader("Top Dining Hall")
-    hall = vm.hall_popularity_last_7_days()
+    hall = v.hall_popularity_last_7_days()
     tophall = max(hall, key=hall.get)
     col2.write(f"{tophall}: {hall[tophall]} meals logged")
 
-if datetime.now().weekday() == 6:
-    helper_methods.weekly_update_db(str(datetime.now()).split(" ")[0])
-
-# if datetime.now().weekday() == 1: ## current day for debugging purposes
-#     helper_methods.weekly_update_db("2025-4-20")
+if datetime.now().weekday() == 0:
+    dm.weekly_update_db(str(datetime.now()).split(" ")[0])
 
 # == QUICK LOOK == #
 eastern = ZoneInfo("America/New_York")
@@ -151,13 +150,13 @@ col1, col2, col3, col4 = st.columns(4, gap="small", vertical_alignment="top", bo
 
 def streamlit_print(df):
     for index, row in df.iterrows():
-        dupes = methods.get_dupe_dishIDs(row['dish_name'])
-        if methods.check_is_favorite(user_id, row['dish_id']):
+        dupes = dl.get_dupe_dishIDs(row['dish_name'])
+        if f.check_is_favorite(user_id, row['dish_id']):
             st.write(f":heart: {row['dish_name']}")
         else:
             fav = False
             for dish in dupes:
-                if methods.check_is_favorite(user_id, dish[0]):
+                if f.check_is_favorite(user_id, dish[0]):
                     fav = True
             if fav:
                 st.write(f":heart: {row['dish_name']}")
@@ -165,28 +164,28 @@ def streamlit_print(df):
                 st.write(row["dish_name"])
 with col1:
     st.subheader("Bates")
-    menu = methods.print_menu([], [], "Bates", other_meal, date)
+    menu = dm.print_menu([], [], "Bates", other_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col2:
     st.subheader("Lulu")
-    menu = methods.print_menu([], [], "Lulu", lulu_meal, date)
+    menu = dm.print_menu([], [], "Lulu", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col3:
     st.subheader("Tower")
-    menu = methods.print_menu([], [], "Tower", lulu_meal, date)
+    menu = dm.print_menu([], [], "Tower", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:
         st.write("No menu items.")
 with col4:
     st.subheader("StoneD")
-    menu = methods.print_menu([], [], "StoneD", lulu_meal, date)
+    menu = dm.print_menu([], [], "StoneD", lulu_meal, date)
     if not menu.empty:
         streamlit_print(menu)
     else:

@@ -1,13 +1,15 @@
 import streamlit as st
 from datetime import date, datetime, timedelta
-import methods
-import visualization_methods as vm
 import numpy as np
+
+import methods.dishes_log_methods as dl
+import methods.users_methods as u
+import methods.visualization_methods as v
 
 sidebar, main = st.columns((0.5, 1.5), gap="small", vertical_alignment="top")
 user_id = st.session_state.get("user_id")
 
-if not methods.check_id(user_id):
+if not u.check_id(user_id):
     col1, col2 = st.columns((0.3, 1.5))
     col1.image(image='crumb-the-goose.png')
     col2.header("Peckish")
@@ -32,7 +34,7 @@ try:
             sun = d + timedelta(days=-today)
             sat = d + timedelta(days=5 - today)
             
-        borderdates = methods.get_border_log_dates(user_id)
+        borderdates = dl.get_border_log_dates(user_id)
         
         stats = ["calories", "fat", "cholesterol", "sodium", "carbohydrates", "sugars", "protein"]
         selectedstats = []
@@ -103,19 +105,19 @@ try:
             if kcal:
                 label = ", ".join([stat.capitalize() for stat in kcal])
                 st.write(f"**{label}**")
-                st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], kcal),
+                st.line_chart(v.get_stats_by_date_range(user_id, dates[0], dates[1], kcal),
                             y_label = "kcal",
                             x_label = "date")
             if g:
                 label = ", ".join([stat.capitalize() for stat in g])
                 st.write(f"**{label}**")
-                st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], g),
+                st.line_chart(v.get_stats_by_date_range(user_id, dates[0], dates[1], g),
                             y_label = "mg",
                             x_label = "date")
             if mg:
                 label = ", ".join([stat.capitalize() for stat in mg])
                 st.write(f"**{label}**")
-                st.line_chart(vm.get_stats_by_date_range(user_id, dates[0], dates[1], mg),
+                st.line_chart(v.get_stats_by_date_range(user_id, dates[0], dates[1], mg),
                             y_label = "mg",
                             x_label = "date")
             
@@ -124,7 +126,7 @@ try:
         col1, col2 = st.columns((3,1))
         col1.subheader("Meals per Dining Hall")
         color1 = col2.color_picker("**Chart Color**", "#5E7D57", key="color1")
-        st.bar_chart(vm.dining_hall_tracker(user_id),
+        st.bar_chart(v.dining_hall_tracker(user_id),
                         color=color1,
                         horizontal=True,
                         x_label="Number of Dishes",
@@ -135,7 +137,7 @@ try:
         col1, col2 = st.columns((3,1))
         col1.subheader("Average Cals per Meal")
         color2 = col2.color_picker("**Chart Color**", "#5E7D57", key="color2")
-        st.bar_chart(vm.average_cals_by_meal(user_id),
+        st.bar_chart(v.average_cals_by_meal(user_id),
                         color=color2,
                         horizontal=True,
                         x_label="Calories",
