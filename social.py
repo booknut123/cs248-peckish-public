@@ -89,7 +89,7 @@ if fr.get_optin(user_id):
                     fr.remove_friend_request(request, user_id)
                     st.toast("Friend request removed.")
                     st.rerun()
-                col2.write(fr.get_username(request))
+                col2.write(u.get_username(request))
 
     with main:
         st.header("Social")
