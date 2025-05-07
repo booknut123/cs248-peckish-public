@@ -148,6 +148,7 @@ def toggle_optin(userID):
         cur.execute("DELETE FROM requests WHERE request = ?", (userID,))
         cur.execute("DELETE FROM friends WHERE user_id = ?", (userID,))
         cur.execute("DELETE FROM friends WHERE friend = ?", (userID,))
+        cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("false", userID))
     else: 
         cur.execute("UPDATE users SET optin = ? WHERE user_id = ?", ("true", userID))
     
