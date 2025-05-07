@@ -92,8 +92,6 @@ else: # intro screen
     col3.write("Did you know...")
     col3.write(fact[0])
 
-# run this (with new starting date) if you reset entire database, or else week will be empty
-
 # == TOP RATES == #
 st.header("This Week...")
 col1, col2 = st.columns((2), border=True)
