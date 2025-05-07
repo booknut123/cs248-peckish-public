@@ -11,10 +11,6 @@ def send_friend_request(userID, friendID):
     conn = dm.connect_db()
     cur = conn.cursor()
 
-    #Check if friend is in friends table, updates if not and sends request
-
-    #check is friend
-    #if not:
     cur.execute("INSERT INTO requests (user_id, request) VALUES (?, ?)", (userID, friendID,))
     conn.commit()
 
@@ -30,8 +26,6 @@ def accept_friend_request(userID, friendID):
     conn = dm.connect_db()
     cur = conn.cursor()
 
-    #check is friend
-    #if not:
     cur.execute("INSERT INTO friends (user_id, friend) VALUES (?, ?)", (userID, friendID,))
     conn.commit()
     cur.execute("INSERT INTO friends (user_id, friend) VALUES (?, ?)", (friendID, userID,))
