@@ -1,6 +1,5 @@
 import db_sync
 import pandas as pd
-import datetime
 from datetime import date
 
 import methods.database_menu_methods as dm
@@ -11,7 +10,11 @@ def insert_dish(row):
     """
     conn = dm.connect_db()
     cur = conn.cursor()
-    cur.execute(f"INSERT INTO dishes (dish_id, dish_name, description, rating, station, allergens, preferences, calories, fat, cholesterol, sodium, carbohydrates, sugars, protein) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(row['id'], row['name'], row['description'], 0, row['stationName'], ",".join(row['allergens']), ",".join(row['preferences']), row['calories'], row['fat'], row['cholesterol'], row['sodium'], row['carbohydrates'], row['sugars'], row['protein']))
+    cur.execute(f"""INSERT INTO dishes
+                (dish_id, dish_name, description, rating, station, allergens, preferences, calories, fat, cholesterol, sodium, carbohydrates, sugars, protein)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (row['id'], row['name'], row['description'], 0, row['stationName'],",".join(row['allergens']), ",".join(row['preferences']),
+                 row['calories'], row['fat'], row['cholesterol'], row['sodium'], row['carbohydrates'], row['sugars'], row['protein']))
     conn.commit()
     conn.close()
     

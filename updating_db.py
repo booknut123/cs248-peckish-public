@@ -1,4 +1,6 @@
-from helper_methods import *
+from methods import *
+import db_sync
+import sqlite3
 
 def update_db_stuff():
     db_sync.download_db_from_github()

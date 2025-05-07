@@ -188,7 +188,7 @@ def get_location_meal_ids(hall, meal):
 def update_dish_db(df):
     """
     Updates the dishes database after viewing a menu.
-    For each dish, checks if that dish's ID is already in the database.
+    For each dish, checks if a dish's ID is already in the database.
     If not, interts the dish into the database as a new entry.
     """
     conn = connect_db()
@@ -204,6 +204,7 @@ def update_dish_db(df):
             num = cur.fetchall()[0][0]
             if num == 0:
                 dl.insert_dish(row)
+    db_sync.push_db_to_github()
 
 @st.cache_data
 def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to dishes

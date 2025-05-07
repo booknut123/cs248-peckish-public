@@ -23,7 +23,7 @@ def get_user_stats_by_meal(userID):
         for dish in meal:
             cur.execute(f"SELECT * FROM dishes WHERE dish_id = {dish}")
             d = cur.fetchall()[0]
-            stats.append({"calories": d[7], "fat": d[8], "cholesterol": d[9], "sodium": d[10], "carbohydrates": d[11], "sugars": d[12], "protein": d[12]})
+            stats.append({"calories": d[7], "fat": d[8], "cholesterol": d[9], "sodium": d[10], "carbohydrates": d[11], "sugars": d[12], "protein": d[13]})
     df = pd.DataFrame(stats)
     return df
 

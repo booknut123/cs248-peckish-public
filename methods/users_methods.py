@@ -1,6 +1,5 @@
 import db_sync
 import streamlit as st
-import datetime
 from datetime import time
 
 import methods.database_menu_methods as dm
@@ -99,7 +98,7 @@ def get_all_names():
 
     return names
 
-def check_id(userID):
+def check_id(userID): # By Kailyn
     """
     * userID: string
     Checks whether the given userID is in the database.

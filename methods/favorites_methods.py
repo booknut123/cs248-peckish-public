@@ -1,6 +1,5 @@
 import db_sync
 import pandas as pd
-import datetime
 from datetime import date
 
 import methods.database_menu_methods as dm
