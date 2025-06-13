@@ -1,6 +1,6 @@
 import db_sync
 import streamlit as st
-from datetime import time
+import time
 
 import methods.database_menu_methods as dm
 
