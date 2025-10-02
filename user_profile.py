@@ -3,7 +3,7 @@
 
 import streamlit as st
 import requests
-import methods
+from methods import users_methods
 
 # ## === TO CONNECT TO PECKISH.DB === ##
 import sqlite3
@@ -174,7 +174,7 @@ def add_user(user_info): # == added by Kailyn ==
         conn.close()
         db_sync.push_db_to_github()
         if (new_user):
-            methods.new_user_welcome()
+            users_methods.new_user_welcome()
         return user_id
     
     
