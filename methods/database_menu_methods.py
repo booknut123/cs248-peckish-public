@@ -218,7 +218,8 @@ def scrape_menu(hall, meal, date): # scrape menu from WellesleyFresh and add to 
     """
     locationID, mealID = get_location_meal_ids(hall, meal)
     base_url = "https://dish.avifoodsystems.com/api/menu-items/week"
-    params = {"date":date,"locationID":locationID,"mealID":mealID}
+    params = {"date":date,"locationId":locationID,"mealId":mealID}
+
     try:
         response = requests.get(base_url,params=params)
     except:
